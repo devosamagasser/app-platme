@@ -19,7 +19,7 @@ interface StreamChatOptions {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-export async function streamChat({ messages, businessType, onDelta, onToolCall, onDone, onError }: StreamChatOptions) {
+export async function streamChat({ messages, businessType, onDelta, onToolCall, onComplete, onDone, onError }: StreamChatOptions) {
   try {
     const resp = await fetch(CHAT_URL, {
       method: "POST",
