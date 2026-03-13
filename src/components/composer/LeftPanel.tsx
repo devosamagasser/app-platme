@@ -7,9 +7,10 @@ interface LeftPanelProps {
   businessType: string;
   suggestions: string[];
   onAddModule: (module: AddModuleCall) => void;
+  onComplete: () => void;
 }
 
-const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) => {
+const LeftPanel = ({ businessType, suggestions, onAddModule, onComplete }: LeftPanelProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
