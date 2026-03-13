@@ -1,60 +1,62 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import ComposerHeader from "@/components/composer/ComposerHeader";
 import LeftPanel from "@/components/composer/LeftPanel";
 import CenterPanel, { type GraphNode, type GraphEdge } from "@/components/composer/CenterPanel";
 import RightPanel from "@/components/composer/RightPanel";
-
-const initialNodes: GraphNode[] = [
-  { id: "auth", label: "Authentication", category: "Security", x: 300, y: 60, status: "active" },
-  { id: "roles", label: "User Roles", category: "Access Control", x: 120, y: 180, status: "active" },
-  { id: "content", label: "Content Engine", category: "Core", x: 480, y: 180, status: "active" },
-  { id: "storage", label: "Storage Layer", category: "Infrastructure", x: 300, y: 300, status: "active" },
-  { id: "analytics", label: "Analytics Base", category: "Telemetry", x: 550, y: 350, status: "active" },
-];
-
-const initialEdges: GraphEdge[] = [
-  { from: "auth", to: "roles" },
-  { from: "auth", to: "content" },
-  { from: "content", to: "storage" },
-  { from: "content", to: "analytics" },
-  { from: "roles", to: "storage" },
-];
+import { businessVerticals } from "@/lib/businessFeatures";
+import type { AddModuleCall } from "@/lib/streamChat";
 
 const Composer = () => {
-  const [nodes, setNodes] = useState<GraphNode[]>(initialNodes);
-  const [edges, setEdges] = useState<GraphEdge[]>(initialEdges);
+  const [searchParams] = useSearchParams();
+  const businessType = searchParams.get("business") || "education";
+  const vertical = businessVerticals[businessType];
+
+  const [nodes, setNodes] = useState<GraphNode[]>([]);
+  const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  const handleUserMessage = useCallback((msg: string) => {
-    const lower = msg.toLowerCase();
-    if (lower.includes("subscription") || lower.includes("billing") || lower.includes("payment")) {
-      // Add billing modules
-      const newNodes: GraphNode[] = [
-        { id: "billing", label: "Billing Engine", category: "Payments", x: 100, y: 420, status: "proposed" },
-        { id: "recurring", label: "Recurring Logic", category: "Payments", x: 300, y: 480, status: "proposed" },
-        { id: "access_update", label: "Access Control Update", category: "Access Control", x: 500, y: 450, status: "proposed" },
-      ];
-      const newEdges: GraphEdge[] = [
-        { from: "auth", to: "billing" },
-        { from: "billing", to: "recurring" },
-        { from: "billing", to: "access_update" },
-        { from: "access_update", to: "roles" },
-      ];
-      setNodes((prev) => {
-        const ids = prev.map((n) => n.id);
-        return [...prev, ...newNodes.filter((n) => !ids.includes(n.id))];
-      });
-      setEdges((prev) => [...prev, ...newEdges]);
-    }
+  const handleAddModule = useCallback((module: AddModuleCall) => {
+    setNodes((prev) => {
+      if (prev.find((n) => n.id === module.id)) return prev;
+      // Position new nodes in a grid pattern
+      const count = prev.length;
+      const col = count % 3;
+      const row = Math.floor(count / 3);
+      const newNode: GraphNode = {
+        id: module.id,
+        label: module.label,
+        category: module.category,
+        x: 80 + col * 220,
+        y: 60 + row * 140,
+        status: "active",
+      };
+      return [...prev, newNode];
+    });
+
+    // Add edges for dependencies that exist
+    setEdges((prev) => {
+      const newEdges: GraphEdge[] = module.dependencies
+        .map((dep) => ({ from: dep, to: module.id }))
+        .filter(
+          (e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to)
+        );
+      return [...prev, ...newEdges];
+    });
   }, []);
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) || null;
+  const suggestions = vertical?.suggestions || [];
 
   return (
     <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
-      <ComposerHeader />
+      <ComposerHeader businessLabel={vertical?.label || "System"} />
       <div className="flex flex-1 overflow-hidden">
-        <LeftPanel onUserMessage={handleUserMessage} />
+        <LeftPanel
+          businessType={businessType}
+          suggestions={suggestions}
+          onAddModule={handleAddModule}
+        />
         <CenterPanel
           nodes={nodes}
           edges={edges}

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Landing from "./pages/Landing";
+import SelectBusiness from "./pages/SelectBusiness";
 import Composer from "./pages/Composer";
 import NotFound from "./pages/NotFound";
 
@@ -17,6 +18,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/select" element={<SelectBusiness />} />
           <Route path="/composer" element={<Composer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

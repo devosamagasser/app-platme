@@ -1,61 +1,82 @@
-import { useState } from "react";
-import { Send } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Send, Loader2 } from "lucide-react";
+import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
+import { getSystemPrompt } from "@/lib/businessFeatures";
+import ReactMarkdown from "react-markdown";
 
-interface Message {
-  role: "gomaa" | "user";
-  content: string;
+interface LeftPanelProps {
+  businessType: string;
+  suggestions: string[];
+  onAddModule: (module: AddModuleCall) => void;
 }
 
-const suggestions = [
-  "Build LMS Platform",
-  "Add Subscription Logic",
-  "Enable Multi-Tenant",
-  "Add Payment Gateway",
-  "Add Course Certification",
-];
-
-const initialMessages: Message[] = [
-  {
-    role: "gomaa",
-    content:
-      "Awaiting system intent. Describe the infrastructure you wish to provision, or select a suggested architecture below.",
-  },
-];
-
-const LeftPanel = ({
-  onUserMessage,
-}: {
-  onUserMessage: (msg: string) => void;
-}) => {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: "assistant",
+      content:
+        "Awaiting system intent. Describe the infrastructure you wish to provision, or select a suggested architecture below.",
+    },
+  ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const send = (text: string) => {
-    if (!text.trim()) return;
-    const userMsg: Message = { role: "user", content: text };
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  const send = async (text: string) => {
+    if (!text.trim() || isLoading) return;
+    const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    onUserMessage(text);
+    setIsLoading(true);
 
-    // Simulate Gomaa response
-    setTimeout(() => {
-      let response =
-        "Architecture proposal generated. Review the center graph for dependency mapping.";
-      if (text.toLowerCase().includes("subscription")) {
-        response =
-          "Provisioning subscription infrastructure. I have mapped the Billing Engine to the Access Control layer. Modules proposed: Billing Engine, Recurring Logic, Access Control Update. Confirm to commit.";
-      } else if (text.toLowerCase().includes("lms")) {
-        response =
-          "LMS architecture initialized. Core modules provisioned: Authentication, User Roles, Content Engine, Storage Layer, Analytics Base. Review the graph for structural dependencies.";
-      } else if (text.toLowerCase().includes("payment")) {
-        response =
-          "Payment Gateway module proposed. Dependencies: Billing Engine, Transaction Logger, Webhook Handler. Validating integration paths.";
-      } else if (text.toLowerCase().includes("certification")) {
-        response =
-          "Certification module queued. Dependencies: Content Engine, User Roles, Credential Store. Awaiting confirmation to provision.";
-      }
-      setMessages((prev) => [...prev, { role: "gomaa", content: response }]);
-    }, 800);
+    const systemPrompt = getSystemPrompt(businessType);
+    const allMessages: ChatMessage[] = [
+      { role: "system", content: systemPrompt },
+      ...messages.filter((m) => m.role !== "system"),
+      userMsg,
+    ];
+
+    let assistantSoFar = "";
+
+    await streamChat({
+      messages: allMessages,
+      onDelta: (chunk) => {
+        assistantSoFar += chunk;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.role === "assistant" && prev.length > 1 && prev[prev.length - 2]?.role === "user") {
+            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+          }
+          return [...prev, { role: "assistant", content: assistantSoFar }];
+        });
+      },
+      onToolCall: (module) => {
+        onAddModule(module);
+        // Add a confirmation message
+        assistantSoFar += `\n\n✅ **${module.label}** module added to the architecture.`;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.role === "assistant") {
+            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+          }
+          return [...prev, { role: "assistant", content: assistantSoFar }];
+        });
+      },
+      onDone: () => {
+        setIsLoading(false);
+      },
+      onError: (error) => {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: `⚠️ ${error}` },
+        ]);
+        setIsLoading(false);
+      },
+    });
   };
 
   return (
@@ -70,26 +91,34 @@ const LeftPanel = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.filter((m) => m.role !== "system").map((msg, i) => (
           <div
             key={i}
             className={`${
-              msg.role === "gomaa"
+              msg.role === "assistant"
                 ? "bg-secondary/40 rounded-tr-xl rounded-br-xl rounded-bl-xl"
                 : "bg-primary/10 rounded-tl-xl rounded-bl-xl rounded-br-xl ml-8"
             } p-4`}
           >
-            {msg.role === "gomaa" && (
+            {msg.role === "assistant" && (
               <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
                 Gomaa
               </div>
             )}
-            <p className="text-sm text-foreground/90 leading-relaxed">
-              {msg.content}
-            </p>
+            <div className="text-sm text-foreground/90 leading-relaxed prose prose-sm prose-invert max-w-none">
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            </div>
           </div>
         ))}
+        {isLoading && messages[messages.length - 1]?.role === "user" && (
+          <div className="bg-secondary/40 rounded-tr-xl rounded-br-xl rounded-bl-xl p-4">
+            <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
+              Gomaa
+            </div>
+            <Loader2 className="w-4 h-4 text-primary/50 animate-spin" />
+          </div>
+        )}
       </div>
 
       {/* Suggestions */}
@@ -99,7 +128,8 @@ const LeftPanel = ({
             <button
               key={s}
               onClick={() => send(s)}
-              className="px-3 py-1.5 rounded-md text-[11px] font-medium border border-primary/15 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+              disabled={isLoading}
+              className="px-3 py-1.5 rounded-md text-[11px] font-medium border border-primary/15 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all disabled:opacity-50"
             >
               {s}
             </button>
@@ -115,11 +145,13 @@ const LeftPanel = ({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send(input)}
             placeholder="Describe system intent..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            disabled={isLoading}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
           />
           <button
             onClick={() => send(input)}
-            className="text-primary/60 hover:text-primary transition-colors"
+            disabled={isLoading}
+            className="text-primary/60 hover:text-primary transition-colors disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
           </button>

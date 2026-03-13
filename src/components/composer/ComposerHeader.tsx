@@ -10,7 +10,7 @@ const ComposerHeader = ({ businessLabel }: { businessLabel: string }) => (
     </Link>
 
     <div className="text-xs text-muted-foreground font-mono tracking-wider uppercase">
-      Guided Intelligence™ Composer
+      Guided Intelligence™ Composer — <span className="text-primary">{businessLabel}</span>
     </div>
 
     <div className="flex items-center gap-3">
