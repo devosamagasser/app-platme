@@ -31,7 +31,7 @@ const Composer = () => {
 
       const { data } = await supabase
         .from("system_features")
-        .select("slug, name, description, category, storage, capacity, config")
+        .select("slug, name, description, name_ar, description_ar, category, is_default, storage, capacity, config")
         .eq("system_id", system.id);
 
       if (data) {
