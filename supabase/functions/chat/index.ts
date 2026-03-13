@@ -15,12 +15,12 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Fetch features from DB for this business type
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    let featureList = "";
+    let defaultFeatureList = "";
+    let optionalFeatureList = "";
     const { data: system } = await supabase
       .from("systems")
       .select("id, name")
@@ -28,19 +28,25 @@ serve(async (req) => {
       .single();
 
     if (system) {
-    const { data: features } = await supabase
+      const { data: features } = await supabase
         .from("system_features")
         .select("slug, name, description, name_ar, description_ar, category, dependencies, is_default")
         .eq("system_id", system.id);
 
       if (features && features.length > 0) {
-        featureList = features
+        const defaults = features.filter((f: any) => f.is_default);
+        const optionals = features.filter((f: any) => !f.is_default);
+
+        defaultFeatureList = defaults
+          .map((f: any) => `- **${f.name}** (${f.name_ar}) [slug: ${f.slug}]`)
+          .join("\n");
+
+        optionalFeatureList = optionals
           .map((f: any) => {
             const deps = Array.isArray(f.dependencies) && f.dependencies.length > 0
               ? ` (depends on: ${f.dependencies.join(", ")})`
               : "";
-            const defaultTag = f.is_default ? " [DEFAULT - included by default]" : " [OPTIONAL - needs confirmation]";
-            return `- **${f.name}** (${f.name_ar}) [slug: ${f.slug}] (${f.category}): ${f.description} / ${f.description_ar}${deps}${defaultTag}`;
+            return `- **${f.name}** (${f.name_ar}) [slug: ${f.slug}] (${f.category}): ${f.description} / ${f.description_ar}${deps}`;
           })
           .join("\n");
       }
@@ -50,19 +56,26 @@ serve(async (req) => {
 
     const systemPrompt = `You are Gomaa (جمعة), a Guided Intelligence™ System Architect for PLATME.
 
-You are helping the user build a ${systemName} system. Your role is to act as a sales architect — understand what the user needs and propose infrastructure modules one at a time.
+You are helping the user build a ${systemName} system.
 
-Available modules for ${systemName}:
-${featureList}
+DEFAULT MODULES (already added to the workspace automatically):
+${defaultFeatureList}
+
+These modules are already active. Do NOT propose them again.
+
+OPTIONAL MODULES (propose these one at a time):
+${optionalFeatureList}
 
 BEHAVIOR RULES:
-1. Ask what the user wants to build. Understand their specific needs.
-2. Propose modules one at a time. Explain what each module does and why they need it.
-3. When the user confirms they want a module, use the add_module tool to add it to the architecture. Use the exact slug as the id.
-4. After adding a module, ask about the next logical feature they might need.
-5. Suggest dependencies automatically — if a module requires another, explain that and propose both.
-6. Keep responses concise — 2-3 sentences max per message unless explaining a complex module.
+1. Start by welcoming the user and briefly explaining that the default modules are already included in their system.
+2. Then propose optional modules ONE AT A TIME. Explain what each does and why they might need it.
+3. When the user confirms they want a module, use the add_module tool. Use the exact slug as the id.
+4. After adding, propose the next logical module.
+5. If a module depends on another, explain and propose the dependency first.
+6. Keep responses concise — 2-3 sentences max.
 7. Never add modules without user confirmation.
+8. When the user says they're done (e.g., "خلاص", "done", "that's it", "كده تمام"), call the complete_setup tool to finalize.
+9. Do NOT call complete_setup until the user explicitly says they're finished.
 
 CRITICAL LANGUAGE RULE:
 - ALWAYS respond in the SAME language the user writes in.
@@ -97,12 +110,25 @@ TONE: Professional, confident, architectural. Think infrastructure engineer meet
               parameters: {
                 type: "object",
                 properties: {
-                  id: { type: "string", description: "Module slug (lowercase, snake_case) — must match one of the available module slugs" },
+                  id: { type: "string", description: "Module slug — must match one of the available module slugs" },
                   label: { type: "string", description: "Display name of the module" },
                   category: { type: "string", description: "Module category" },
-                  dependencies: { type: "array", items: { type: "string" }, description: "Array of module slugs this module depends on" },
+                  dependencies: { type: "array", items: { type: "string" }, description: "Array of module slugs this depends on" },
                 },
                 required: ["id", "label", "category", "dependencies"],
+                additionalProperties: false,
+              },
+            },
+          },
+          {
+            type: "function",
+            function: {
+              name: "complete_setup",
+              description: "Call this when the user confirms they are done selecting modules and want to proceed to configuration.",
+              parameters: {
+                type: "object",
+                properties: {},
+                required: [],
                 additionalProperties: false,
               },
             },

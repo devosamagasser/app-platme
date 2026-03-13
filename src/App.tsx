@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Landing from "./pages/Landing";
 import SelectBusiness from "./pages/SelectBusiness";
 import Composer from "./pages/Composer";
+import Configure from "./pages/Configure";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/select" element={<SelectBusiness />} />
           <Route path="/composer" element={<Composer />} />
+          <Route path="/configure" element={<Configure />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -12,13 +12,14 @@ interface StreamChatOptions {
   businessType: string;
   onDelta: (text: string) => void;
   onToolCall: (module: AddModuleCall) => void;
+  onComplete: () => void;
   onDone: () => void;
   onError: (error: string) => void;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-export async function streamChat({ messages, businessType, onDelta, onToolCall, onDone, onError }: StreamChatOptions) {
+export async function streamChat({ messages, businessType, onDelta, onToolCall, onComplete, onDone, onError }: StreamChatOptions) {
   try {
     const resp = await fetch(CHAT_URL, {
       method: "POST",
@@ -86,6 +87,7 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
             try {
               const args = JSON.parse(toolCallArgs);
               if (toolCallName === "add_module") onToolCall(args as AddModuleCall);
+              if (toolCallName === "complete_setup") onComplete();
             } catch { /* incomplete */ }
             isCollectingToolCall = false;
             toolCallArgs = "";
@@ -102,6 +104,7 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
       try {
         const args = JSON.parse(toolCallArgs);
         if (toolCallName === "add_module") onToolCall(args as AddModuleCall);
+        if (toolCallName === "complete_setup") onComplete();
       } catch { /* ignore */ }
     }
 
