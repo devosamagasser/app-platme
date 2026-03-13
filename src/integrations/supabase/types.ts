@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      system_features: {
+        Row: {
+          capacity: string | null
+          category: string
+          config: Json | null
+          created_at: string | null
+          dependencies: Json | null
+          description: string
+          id: string
+          name: string
+          slug: string
+          storage: string | null
+          system_id: string
+        }
+        Insert: {
+          capacity?: string | null
+          category: string
+          config?: Json | null
+          created_at?: string | null
+          dependencies?: Json | null
+          description: string
+          id?: string
+          name: string
+          slug: string
+          storage?: string | null
+          system_id: string
+        }
+        Update: {
+          capacity?: string | null
+          category?: string
+          config?: Json | null
+          created_at?: string | null
+          dependencies?: Json | null
+          description?: string
+          id?: string
+          name?: string
+          slug?: string
+          storage?: string | null
+          system_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_features_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      systems: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

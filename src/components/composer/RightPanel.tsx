@@ -1,110 +1,78 @@
-import type { GraphNode } from "./CenterPanel";
+import { Check, Package } from "lucide-react";
 
-const moduleDetails: Record<string, { deps: string[]; storage: string; capacity: string; config: string[] }> = {
-  auth: { deps: [], storage: "2 MB", capacity: "10K users", config: ["OAuth 2.0", "JWT Tokens", "MFA Support"] },
-  roles: { deps: ["auth"], storage: "1 MB", capacity: "100 roles", config: ["RBAC", "Permission Matrix", "Inheritance"] },
-  content: { deps: ["auth", "storage"], storage: "50 GB", capacity: "10K objects", config: ["Versioning", "CDN", "Access Gating"] },
-  storage: { deps: [], storage: "100 GB", capacity: "Elastic", config: ["S3 Compatible", "Encryption", "Lifecycle Rules"] },
-  analytics: { deps: ["auth", "content"], storage: "5 GB", capacity: "1M events/mo", config: ["Real-time", "Dashboards", "Exports"] },
-  billing: { deps: ["auth"], storage: "500 MB", capacity: "50K transactions", config: ["Stripe Integration", "Invoicing", "Webhooks"] },
-  recurring: { deps: ["billing"], storage: "100 MB", capacity: "10K subscriptions", config: ["Auto-retry", "Grace Period", "Proration"] },
-  access_update: { deps: ["roles", "billing"], storage: "50 MB", capacity: "Dynamic", config: ["Tier Gating", "Feature Flags", "Rollback"] },
-};
+export interface FeatureItem {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  storage: string | null;
+  capacity: string | null;
+  config: string[];
+}
 
-const RightPanel = ({ node }: { node: GraphNode | null }) => {
-  if (!node) {
-    return (
-      <div className="w-[320px] border-l border-primary/8 bg-card p-6 flex items-center justify-center shrink-0">
-        <p className="text-xs text-muted-foreground font-mono text-center">
-          Select a module to inspect
-        </p>
-      </div>
-    );
-  }
+interface RightPanelProps {
+  features: FeatureItem[];
+  activeModuleIds: string[];
+}
 
-  const details = moduleDetails[node.id] || {
-    deps: [], storage: "N/A", capacity: "N/A", config: ["Default Configuration"],
-  };
+const RightPanel = ({ features, activeModuleIds }: RightPanelProps) => {
+  const categories = [...new Set(features.map((f) => f.category))];
 
   return (
-    <div className="w-[320px] border-l border-primary/8 bg-card p-6 shrink-0 overflow-y-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="text-[10px] font-mono uppercase text-primary/50 tracking-widest mb-1">
-          Module Inspector
+    <div className="w-[320px] border-l border-primary/8 bg-card flex flex-col shrink-0">
+      <div className="p-4 border-b border-primary/8">
+        <div className="flex items-center gap-2">
+          <Package className="w-4 h-4 text-primary/70" />
+          <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
+            Feature Catalog
+          </span>
         </div>
-        <h3 className="text-lg font-semibold text-foreground">{node.label}</h3>
-        <span className="text-[10px] font-mono uppercase text-primary/60 tracking-wider">
-          {node.category}
-        </span>
+        <p className="text-[10px] text-muted-foreground mt-1">
+          {activeModuleIds.length} / {features.length} modules active
+        </p>
       </div>
 
-      {/* Integrity */}
-      <div className="flex items-center gap-2 py-2 px-3 rounded-md bg-primary/10 mb-6">
-        <div className="w-2 h-2 rounded-full bg-primary" />
-        <span className="text-xs font-bold text-primary">Architecture Valid</span>
-      </div>
-
-      {/* Dependencies */}
-      <div className="mb-6">
-        <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-3">
-          Dependencies
-        </div>
-        {details.deps.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No dependencies (root module)</p>
-        ) : (
-          <div className="space-y-2">
-            {details.deps.map((dep) => (
-              <div key={dep} className="text-xs text-foreground/80 font-mono bg-secondary/40 px-3 py-2 rounded-md">
-                → {dep}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Configuration */}
-      <div className="mb-6">
-        <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-3">
-          Configuration
-        </div>
-        <div className="space-y-2">
-          {details.config.map((c) => (
-            <div key={c} className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-              <span className="text-xs text-foreground/80">{c}</span>
+      <div className="flex-1 overflow-y-auto p-4 space-y-5">
+        {categories.map((cat) => (
+          <div key={cat}>
+            <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-2">
+              {cat}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Capacity */}
-      <div className="space-y-4">
-        <div>
-          <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-1">Storage</div>
-          <div className="text-sm font-mono text-foreground">{details.storage}</div>
-        </div>
-        <div>
-          <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-1">Capacity</div>
-          <div className="text-sm font-mono text-foreground">{details.capacity}</div>
-        </div>
-      </div>
-
-      {/* Status */}
-      <div className="mt-6 pt-6 border-t border-primary/8">
-        <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-2">
-          Service Status
-        </div>
-        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono ${
-          node.status === "proposed"
-            ? "bg-accent/20 text-accent-foreground"
-            : "bg-primary/10 text-primary"
-        }`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${
-            node.status === "proposed" ? "bg-accent-foreground/60" : "bg-primary"
-          }`} />
-          {node.status === "proposed" ? "Pending Confirmation" : "Provisioned"}
-        </div>
+            <div className="space-y-2">
+              {features
+                .filter((f) => f.category === cat)
+                .map((f) => {
+                  const isActive = activeModuleIds.includes(f.slug);
+                  return (
+                    <div
+                      key={f.slug}
+                      className={`p-3 rounded-lg border transition-colors ${
+                        isActive
+                          ? "border-primary/30 bg-primary/5"
+                          : "border-primary/8 bg-secondary/20"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-semibold text-foreground">{f.name}</span>
+                        {isActive && (
+                          <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-primary" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
+                        {f.description}
+                      </p>
+                      <div className="flex items-center gap-3 text-[9px] font-mono text-muted-foreground/60">
+                        {f.storage && <span>{f.storage}</span>}
+                        {f.capacity && <span>· {f.capacity}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
