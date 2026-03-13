@@ -54,6 +54,9 @@ const LeftPanel = ({ businessType, suggestions, onAddModule, onComplete }: LeftP
           return [...prev, { role: "assistant", content: assistantSoFar }];
         });
       },
+      onComplete: () => {
+        onComplete();
+      },
       onToolCall: (module) => {
         onAddModule(module);
         assistantSoFar += `\n\n✅ **${module.label}** module added to the architecture.`;

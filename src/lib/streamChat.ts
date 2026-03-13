@@ -104,6 +104,7 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
       try {
         const args = JSON.parse(toolCallArgs);
         if (toolCallName === "add_module") onToolCall(args as AddModuleCall);
+        if (toolCallName === "complete_setup") onComplete();
       } catch { /* ignore */ }
     }
 
