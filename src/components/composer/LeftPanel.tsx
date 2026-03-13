@@ -1,30 +1,40 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
 import ReactMarkdown from "react-markdown";
 
 interface LeftPanelProps {
   businessType: string;
-  suggestions: string[];
   onAddModule: (module: AddModuleCall) => void;
   onComplete: () => void;
+  collapsed: boolean;
+  onToggle: () => void;
 }
 
-const LeftPanel = ({ businessType, suggestions, onAddModule, onComplete }: LeftPanelProps) => {
+const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle }: LeftPanelProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
       content:
-        "Awaiting system intent. Describe the infrastructure you wish to provision, or select a suggested architecture below.",
+        "Awaiting system intent. Describe the infrastructure you wish to provision.",
     },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + "px";
+    }
+  }, [input]);
 
   const send = async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -33,7 +43,6 @@ const LeftPanel = ({ businessType, suggestions, onAddModule, onComplete }: LeftP
     setInput("");
     setIsLoading(true);
 
-    // Only send conversation messages (no system prompt — backend handles it)
     const conversationMessages: ChatMessage[] = [
       ...messages.filter((m) => m.role !== "system"),
       userMsg,
@@ -76,15 +85,29 @@ const LeftPanel = ({ businessType, suggestions, onAddModule, onComplete }: LeftP
     });
   };
 
+  if (collapsed) {
+    return (
+      <div className="w-12 border-r border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
+        <button onClick={onToggle} className="p-2 rounded-md hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors">
+          <PanelLeftOpen className="w-4 h-4" />
+        </button>
+        <div className="w-2 h-2 rounded-full bg-primary mt-3" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-[380px] border-r border-primary/8 bg-card flex flex-col shrink-0">
-      <div className="p-4 border-b border-primary/8">
+      <div className="p-4 border-b border-primary/8 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-primary" />
           <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
             Gomaa — System Architect
           </span>
         </div>
+        <button onClick={onToggle} className="p-1.5 rounded-md hover:bg-primary/10 text-primary/40 hover:text-primary transition-colors">
+          <PanelLeftClose className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -117,37 +140,29 @@ const LeftPanel = ({ businessType, suggestions, onAddModule, onComplete }: LeftP
         )}
       </div>
 
-      <div className="px-4 pb-2">
-        <div className="flex flex-wrap gap-2">
-          {suggestions.map((s) => (
-            <button
-              key={s}
-              onClick={() => send(s)}
-              disabled={isLoading}
-              className="px-3 py-1.5 rounded-md text-[11px] font-medium border border-primary/15 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all disabled:opacity-50"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="p-4 border-t border-primary/8">
-        <div className="flex items-center gap-2 border border-primary/10 bg-background/50 rounded-lg p-3 focus-within:border-primary/40 transition-colors">
-          <input
+        <div className="flex items-end gap-2 border border-primary/10 bg-background/50 rounded-xl p-3 focus-within:border-primary/40 transition-colors">
+          <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send(input)}
-            placeholder="Describe system intent..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send(input);
+              }
+            }}
+            placeholder="Describe what you need..."
             disabled={isLoading}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
+            rows={1}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50 resize-none min-h-[40px] leading-relaxed"
           />
           <button
             onClick={() => send(input)}
-            disabled={isLoading}
-            className="text-primary/60 hover:text-primary transition-colors disabled:opacity-50"
+            disabled={isLoading || !input.trim()}
+            className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-30"
           >
-            <Send className="w-4 h-4" />
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
       </div>

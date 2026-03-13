@@ -1,4 +1,4 @@
-import { Check, Package } from "lucide-react";
+import { Check, Package, PanelRightClose, PanelRightOpen } from "lucide-react";
 
 export interface FeatureItem {
   slug: string;
@@ -16,23 +16,41 @@ export interface FeatureItem {
 interface RightPanelProps {
   features: FeatureItem[];
   activeModuleIds: string[];
+  collapsed: boolean;
+  onToggle: () => void;
 }
 
-const RightPanel = ({ features, activeModuleIds }: RightPanelProps) => {
+const RightPanel = ({ features, activeModuleIds, collapsed, onToggle }: RightPanelProps) => {
   const categories = [...new Set(features.map((f) => f.category))];
+
+  if (collapsed) {
+    return (
+      <div className="w-12 border-l border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
+        <button onClick={onToggle} className="p-2 rounded-md hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors">
+          <PanelRightOpen className="w-4 h-4" />
+        </button>
+        <Package className="w-4 h-4 text-primary/40 mt-3" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-[320px] border-l border-primary/8 bg-card flex flex-col shrink-0">
-      <div className="p-4 border-b border-primary/8">
+      <div className="p-4 border-b border-primary/8 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Package className="w-4 h-4 text-primary/70" />
           <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
             Feature Catalog
           </span>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-1">
-          {activeModuleIds.length} / {features.length} modules active
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-[10px] text-muted-foreground">
+            {activeModuleIds.length}/{features.length}
+          </p>
+          <button onClick={onToggle} className="p-1.5 rounded-md hover:bg-primary/10 text-primary/40 hover:text-primary transition-colors">
+            <PanelRightClose className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
@@ -75,13 +93,9 @@ const RightPanel = ({ features, activeModuleIds }: RightPanelProps) => {
                           )}
                         </div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
                         {f.description}
                       </p>
-                      <div className="flex items-center gap-3 text-[9px] font-mono text-muted-foreground/60">
-                        {f.storage && <span>{f.storage}</span>}
-                        {f.capacity && <span>· {f.capacity}</span>}
-                      </div>
                     </div>
                   );
                 })}
