@@ -28,9 +28,9 @@ serve(async (req) => {
       .single();
 
     if (system) {
-      const { data: features } = await supabase
+    const { data: features } = await supabase
         .from("system_features")
-        .select("slug, name, description, category, dependencies, storage, capacity, config")
+        .select("slug, name, description, name_ar, description_ar, category, dependencies, is_default")
         .eq("system_id", system.id);
 
       if (features && features.length > 0) {
@@ -39,7 +39,8 @@ serve(async (req) => {
             const deps = Array.isArray(f.dependencies) && f.dependencies.length > 0
               ? ` (depends on: ${f.dependencies.join(", ")})`
               : "";
-            return `- **${f.name}** [${f.slug}] (${f.category}): ${f.description}${deps}`;
+            const defaultTag = f.is_default ? " [DEFAULT - included by default]" : " [OPTIONAL - needs confirmation]";
+            return `- **${f.name}** (${f.name_ar}) [slug: ${f.slug}] (${f.category}): ${f.description} / ${f.description_ar}${deps}${defaultTag}`;
           })
           .join("\n");
       }

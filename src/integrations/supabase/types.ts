@@ -22,8 +22,12 @@ export type Database = {
           created_at: string | null
           dependencies: Json | null
           description: string
+          description_ar: string | null
+          icon: string | null
           id: string
+          is_default: boolean | null
           name: string
+          name_ar: string | null
           slug: string
           storage: string | null
           system_id: string
@@ -35,8 +39,12 @@ export type Database = {
           created_at?: string | null
           dependencies?: Json | null
           description: string
+          description_ar?: string | null
+          icon?: string | null
           id?: string
+          is_default?: boolean | null
           name: string
+          name_ar?: string | null
           slug: string
           storage?: string | null
           system_id: string
@@ -48,8 +56,12 @@ export type Database = {
           created_at?: string | null
           dependencies?: Json | null
           description?: string
+          description_ar?: string | null
+          icon?: string | null
           id?: string
+          is_default?: boolean | null
           name?: string
+          name_ar?: string | null
           slug?: string
           storage?: string | null
           system_id?: string
