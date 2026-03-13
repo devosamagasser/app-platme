@@ -1,10 +1,11 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ComposerHeader from "@/components/composer/ComposerHeader";
 import LeftPanel from "@/components/composer/LeftPanel";
 import CenterPanel, { type GraphNode, type GraphEdge } from "@/components/composer/CenterPanel";
-import RightPanel from "@/components/composer/RightPanel";
+import RightPanel, { type FeatureItem } from "@/components/composer/RightPanel";
 import { businessVerticals } from "@/lib/businessFeatures";
+import { supabase } from "@/integrations/supabase/client";
 import type { AddModuleCall } from "@/lib/streamChat";
 
 const Composer = () => {
@@ -15,11 +16,39 @@ const Composer = () => {
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [features, setFeatures] = useState<FeatureItem[]>([]);
+
+  // Fetch features from DB
+  useEffect(() => {
+    const fetchFeatures = async () => {
+      const { data: system } = await supabase
+        .from("systems")
+        .select("id")
+        .eq("slug", businessType)
+        .single();
+
+      if (!system) return;
+
+      const { data } = await supabase
+        .from("system_features")
+        .select("slug, name, description, category, storage, capacity, config")
+        .eq("system_id", system.id);
+
+      if (data) {
+        setFeatures(
+          data.map((f: any) => ({
+            ...f,
+            config: Array.isArray(f.config) ? f.config : [],
+          }))
+        );
+      }
+    };
+    fetchFeatures();
+  }, [businessType]);
 
   const handleAddModule = useCallback((module: AddModuleCall) => {
     setNodes((prev) => {
       if (prev.find((n) => n.id === module.id)) return prev;
-      // Position new nodes in a grid pattern
       const count = prev.length;
       const col = count % 3;
       const row = Math.floor(count / 3);
@@ -34,18 +63,15 @@ const Composer = () => {
       return [...prev, newNode];
     });
 
-    // Add edges for dependencies that exist
     setEdges((prev) => {
       const newEdges: GraphEdge[] = module.dependencies
         .map((dep) => ({ from: dep, to: module.id }))
-        .filter(
-          (e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to)
-        );
+        .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
       return [...prev, ...newEdges];
     });
   }, []);
 
-  const selectedNode = nodes.find((n) => n.id === selectedNodeId) || null;
+  const activeModuleIds = nodes.map((n) => n.id);
   const suggestions = vertical?.suggestions || [];
 
   return (
@@ -63,7 +89,7 @@ const Composer = () => {
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
         />
-        <RightPanel node={selectedNode} />
+        <RightPanel features={features} activeModuleIds={activeModuleIds} />
       </div>
     </div>
   );

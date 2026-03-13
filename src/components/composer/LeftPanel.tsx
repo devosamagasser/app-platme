@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
-import { getSystemPrompt } from "@/lib/businessFeatures";
 import ReactMarkdown from "react-markdown";
 
 interface LeftPanelProps {
@@ -33,9 +32,8 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
     setInput("");
     setIsLoading(true);
 
-    const systemPrompt = getSystemPrompt(businessType);
-    const allMessages: ChatMessage[] = [
-      { role: "system", content: systemPrompt },
+    // Only send conversation messages (no system prompt — backend handles it)
+    const conversationMessages: ChatMessage[] = [
       ...messages.filter((m) => m.role !== "system"),
       userMsg,
     ];
@@ -43,7 +41,8 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
     let assistantSoFar = "";
 
     await streamChat({
-      messages: allMessages,
+      messages: conversationMessages,
+      businessType,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         setMessages((prev) => {
@@ -56,7 +55,6 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
       },
       onToolCall: (module) => {
         onAddModule(module);
-        // Add a confirmation message
         assistantSoFar += `\n\n✅ **${module.label}** module added to the architecture.`;
         setMessages((prev) => {
           const last = prev[prev.length - 1];
@@ -66,14 +64,9 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
           return [...prev, { role: "assistant", content: assistantSoFar }];
         });
       },
-      onDone: () => {
-        setIsLoading(false);
-      },
+      onDone: () => setIsLoading(false),
       onError: (error) => {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: `⚠️ ${error}` },
-        ]);
+        setMessages((prev) => [...prev, { role: "assistant", content: `⚠️ ${error}` }]);
         setIsLoading(false);
       },
     });
@@ -90,7 +83,6 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
         </div>
       </div>
 
-      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.filter((m) => m.role !== "system").map((msg, i) => (
           <div
@@ -121,7 +113,6 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
         )}
       </div>
 
-      {/* Suggestions */}
       <div className="px-4 pb-2">
         <div className="flex flex-wrap gap-2">
           {suggestions.map((s) => (
@@ -137,7 +128,6 @@ const LeftPanel = ({ businessType, suggestions, onAddModule }: LeftPanelProps) =
         </div>
       </div>
 
-      {/* Input */}
       <div className="p-4 border-t border-primary/8">
         <div className="flex items-center gap-2 border border-primary/10 bg-background/50 rounded-lg p-3 focus-within:border-primary/40 transition-colors">
           <input

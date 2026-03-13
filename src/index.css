@@ -84,6 +84,26 @@
   }
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(155 60% 4%);
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(151 100% 81% / 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(151 100% 81% / 0.3);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(151 100% 81% / 0.15) hsl(155 60% 4%);
+}
+
 @keyframes flow {
   from { stroke-dashoffset: 100; }
   to { stroke-dashoffset: 0; }
