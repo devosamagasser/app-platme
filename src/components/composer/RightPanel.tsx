@@ -56,12 +56,24 @@ const RightPanel = ({ features, activeModuleIds }: RightPanelProps) => {
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-semibold text-foreground">{f.name}</span>
-                        {isActive && (
-                          <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                            <Check className="w-2.5 h-2.5 text-primary" />
-                          </div>
-                        )}
+                        <div>
+                          <span className="text-xs font-semibold text-foreground">{f.name}</span>
+                          {f.name_ar && (
+                            <span className="text-[10px] text-muted-foreground ml-1.5">({f.name_ar})</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {f.is_default && (
+                            <span className="text-[8px] font-mono uppercase text-primary/50 bg-primary/10 px-1.5 py-0.5 rounded">
+                              default
+                            </span>
+                          )}
+                          {isActive && (
+                            <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 text-primary" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">
                         {f.description}
