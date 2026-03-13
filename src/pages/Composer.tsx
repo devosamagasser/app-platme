@@ -19,8 +19,9 @@ const Composer = () => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureItem[]>([]);
   const [defaultsLoaded, setDefaultsLoaded] = useState(false);
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
 
-  // Fetch features from DB
   useEffect(() => {
     const fetchFeatures = async () => {
       const { data: system } = await supabase
@@ -44,7 +45,6 @@ const Composer = () => {
         }));
         setFeatures(mapped);
 
-        // Auto-add default features to graph
         if (!defaultsLoaded) {
           const defaultFeatures = mapped.filter((f: any) => f.is_default);
           const defaultNodes: GraphNode[] = defaultFeatures.map((f: any, i: number) => ({
@@ -57,7 +57,6 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          // Add edges from dependencies
           const defaultSlugs = new Set(defaultFeatures.map((f: any) => f.slug));
           const defaultEdges: GraphEdge[] = [];
           defaultFeatures.forEach((f: any) => {
@@ -79,17 +78,14 @@ const Composer = () => {
     setNodes((prev) => {
       if (prev.find((n) => n.id === module.id)) return prev;
       const count = prev.length;
-      const col = count % 3;
-      const row = Math.floor(count / 3);
-      const newNode: GraphNode = {
+      return [...prev, {
         id: module.id,
         label: module.label,
         category: module.category,
-        x: 80 + col * 220,
-        y: 60 + row * 140,
-        status: "active",
-      };
-      return [...prev, newNode];
+        x: 80 + (count % 3) * 220,
+        y: 60 + Math.floor(count / 3) * 140,
+        status: "active" as const,
+      }];
     });
 
     setEdges((prev) => {
@@ -101,7 +97,6 @@ const Composer = () => {
   }, []);
 
   const handleComplete = useCallback(() => {
-    // Store selected feature slugs in localStorage
     const selectedSlugs = nodes.map((n) => n.id);
     localStorage.setItem("platme_selected_features", JSON.stringify(selectedSlugs));
     localStorage.setItem("platme_business_type", businessType);
@@ -109,7 +104,6 @@ const Composer = () => {
   }, [nodes, businessType, navigate]);
 
   const activeModuleIds = nodes.map((n) => n.id);
-  const suggestions = vertical?.suggestions || [];
 
   return (
     <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
@@ -117,9 +111,10 @@ const Composer = () => {
       <div className="flex flex-1 overflow-hidden">
         <LeftPanel
           businessType={businessType}
-          suggestions={suggestions}
           onAddModule={handleAddModule}
           onComplete={handleComplete}
+          collapsed={leftCollapsed}
+          onToggle={() => setLeftCollapsed((p) => !p)}
         />
         <CenterPanel
           nodes={nodes}
@@ -127,7 +122,12 @@ const Composer = () => {
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
         />
-        <RightPanel features={features} activeModuleIds={activeModuleIds} />
+        <RightPanel
+          features={features}
+          activeModuleIds={activeModuleIds}
+          collapsed={rightCollapsed}
+          onToggle={() => setRightCollapsed((p) => !p)}
+        />
       </div>
     </div>
   );
