@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const FinalCTA = () => (
   <section className="py-32 relative">
@@ -19,9 +20,9 @@ const FinalCTA = () => (
         <p className="text-muted-foreground text-lg max-w-lg mx-auto">
           Infrastructure for building entire digital businesses. Human-led. AI-orchestrated.
         </p>
-        <button className="px-10 py-5 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:shadow-[0_0_30px_rgba(159,255,208,0.4)] transition-all mint-glow">
+        <Link to="/select" className="inline-block px-10 py-5 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:shadow-[0_0_30px_rgba(159,255,208,0.4)] transition-all mint-glow">
           Request Early Access
-        </button>
+        </Link>
       </motion.div>
     </div>
 

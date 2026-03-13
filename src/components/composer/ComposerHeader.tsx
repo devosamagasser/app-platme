@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const ComposerHeader = () => (
+const ComposerHeader = ({ businessLabel }: { businessLabel: string }) => (
   <header className="h-14 border-b border-primary/8 px-6 flex items-center justify-between bg-background shrink-0">
     <Link to="/" className="flex items-center gap-2">
       <div className="w-7 h-7 rounded-md bg-primary/20 flex items-center justify-center">
@@ -10,7 +10,7 @@ const ComposerHeader = () => (
     </Link>
 
     <div className="text-xs text-muted-foreground font-mono tracking-wider uppercase">
-      Guided Intelligence™ Composer
+      Guided Intelligence™ Composer — <span className="text-primary">{businessLabel}</span>
     </div>
 
     <div className="flex items-center gap-3">
