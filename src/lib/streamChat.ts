@@ -12,6 +12,7 @@ interface StreamChatOptions {
   businessType: string;
   onDelta: (text: string) => void;
   onToolCall: (module: AddModuleCall) => void;
+  onComplete: () => void;
   onDone: () => void;
   onError: (error: string) => void;
 }
