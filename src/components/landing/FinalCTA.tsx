@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const FinalCTA = () => (
   <section className="py-32 relative">
