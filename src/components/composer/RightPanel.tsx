@@ -4,7 +4,10 @@ export interface FeatureItem {
   slug: string;
   name: string;
   description: string;
+  name_ar: string | null;
+  description_ar: string | null;
   category: string;
+  is_default: boolean;
   storage: string | null;
   capacity: string | null;
   config: string[];
