@@ -13,10 +13,11 @@ const IndustrySection = () => {
   ];
 
   return (
-    <section id="industries" className="py-32 relative">
-      <div className="container mx-auto px-8">
+    <section id="industries" className="py-20 md:py-32 relative">
+      <div className="container mx-auto px-4 md:px-8">
         <div className="flex flex-col items-center">
-          <div className="relative w-[500px] h-[500px] mb-16">
+          {/* Desktop: radial layout */}
+          <div className="hidden md:block relative w-[500px] h-[500px] mb-16">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
               <div className="w-24 h-24 rounded-2xl bg-forest border border-primary/30 flex items-center justify-center mint-glow">
                 <div className="text-center">
@@ -71,16 +72,51 @@ const IndustrySection = () => {
             })}
           </div>
 
+          {/* Mobile: simple grid */}
+          <div className="md:hidden w-full mb-12">
+            <div className="w-16 h-16 rounded-xl bg-forest border border-primary/30 flex items-center justify-center mint-glow mx-auto mb-8">
+              <div className="text-center">
+                <div className="text-[9px] font-mono uppercase text-primary/60 tracking-widest">PLATME</div>
+                <div className="text-[10px] font-semibold text-foreground mt-0.5">{t("industries.core")}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {industries.map((ind, i) => (
+                <motion.div
+                  key={ind.name}
+                  className={`px-3 py-3 rounded-lg border text-center transition-all ${
+                    ind.active
+                      ? "bg-forest border-primary/40 mint-glow"
+                      : "bg-secondary/30 border-primary/10 opacity-40"
+                  }`}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                >
+                  <div className={`text-xs font-bold uppercase tracking-wider ${
+                    ind.active ? "text-primary" : "text-muted-foreground"
+                  }`}>
+                    {ind.name}
+                  </div>
+                  {!ind.active && (
+                    <div className="text-[9px] text-muted-foreground mt-1 font-mono">{t("industries.comingSoon")}</div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
           <motion.div
             className="text-center space-y-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-semibold tracking-architect text-foreground">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-architect text-foreground">
               {t("industries.title")}
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base md:text-lg">
               {t("industries.subtitle")}
             </p>
           </motion.div>

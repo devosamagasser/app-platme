@@ -119,7 +119,7 @@ const Configure = () => {
                   <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-2">
                     {cat}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {selectedFeatures
                       .filter((f) => f.category === cat)
                       .map((f) => (
