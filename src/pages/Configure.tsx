@@ -1,27 +1,30 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Check, Smartphone, HardDrive, Users, Globe, ArrowLeft } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface FeatureConfig {
   slug: string;
   name: string;
   name_ar: string | null;
   category: string;
-  storage: number; // GB
-  capacity: number; // users
+  storage: number;
+  capacity: number;
 }
 
-const PRICE_PER_GB = 2; // $/month per GB
-const PRICE_PER_USER = 0.5; // $/month per user
-const MOBILE_APP_PRICE = 99; // $/month
+const PRICE_PER_GB = 2;
+const PRICE_PER_USER = 0.5;
+const MOBILE_APP_PRICE = 99;
 
 const Configure = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const businessType = searchParams.get("business") || "education";
 
   const [selectedFeatures, setSelectedFeatures] = useState<FeatureConfig[]>([]);
@@ -76,7 +79,6 @@ const Configure = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
       <div className="border-b border-primary/8 bg-card">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -85,32 +87,31 @@ const Configure = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Designer
+              {t("configure.backToDesigner")}
             </button>
             <div>
               <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
-                Configuration
+                {t("configure.configLabel")}
               </div>
               <h1 className="text-lg font-semibold text-foreground mt-0.5">
-                Configure Your System
+                {t("configure.title")}
               </h1>
             </div>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
-              {selectedFeatures.length} modules selected
+              {selectedFeatures.length} {t("configure.modulesSelected")}
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 flex gap-8">
-        {/* Main Content */}
         <div className="flex-1 space-y-8">
-          {/* Selected Features */}
           <section>
             <h2 className="text-sm font-mono uppercase tracking-widest text-primary/70 mb-4">
-              Selected Modules
+              {t("configure.selectedModules")}
             </h2>
             <div className="space-y-4">
               {categories.map((cat) => (
@@ -132,7 +133,7 @@ const Configure = () => {
                           <div>
                             <span className="text-xs font-semibold text-foreground">{f.name}</span>
                             {f.name_ar && (
-                              <span className="text-[10px] text-muted-foreground ml-1.5">
+                              <span className="text-[10px] text-muted-foreground ms-1.5">
                                 ({f.name_ar})
                               </span>
                             )}
@@ -145,19 +146,18 @@ const Configure = () => {
             </div>
           </section>
 
-          {/* Storage & Capacity */}
           <section className="space-y-6">
             <h2 className="text-sm font-mono uppercase tracking-widest text-primary/70">
-              Resources
+              {t("configure.resources")}
             </h2>
 
             <div className="p-5 rounded-xl border border-primary/10 bg-card space-y-4">
               <div className="flex items-center gap-3 mb-2">
                 <HardDrive className="w-4 h-4 text-primary/70" />
                 <span className="text-xs font-mono uppercase tracking-wider text-foreground">
-                  Storage
+                  {t("configure.storage")}
                 </span>
-                <span className="ml-auto text-sm font-semibold text-primary">
+                <span className="ms-auto text-sm font-semibold text-primary">
                   {globalStorage} GB
                 </span>
               </div>
@@ -179,10 +179,10 @@ const Configure = () => {
               <div className="flex items-center gap-3 mb-2">
                 <Users className="w-4 h-4 text-primary/70" />
                 <span className="text-xs font-mono uppercase tracking-wider text-foreground">
-                  Users Capacity
+                  {t("configure.usersCapacity")}
                 </span>
-                <span className="ml-auto text-sm font-semibold text-primary">
-                  {globalCapacity} users
+                <span className="ms-auto text-sm font-semibold text-primary">
+                  {globalCapacity} {t("configure.users")}
                 </span>
               </div>
               <Slider
@@ -193,24 +193,23 @@ const Configure = () => {
                 step={10}
               />
               <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
-                <span>10 users</span>
+                <span>10 {t("configure.users")}</span>
                 <span>${(globalCapacity * PRICE_PER_USER).toFixed(0)}/mo</span>
-                <span>10,000 users</span>
+                <span>10,000 {t("configure.users")}</span>
               </div>
             </div>
           </section>
 
-          {/* Mobile App */}
           <section className="p-5 rounded-xl border border-primary/10 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Smartphone className="w-4 h-4 text-primary/70" />
                 <div>
                   <span className="text-xs font-mono uppercase tracking-wider text-foreground">
-                    Mobile Application
+                    {t("configure.mobileApp")}
                   </span>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
-                    iOS & Android native app for your platform
+                    {t("configure.mobileAppDesc")}
                   </p>
                 </div>
               </div>
@@ -223,12 +222,11 @@ const Configure = () => {
             </div>
           </section>
 
-          {/* Subdomain */}
           <section className="p-5 rounded-xl border border-primary/10 bg-card">
             <div className="flex items-center gap-3 mb-3">
               <Globe className="w-4 h-4 text-primary/70" />
               <span className="text-xs font-mono uppercase tracking-wider text-foreground">
-                Subdomain
+                {t("configure.subdomain")}
               </span>
             </div>
             <div className="flex items-center gap-0 rounded-lg border border-primary/15 bg-background/50 overflow-hidden">
@@ -237,7 +235,7 @@ const Configure = () => {
                 onChange={(e) =>
                   setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
                 }
-                placeholder="my-school"
+                placeholder={t("configure.subdomainPlaceholder")}
                 className="border-0 rounded-none focus-visible:ring-0 text-sm"
               />
               <span className="px-3 text-xs font-mono text-muted-foreground bg-secondary/30 h-10 flex items-center whitespace-nowrap">
@@ -247,25 +245,24 @@ const Configure = () => {
           </section>
         </div>
 
-        {/* Pricing Sidebar */}
         <div className="w-[280px] shrink-0">
           <div className="sticky top-8 p-5 rounded-xl border border-primary/15 bg-card space-y-4">
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
-              Monthly Estimate
+              {t("configure.monthlyEstimate")}
             </div>
 
             <div className="space-y-2 text-xs">
               <div className="flex justify-between text-muted-foreground">
-                <span>Storage ({globalStorage} GB)</span>
+                <span>{t("configure.storage")} ({globalStorage} GB)</span>
                 <span>${(globalStorage * PRICE_PER_GB).toFixed(0)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
-                <span>Capacity ({globalCapacity} users)</span>
+                <span>{t("configure.capacity")} ({globalCapacity} {t("configure.users")})</span>
                 <span>${(globalCapacity * PRICE_PER_USER).toFixed(0)}</span>
               </div>
               {mobileApp && (
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Mobile App</span>
+                  <span>{t("configure.mobileApp")}</span>
                   <span>${MOBILE_APP_PRICE}</span>
                 </div>
               )}
@@ -273,7 +270,7 @@ const Configure = () => {
 
             <div className="border-t border-primary/10 pt-3">
               <div className="flex justify-between items-baseline">
-                <span className="text-xs font-mono uppercase text-muted-foreground">Total</span>
+                <span className="text-xs font-mono uppercase text-muted-foreground">{t("configure.total")}</span>
                 <div>
                   <span className="text-2xl font-bold text-primary">${totalPrice.toFixed(0)}</span>
                   <span className="text-xs text-muted-foreground">/mo</span>
@@ -288,7 +285,7 @@ const Configure = () => {
             )}
 
             <button className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
-              Confirm & Deploy
+              {t("configure.confirmDeploy")}
             </button>
           </div>
         </div>

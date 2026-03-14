@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
+import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
 
 interface LeftPanelProps {
@@ -12,11 +13,11 @@ interface LeftPanelProps {
 }
 
 const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle }: LeftPanelProps) => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content:
-        "Awaiting system intent. Describe the infrastructure you wish to provision.",
+      content: t("composer.initialMessage"),
     },
   ]);
   const [input, setInput] = useState("");
@@ -28,7 +29,6 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -87,7 +87,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
 
   if (collapsed) {
     return (
-      <div className="w-12 border-r border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
+      <div className="w-12 border-e border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
         <button onClick={onToggle} className="p-2 rounded-md hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors">
           <PanelLeftOpen className="w-4 h-4" />
         </button>
@@ -97,12 +97,12 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
   }
 
   return (
-    <div className="w-[380px] border-r border-primary/8 bg-card flex flex-col shrink-0">
+    <div className="w-[380px] border-e border-primary/8 bg-card flex flex-col shrink-0">
       <div className="p-4 border-b border-primary/8 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-primary" />
           <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
-            Gomaa — System Architect
+            {t("composer.gomaaTitle")}
           </span>
         </div>
         <button onClick={onToggle} className="p-1.5 rounded-md hover:bg-primary/10 text-primary/40 hover:text-primary transition-colors">
@@ -116,13 +116,13 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
             key={i}
             className={`${
               msg.role === "assistant"
-                ? "bg-secondary/40 rounded-tr-xl rounded-br-xl rounded-bl-xl"
-                : "bg-primary/10 rounded-tl-xl rounded-bl-xl rounded-br-xl ml-8"
+                ? "bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl"
+                : "bg-primary/10 rounded-ts-xl rounded-bs-xl rounded-be-xl ms-8"
             } p-4`}
           >
             {msg.role === "assistant" && (
               <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
-                Gomaa
+                {t("composer.gomaaLabel")}
               </div>
             )}
             <div className="text-sm text-foreground/90 leading-relaxed prose prose-sm prose-invert max-w-none">
@@ -131,9 +131,9 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
           </div>
         ))}
         {isLoading && messages[messages.length - 1]?.role === "user" && (
-          <div className="bg-secondary/40 rounded-tr-xl rounded-br-xl rounded-bl-xl p-4">
+          <div className="bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl p-4">
             <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
-              Gomaa
+              {t("composer.gomaaLabel")}
             </div>
             <Loader2 className="w-4 h-4 text-primary/50 animate-spin" />
           </div>
@@ -152,7 +152,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
                 send(input);
               }
             }}
-            placeholder="Describe what you need..."
+            placeholder={t("composer.placeholder")}
             disabled={isLoading}
             rows={1}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50 resize-none min-h-[40px] leading-relaxed"

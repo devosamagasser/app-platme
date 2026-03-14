@@ -1,4 +1,5 @@
 import { Check, Package, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface FeatureItem {
   slug: string;
@@ -21,11 +22,12 @@ interface RightPanelProps {
 }
 
 const RightPanel = ({ features, activeModuleIds, collapsed, onToggle }: RightPanelProps) => {
+  const { t } = useTranslation();
   const categories = [...new Set(features.map((f) => f.category))];
 
   if (collapsed) {
     return (
-      <div className="w-12 border-l border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
+      <div className="w-12 border-s border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
         <button onClick={onToggle} className="p-2 rounded-md hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors">
           <PanelRightOpen className="w-4 h-4" />
         </button>
@@ -35,12 +37,12 @@ const RightPanel = ({ features, activeModuleIds, collapsed, onToggle }: RightPan
   }
 
   return (
-    <div className="w-[320px] border-l border-primary/8 bg-card flex flex-col shrink-0">
+    <div className="w-[320px] border-s border-primary/8 bg-card flex flex-col shrink-0">
       <div className="p-4 border-b border-primary/8 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Package className="w-4 h-4 text-primary/70" />
           <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
-            Feature Catalog
+            {t("composer.featureCatalog")}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -77,13 +79,13 @@ const RightPanel = ({ features, activeModuleIds, collapsed, onToggle }: RightPan
                         <div>
                           <span className="text-xs font-semibold text-foreground">{f.name}</span>
                           {f.name_ar && (
-                            <span className="text-[10px] text-muted-foreground ml-1.5">({f.name_ar})</span>
+                            <span className="text-[10px] text-muted-foreground ms-1.5">({f.name_ar})</span>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5">
                           {f.is_default && (
                             <span className="text-[8px] font-mono uppercase text-primary/50 bg-primary/10 px-1.5 py-0.5 rounded">
-                              default
+                              {t("composer.default")}
                             </span>
                           )}
                           {isActive && (
