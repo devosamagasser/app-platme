@@ -16,11 +16,9 @@ export type Database = {
     Tables: {
       system_features: {
         Row: {
-          capacity: string | null
+          active: boolean | null
           category: string
-          config: Json | null
           created_at: string | null
-          dependencies: Json | null
           description: string
           description_ar: string | null
           icon: string | null
@@ -28,16 +26,14 @@ export type Database = {
           is_default: boolean | null
           name: string
           name_ar: string | null
+          price: number | null
           slug: string
-          storage: string | null
           system_id: string
         }
         Insert: {
-          capacity?: string | null
+          active?: boolean | null
           category: string
-          config?: Json | null
           created_at?: string | null
-          dependencies?: Json | null
           description: string
           description_ar?: string | null
           icon?: string | null
@@ -45,16 +41,14 @@ export type Database = {
           is_default?: boolean | null
           name: string
           name_ar?: string | null
+          price?: number | null
           slug: string
-          storage?: string | null
           system_id: string
         }
         Update: {
-          capacity?: string | null
+          active?: boolean | null
           category?: string
-          config?: Json | null
           created_at?: string | null
-          dependencies?: Json | null
           description?: string
           description_ar?: string | null
           icon?: string | null
@@ -62,8 +56,8 @@ export type Database = {
           is_default?: boolean | null
           name?: string
           name_ar?: string | null
+          price?: number | null
           slug?: string
-          storage?: string | null
           system_id?: string
         }
         Relationships: [
