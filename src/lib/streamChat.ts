@@ -4,7 +4,6 @@ export interface AddModuleCall {
   id: string;
   label: string;
   category: string;
-  dependencies: string[];
 }
 
 interface StreamChatOptions {
