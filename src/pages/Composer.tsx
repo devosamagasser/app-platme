@@ -197,7 +197,7 @@ const Composer = () => {
         {/* Features Sheet */}
         <Sheet open={featuresSheetOpen} onOpenChange={setFeaturesSheetOpen}>
           <SheetContent side="bottom" className="h-[70vh] bg-card border-t border-primary/10 p-0">
-            <SheetHeader className="p-4 border-b border-primary/8">
+            <SheetHeader className="p-4 pe-12 border-b border-primary/8">
               <SheetTitle className="text-xs font-mono uppercase tracking-widest text-primary/70 flex items-center gap-2">
                 <Package className="w-4 h-4" />
                 {t("composer.featureCatalog")}
