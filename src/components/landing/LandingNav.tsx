@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import logo from "@/assets/logo.png";
 
 const LandingNav = () => {
   const { t } = useTranslation();
@@ -8,9 +9,7 @@ const LandingNav = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-8 border-b border-primary/10 backdrop-blur-xl bg-background/80">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-          <div className="w-3 h-3 rounded-sm bg-primary" />
-        </div>
+        <img src={logo} alt="PLATME" className="w-8 h-8 object-contain" />
         <span className="text-lg font-bold tracking-architect text-foreground">PLATME</span>
       </div>
       <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
