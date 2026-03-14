@@ -2,10 +2,12 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Check, Smartphone, HardDrive, Users, Globe, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface FeatureConfig {
@@ -13,42 +15,55 @@ interface FeatureConfig {
   name: string;
   name_ar: string | null;
   category: string;
-  storage: number;
-  capacity: number;
+  price: number;
 }
 
-const PRICE_PER_GB = 2;
-const PRICE_PER_USER = 0.5;
-const MOBILE_APP_PRICE = 99;
+interface SystemPricing {
+  id: string;
+  unit_storage_price: number;
+  unit_capacity_price: number;
+  mobile_app_price: number;
+}
 
 const Configure = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const businessType = searchParams.get("business") || "education";
 
   const [selectedFeatures, setSelectedFeatures] = useState<FeatureConfig[]>([]);
+  const [pricing, setPricing] = useState<SystemPricing | null>(null);
   const [mobileApp, setMobileApp] = useState(false);
   const [subdomain, setSubdomain] = useState("");
   const [globalStorage, setGlobalStorage] = useState(10);
   const [globalCapacity, setGlobalCapacity] = useState(100);
+  const [deploying, setDeploying] = useState(false);
 
   useEffect(() => {
-    const loadFeatures = async () => {
+    const loadData = async () => {
       const slugs = JSON.parse(localStorage.getItem("platme_selected_features") || "[]");
       if (!slugs.length) return;
 
       const { data: system } = await supabase
         .from("systems")
-        .select("id, name")
+        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price")
         .eq("slug", businessType)
-        .single();
+        .single() as { data: any };
 
       if (!system) return;
 
+      setPricing({
+        id: system.id,
+        unit_storage_price: Number(system.unit_storage_price) || 0,
+        unit_capacity_price: Number(system.unit_capacity_price) || 0,
+        mobile_app_price: Number(system.mobile_app_price) || 0,
+      });
+
       const { data } = await supabase
         .from("system_features")
-        .select("slug, name, name_ar, category")
+        .select("slug, name, name_ar, category, price")
         .eq("system_id", system.id)
         .in("slug", slugs);
 
@@ -59,21 +74,93 @@ const Configure = () => {
             name: f.name,
             name_ar: f.name_ar,
             category: f.category,
-            storage: 5,
-            capacity: 50,
+            price: Number(f.price) || 0,
           }))
         );
       }
     };
-    loadFeatures();
+    loadData();
   }, [businessType]);
 
+  const featuresCost = useMemo(
+    () => selectedFeatures.reduce((sum, f) => sum + f.price, 0),
+    [selectedFeatures]
+  );
+
   const totalPrice = useMemo(() => {
-    const storageCost = globalStorage * PRICE_PER_GB;
-    const capacityCost = globalCapacity * PRICE_PER_USER;
-    const mobileCost = mobileApp ? MOBILE_APP_PRICE : 0;
-    return storageCost + capacityCost + mobileCost;
-  }, [globalStorage, globalCapacity, mobileApp]);
+    if (!pricing) return 0;
+    const storageCost = globalStorage * pricing.unit_storage_price;
+    const capacityCost = globalCapacity * pricing.unit_capacity_price;
+    const mobileCost = mobileApp ? pricing.mobile_app_price : 0;
+    return featuresCost + storageCost + capacityCost + mobileCost;
+  }, [globalStorage, globalCapacity, mobileApp, pricing, featuresCost]);
+
+  const handleDeploy = async () => {
+    if (!user || !pricing || !subdomain.trim()) {
+      toast({ title: t("configure.fillSubdomain"), variant: "destructive" });
+      return;
+    }
+
+    setDeploying(true);
+    try {
+      // Check tokens
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("tokens")
+        .eq("id", user.id)
+        .single() as { data: { tokens: number } | null };
+
+      if (!profile || profile.tokens < 1) {
+        toast({ title: t("configure.noTokens"), variant: "destructive" });
+        setDeploying(false);
+        return;
+      }
+
+      // Create platform
+      const { data: platform, error: platErr } = await (supabase
+        .from("platforms")
+        .insert({
+          user_id: user.id,
+          system_id: pricing.id,
+          subdomain: subdomain.trim(),
+          mobile_app: mobileApp,
+          storage_gb: globalStorage,
+          capacity_users: globalCapacity,
+          monthly_price: totalPrice,
+          status: "active",
+        } as any)
+        .select("id")
+        .single() as any);
+
+      if (platErr) throw platErr;
+
+      // Insert platform features
+      if (selectedFeatures.length > 0) {
+        await (supabase.from("platform_features").insert(
+          selectedFeatures.map((f) => ({
+            platform_id: platform.id,
+            feature_slug: f.slug,
+            feature_price: f.price,
+          })) as any
+        ) as any);
+      }
+
+      // Deduct token
+      await (supabase.from("profiles").update({ tokens: profile.tokens - 1 } as any).eq("id", user.id) as any);
+      await (supabase.from("token_transactions").insert({
+        user_id: user.id,
+        amount: -1,
+        reason: "platform_creation",
+      } as any) as any);
+
+      toast({ title: t("configure.deploySuccess") });
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast({ title: err.message || "Error", variant: "destructive" });
+    } finally {
+      setDeploying(false);
+    }
+  };
 
   const categories = [...new Set(selectedFeatures.map((f) => f.category))];
 
@@ -125,19 +212,24 @@ const Configure = () => {
                       .map((f) => (
                         <div
                           key={f.slug}
-                          className="p-3 rounded-lg border border-primary/20 bg-primary/5 flex items-center gap-2"
+                          className="p-3 rounded-lg border border-primary/20 bg-primary/5 flex items-center justify-between"
                         >
-                          <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                            <Check className="w-3 h-3 text-primary" />
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                              <Check className="w-3 h-3 text-primary" />
+                            </div>
+                            <div>
+                              <span className="text-xs font-semibold text-foreground">{f.name}</span>
+                              {f.name_ar && (
+                                <span className="text-[10px] text-muted-foreground ms-1.5">
+                                  ({f.name_ar})
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-xs font-semibold text-foreground">{f.name}</span>
-                            {f.name_ar && (
-                              <span className="text-[10px] text-muted-foreground ms-1.5">
-                                ({f.name_ar})
-                              </span>
-                            )}
-                          </div>
+                          {f.price > 0 && (
+                            <span className="text-[10px] font-mono text-primary/60">${f.price}/mo</span>
+                          )}
                         </div>
                       ))}
                   </div>
@@ -170,7 +262,7 @@ const Configure = () => {
               />
               <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
                 <span>5 GB</span>
-                <span>${(globalStorage * PRICE_PER_GB).toFixed(0)}/mo</span>
+                <span>${(globalStorage * (pricing?.unit_storage_price || 0)).toFixed(0)}/mo</span>
                 <span>500 GB</span>
               </div>
             </div>
@@ -194,7 +286,7 @@ const Configure = () => {
               />
               <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
                 <span>10 {t("configure.users")}</span>
-                <span>${(globalCapacity * PRICE_PER_USER).toFixed(0)}/mo</span>
+                <span>${(globalCapacity * (pricing?.unit_capacity_price || 0)).toFixed(0)}/mo</span>
                 <span>10,000 {t("configure.users")}</span>
               </div>
             </div>
@@ -215,7 +307,7 @@ const Configure = () => {
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-xs font-mono text-primary/60">
-                  +${MOBILE_APP_PRICE}/mo
+                  +${pricing?.mobile_app_price || 0}/mo
                 </span>
                 <Switch checked={mobileApp} onCheckedChange={setMobileApp} />
               </div>
@@ -252,18 +344,24 @@ const Configure = () => {
             </div>
 
             <div className="space-y-2 text-xs">
+              {featuresCost > 0 && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("configure.selectedModules")}</span>
+                  <span>${featuresCost.toFixed(0)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-muted-foreground">
                 <span>{t("configure.storage")} ({globalStorage} GB)</span>
-                <span>${(globalStorage * PRICE_PER_GB).toFixed(0)}</span>
+                <span>${(globalStorage * (pricing?.unit_storage_price || 0)).toFixed(0)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>{t("configure.capacity")} ({globalCapacity} {t("configure.users")})</span>
-                <span>${(globalCapacity * PRICE_PER_USER).toFixed(0)}</span>
+                <span>${(globalCapacity * (pricing?.unit_capacity_price || 0)).toFixed(0)}</span>
               </div>
               {mobileApp && (
                 <div className="flex justify-between text-muted-foreground">
                   <span>{t("configure.mobileApp")}</span>
-                  <span>${MOBILE_APP_PRICE}</span>
+                  <span>${pricing?.mobile_app_price || 0}</span>
                 </div>
               )}
             </div>
@@ -284,8 +382,12 @@ const Configure = () => {
               </div>
             )}
 
-            <button className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
-              {t("configure.confirmDeploy")}
+            <button
+              onClick={handleDeploy}
+              disabled={deploying}
+              className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {deploying ? "..." : t("configure.confirmDeploy")}
             </button>
           </div>
         </div>
