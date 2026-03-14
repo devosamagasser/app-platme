@@ -20,11 +20,13 @@ const CenterPanel = ({
   edges,
   selectedNodeId,
   onSelectNode,
+  deploying = false,
 }: {
   nodes: GraphNode[];
   edges: GraphEdge[];
   selectedNodeId: string | null;
   onSelectNode: (id: string) => void;
+  deploying?: boolean;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
