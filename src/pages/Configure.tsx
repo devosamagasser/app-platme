@@ -60,6 +60,7 @@ const Configure = () => {
         unit_storage_price: Number(system.unit_storage_price) || 0,
         unit_capacity_price: Number(system.unit_capacity_price) || 0,
         mobile_app_price: Number(system.mobile_app_price) || 0,
+        creation_token_cost: Number(system.creation_token_cost) || 1,
       });
 
       const { data } = await supabase
