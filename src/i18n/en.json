@@ -121,5 +121,34 @@
     "capacity": "Capacity",
     "total": "Total",
     "confirmDeploy": "Confirm & Deploy"
+  },
+  "auth": {
+    "platform": "PLATME Platform",
+    "loginTitle": "Sign In",
+    "signupTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Your name",
+    "login": "Sign In",
+    "signup": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "checkEmail": "Check your email",
+    "confirmEmail": "We sent you a confirmation link. Please verify your email.",
+    "error": "Error"
+  },
+  "dashboard": {
+    "label": "Dashboard",
+    "title": "My Dashboard",
+    "tokens": "Available Tokens",
+    "buyTokens": "Buy Tokens",
+    "developerAccount": "Developer Account",
+    "developerDesc": "Earn 10% commission on platforms you build monthly",
+    "devEnabled": "Developer account enabled",
+    "devDisabled": "Developer account disabled",
+    "platforms": "My Platforms",
+    "newPlatform": "New Platform",
+    "noPlatforms": "No platforms yet. Start building!"
   }
 }

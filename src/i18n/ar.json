@@ -121,5 +121,34 @@
     "capacity": "السعة",
     "total": "الإجمالي",
     "confirmDeploy": "تأكيد والنشر"
+  },
+  "auth": {
+    "platform": "منصة PLATME",
+    "loginTitle": "تسجيل الدخول",
+    "signupTitle": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "اسمك",
+    "login": "دخول",
+    "signup": "إنشاء حساب",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "checkEmail": "تحقق من بريدك",
+    "confirmEmail": "أرسلنا لك رابط تأكيد. يرجى التحقق من بريدك الإلكتروني.",
+    "error": "خطأ"
+  },
+  "dashboard": {
+    "label": "لوحة التحكم",
+    "title": "لوحة التحكم",
+    "tokens": "التوكنز المتاحة",
+    "buyTokens": "شراء توكنز",
+    "developerAccount": "حساب مطور",
+    "developerDesc": "احصل على عمولة 10% على المنصات التي تبنيها شهرياً",
+    "devEnabled": "تم تفعيل حساب المطور",
+    "devDisabled": "تم إلغاء حساب المطور",
+    "platforms": "منصاتي",
+    "newPlatform": "منصة جديدة",
+    "noPlatforms": "لا توجد منصات بعد. ابدأ البناء!"
   }
 }

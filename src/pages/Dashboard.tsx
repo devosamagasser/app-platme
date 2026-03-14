@@ -35,10 +35,18 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      const [{ data: prof }, { data: plats }] = await Promise.all([
-        supabase.from("profiles").select("email, full_name, is_developer, tokens").eq("id", user.id).single(),
-        supabase.from("platforms").select("id, subdomain, monthly_price, status, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
-      ]);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("email, full_name, is_developer, tokens")
+        .eq("id", user.id)
+        .single() as { data: Profile | null };
+
+      const { data: plats } = await supabase
+        .from("platforms")
+        .select("id, subdomain, monthly_price, status, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }) as { data: Platform[] | null };
+
       if (prof) setProfile(prof);
       if (plats) setPlatforms(plats);
       setLoading(false);
@@ -49,7 +57,10 @@ const Dashboard = () => {
   const toggleDeveloper = async () => {
     if (!user || !profile) return;
     const newVal = !profile.is_developer;
-    const { error } = await supabase.from("profiles").update({ is_developer: newVal }).eq("id", user.id);
+    const { error } = await (supabase
+      .from("profiles")
+      .update({ is_developer: newVal } as any)
+      .eq("id", user.id) as any);
     if (!error) {
       setProfile({ ...profile, is_developer: newVal });
       toast({ title: newVal ? t("dashboard.devEnabled") : t("dashboard.devDisabled") });
