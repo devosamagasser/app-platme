@@ -57,11 +57,19 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          // Connect all default nodes to each other in a mesh
+          // Connect nodes only to horizontal and vertical neighbors in the grid
+          const cols = 3;
           const defaultEdges: GraphEdge[] = [];
           for (let i = 0; i < defaultFeatures.length; i++) {
-            for (let j = i + 1; j < defaultFeatures.length; j++) {
-              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[j].slug });
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            // Right neighbor
+            if (col < cols - 1 && i + 1 < defaultFeatures.length) {
+              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + 1].slug });
+            }
+            // Bottom neighbor
+            if (i + cols < defaultFeatures.length) {
+              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + cols].slug });
             }
           }
           setEdges(defaultEdges);
@@ -86,14 +94,26 @@ const Composer = () => {
       }];
     });
 
-    // Connect new module to all existing nodes
+    // Connect new module to its grid neighbors (right and bottom)
     setNodes((currentNodes) => {
+      const count = currentNodes.length; // index of new node
+      const cols = 3;
+      const row = Math.floor(count / cols);
+      const col = count % cols;
       setEdges((prev) => {
-        const newEdges: GraphEdge[] = currentNodes
-          .filter((n) => n.id !== module.id)
-          .map((n) => ({ from: n.id, to: module.id }))
-          .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
-        return [...prev, ...newEdges];
+        const newEdges: GraphEdge[] = [];
+        // Left neighbor
+        if (col > 0) {
+          const leftNode = currentNodes[count - 1];
+          if (leftNode) newEdges.push({ from: leftNode.id, to: module.id });
+        }
+        // Top neighbor
+        const topIdx = count - cols;
+        if (topIdx >= 0 && currentNodes[topIdx]) {
+          newEdges.push({ from: currentNodes[topIdx].id, to: module.id });
+        }
+        const filtered = newEdges.filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
+        return [...prev, ...filtered];
       });
       return currentNodes;
     });
