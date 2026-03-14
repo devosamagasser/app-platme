@@ -34,8 +34,8 @@ const CenterPanel = ({
   const getNode = (id: string) => nodes.find((n) => n.id === id);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Only pan on background click (not on nodes)
     if ((e.target as HTMLElement).closest("[data-node]")) return;
+    e.preventDefault();
     setIsPanning(true);
     panStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
   }, [pan]);

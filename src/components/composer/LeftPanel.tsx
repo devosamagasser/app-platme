@@ -68,7 +68,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
       },
       onToolCall: (module) => {
         onAddModule(module);
-        assistantSoFar += `\n\n✅ **${module.label}** module added to the architecture.`;
+        assistantSoFar += `\n\n✅ **${module.label}** added.`;
         setMessages((prev) => {
           const last = prev[prev.length - 1];
           if (last?.role === "assistant") {

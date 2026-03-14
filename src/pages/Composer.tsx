@@ -86,11 +86,16 @@ const Composer = () => {
       }];
     });
 
-    setEdges((prev) => {
-      const newEdges: GraphEdge[] = module.dependencies
-        .map((dep) => ({ from: dep, to: module.id }))
-        .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
-      return [...prev, ...newEdges];
+    // Connect new module to all existing nodes
+    setNodes((currentNodes) => {
+      setEdges((prev) => {
+        const newEdges: GraphEdge[] = currentNodes
+          .filter((n) => n.id !== module.id)
+          .map((n) => ({ from: n.id, to: module.id }))
+          .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
+        return [...prev, ...newEdges];
+      });
+      return currentNodes;
     });
   }, []);
 
