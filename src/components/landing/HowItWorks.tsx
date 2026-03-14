@@ -12,8 +12,8 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-32 relative">
-      <div className="container mx-auto px-8">
+    <section id="how-it-works" className="py-20 md:py-32 relative">
+      <div className="container mx-auto px-4 md:px-8">
         <motion.div
           className="text-center mb-20"
           initial={{ opacity: 0, y: 20 }}
