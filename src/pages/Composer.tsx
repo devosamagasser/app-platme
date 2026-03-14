@@ -159,8 +159,8 @@ const Composer = () => {
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-hidden relative">
-          <div className={mobileTab !== "chat" ? "hidden" : "h-full"}>
+        <div className="flex-1 overflow-hidden relative flex flex-col">
+          <div className={mobileTab !== "chat" ? "hidden" : "h-full flex flex-col"}>
             <LeftPanel
               businessType={businessType}
               onAddModule={handleAddModule}
