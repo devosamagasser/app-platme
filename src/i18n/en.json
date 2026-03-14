@@ -2,7 +2,8 @@
   "nav": {
     "industries": "Industries",
     "howItWorks": "How It Works",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "dashboard": "Dashboard"
   },
   "hero": {
     "badge": "Guided Intelligence™ Platform",

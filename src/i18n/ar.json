@@ -2,7 +2,8 @@
   "nav": {
     "industries": "القطاعات",
     "howItWorks": "كيف يعمل",
-    "getStarted": "ابدأ الآن"
+    "getStarted": "ابدأ الآن",
+    "dashboard": "لوحة التحكم"
   },
   "hero": {
     "badge": "منصة الذكاء الموجّه™",
