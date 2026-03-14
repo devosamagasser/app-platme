@@ -149,6 +149,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
     await streamChat({
       messages: conversationMessages,
       businessType,
+      language: currentLang,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         rawContentRef.current = assistantSoFar;
