@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Check, Smartphone, HardDrive, Users, Globe } from "lucide-react";
+import { Check, Smartphone, HardDrive, Users, Globe, ArrowLeft } from "lucide-react";
 
 interface FeatureConfig {
   slug: string;
