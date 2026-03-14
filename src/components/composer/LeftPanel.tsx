@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Send, Loader2, PanelLeftClose, PanelLeftOpen, Coins } from "lucide-react";
 import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
 import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 function detectDir(text: string): "rtl" | "ltr" {
   const firstChar = text.trim().charAt(0);
