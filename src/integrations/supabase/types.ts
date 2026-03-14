@@ -184,6 +184,7 @@ export type Database = {
         Row: {
           active: boolean | null
           created_at: string | null
+          creation_token_cost: number
           description: string
           icon: string
           id: string
@@ -196,6 +197,7 @@ export type Database = {
         Insert: {
           active?: boolean | null
           created_at?: string | null
+          creation_token_cost?: number
           description: string
           icon: string
           id?: string
@@ -208,6 +210,7 @@ export type Database = {
         Update: {
           active?: boolean | null
           created_at?: string | null
+          creation_token_cost?: number
           description?: string
           icon?: string
           id?: string
