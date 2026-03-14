@@ -88,13 +88,7 @@ const HeroSection = () => (
             to="/select"
             className="px-8 py-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all"
           >
-            Explore the System
-          </Link>
-          <Link
-            to="/select"
-            className="px-8 py-4 rounded-lg border border-primary/20 text-foreground font-medium text-sm hover:bg-primary/5 transition-all"
-          >
-            Join Early Access
+            ابدأ مع المُصمم الذكي
           </Link>
         </motion.div>
       </div>
