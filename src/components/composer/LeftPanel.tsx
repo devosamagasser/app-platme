@@ -15,20 +15,44 @@ interface LeftPanelProps {
 
 const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle, fullWidth }: LeftPanelProps) => {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      content: t("composer.initialMessage"),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const introSent = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  // Auto-intro: trigger AI greeting on mount
+  useEffect(() => {
+    if (introSent.current) return;
+    introSent.current = true;
+    setIsLoading(true);
+
+    let assistantSoFar = "";
+    streamChat({
+      messages: [{ role: "user", content: "ابدأ" }],
+      businessType,
+      onDelta: (chunk) => {
+        assistantSoFar += chunk;
+        setMessages([{ role: "assistant", content: assistantSoFar }]);
+      },
+      onComplete: () => {},
+      onToolCall: (module) => {
+        onAddModule(module);
+        assistantSoFar += `\n\n✅ **${module.label}** added.`;
+        setMessages([{ role: "assistant", content: assistantSoFar }]);
+      },
+      onDone: () => setIsLoading(false),
+      onError: (error) => {
+        setMessages([{ role: "assistant", content: `⚠️ ${error}` }]);
+        setIsLoading(false);
+      },
+    });
+  }, [businessType, onAddModule]);
 
   useEffect(() => {
     if (textareaRef.current) {

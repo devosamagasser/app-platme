@@ -160,7 +160,7 @@ const Composer = () => {
 
         {/* Tab content */}
         <div className="flex-1 overflow-hidden relative">
-          {mobileTab === "chat" ? (
+          <div className={mobileTab !== "chat" ? "hidden" : "h-full"}>
             <LeftPanel
               businessType={businessType}
               onAddModule={handleAddModule}
@@ -169,14 +169,15 @@ const Composer = () => {
               onToggle={() => {}}
               fullWidth
             />
-          ) : (
+          </div>
+          <div className={mobileTab !== "preview" ? "hidden" : "h-full"}>
             <CenterPanel
               nodes={nodes}
               edges={edges}
               selectedNodeId={selectedNodeId}
               onSelectNode={setSelectedNodeId}
             />
-          )}
+          </div>
 
           {/* FAB */}
           <button
