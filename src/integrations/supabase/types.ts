@@ -77,8 +77,11 @@ export type Database = {
           description: string
           icon: string
           id: string
+          mobile_app_price: number | null
           name: string
           slug: string
+          unit_capacity_price: number | null
+          unit_storage_price: number | null
         }
         Insert: {
           active?: boolean | null
@@ -86,8 +89,11 @@ export type Database = {
           description: string
           icon: string
           id?: string
+          mobile_app_price?: number | null
           name: string
           slug: string
+          unit_capacity_price?: number | null
+          unit_storage_price?: number | null
         }
         Update: {
           active?: boolean | null
@@ -95,8 +101,11 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          mobile_app_price?: number | null
           name?: string
           slug?: string
+          unit_capacity_price?: number | null
+          unit_storage_price?: number | null
         }
         Relationships: []
       }
