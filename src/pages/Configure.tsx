@@ -112,7 +112,8 @@ const Configure = () => {
         .eq("id", user.id)
         .single() as { data: { tokens: number } | null };
 
-      if (!profile || profile.tokens < 1) {
+      const tokenCost = pricing.creation_token_cost;
+      if (!profile || profile.tokens < tokenCost) {
         toast({ title: t("configure.noTokens"), variant: "destructive" });
         setDeploying(false);
         return;
