@@ -9,7 +9,7 @@ const ComposerHeader = ({ businessLabel, onComplete }: { businessLabel: string; 
   return (
     <header className="h-14 border-b border-primary/8 px-6 flex items-center justify-between bg-background shrink-0">
       <Link to="/" className="flex items-center gap-2">
-        <img src={logo} alt="PLATME" className="w-10 h-10 object-contain" />
+        <img src={logo} alt="PLATME" className="w-12 h-12 object-contain" />
         <span className="text-sm font-bold tracking-architect text-foreground">PLATME</span>
       </Link>
 
