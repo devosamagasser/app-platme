@@ -23,6 +23,7 @@ interface SystemPricing {
   unit_storage_price: number;
   unit_capacity_price: number;
   mobile_app_price: number;
+  creation_token_cost: number;
 }
 
 const Configure = () => {
