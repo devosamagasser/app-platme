@@ -292,7 +292,15 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
         )}
       </div>
 
-      <div className="p-4 border-t border-primary/8">
+      <div className="p-4 border-t border-primary/8 space-y-2">
+        {tokenCount !== null && (
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/5 border border-primary/10 w-fit">
+            <Coins className="w-3.5 h-3.5 text-primary/70" />
+            <span className="text-[10px] font-mono text-primary/70">
+              {tokenCount} {t("composer.tokens")}
+            </span>
+          </div>
+        )}
         <div className="flex items-end gap-2 border border-primary/10 bg-background/50 rounded-xl p-3 focus-within:border-primary/40 transition-colors">
           <textarea
             ref={textareaRef}
