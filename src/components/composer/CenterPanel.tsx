@@ -57,7 +57,49 @@ const CenterPanel = ({
   useEffect(() => {
     const handleGlobalUp = () => setIsPanning(false);
     window.addEventListener("mouseup", handleGlobalUp);
-    return () => window.removeEventListener("mouseup", handleGlobalUp);
+    window.addEventListener("touchend", handleGlobalUp);
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalUp);
+      window.removeEventListener("touchend", handleGlobalUp);
+    };
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest("[data-node]")) return;
+    if (e.touches.length === 1) {
+      setIsPanning(true);
+      const touch = e.touches[0];
+      panStart.current = { x: touch.clientX, y: touch.clientY, panX: pan.x, panY: pan.y };
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      pinchStart.current = { dist, zoom };
+    }
+  }, [pan, zoom]);
+
+  const pinchStart = useRef({ dist: 0, zoom: 1 });
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1 && isPanning) {
+      const touch = e.touches[0];
+      const dx = touch.clientX - panStart.current.x;
+      const dy = touch.clientY - panStart.current.y;
+      setPan({ x: panStart.current.panX + dx, y: panStart.current.panY + dy });
+    } else if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const scale = dist / pinchStart.current.dist;
+      setZoom(Math.min(2, Math.max(0.3, pinchStart.current.zoom * scale)));
+    }
+  }, [isPanning]);
+
+  const handleTouchEnd = useCallback(() => {
+    setIsPanning(false);
   }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
@@ -73,6 +115,9 @@ const CenterPanel = ({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
     >
       <div className="absolute top-4 start-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest pointer-events-none z-10">
