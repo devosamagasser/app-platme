@@ -21,8 +21,21 @@ const Composer = () => {
   const vertical = businessVerticals[businessType];
   const isMobile = useIsMobile();
 
-  const [nodes, setNodes] = useState<GraphNode[]>([]);
-  const [edges, setEdges] = useState<GraphEdge[]>([]);
+  const graphStorageKey = `platme_graph_${businessType}`;
+  const [nodes, setNodes] = useState<GraphNode[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(graphStorageKey);
+      if (saved) { const parsed = JSON.parse(saved); return parsed.nodes || []; }
+    } catch {}
+    return [];
+  });
+  const [edges, setEdges] = useState<GraphEdge[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(graphStorageKey);
+      if (saved) { const parsed = JSON.parse(saved); return parsed.edges || []; }
+    } catch {}
+    return [];
+  });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureItem[]>([]);
   const [defaultsLoaded, setDefaultsLoaded] = useState(false);

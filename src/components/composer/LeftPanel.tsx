@@ -26,7 +26,13 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const currentLang = i18n.language?.startsWith("ar") ? "ar" : "en";
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const chatStorageKey = `platme_chat_${businessType}`;
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(chatStorageKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [tokenCount, setTokenCount] = useState<number | null>(null);
 
   useEffect(() => {
