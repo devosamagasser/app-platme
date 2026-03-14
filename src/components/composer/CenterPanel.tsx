@@ -105,33 +105,38 @@ const CenterPanel = ({
 
       <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }} className="absolute inset-0">
         <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: "visible" }}>
-          {edges.map((edge, i) => {
-            const from = getNode(edge.from);
-            const to = getNode(edge.to);
-            if (!from || !to) return null;
-            const isProposed = from.status === "proposed" || to.status === "proposed";
-            return (
-              <line
-                key={i}
-                x1={from.x + 90}
-                y1={from.y + 30}
-                x2={to.x + 90}
-                y2={to.y + 30}
-                stroke="#9FFFD0"
-                strokeWidth="1.5"
-                opacity={isProposed ? 0.3 : 0.5}
-                strokeDasharray={isProposed ? "6 4" : "none"}
-                style={
-                  isProposed
-                    ? {}
-                    : {
-                        strokeDasharray: "4",
-                        animation: "flow 20s linear infinite",
-                      }
-                }
-              />
-            );
-          })}
+          <motion.g
+            animate={deploying ? { opacity: 0 } : { opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            {edges.map((edge, i) => {
+              const from = getNode(edge.from);
+              const to = getNode(edge.to);
+              if (!from || !to) return null;
+              const isProposed = from.status === "proposed" || to.status === "proposed";
+              return (
+                <line
+                  key={i}
+                  x1={from.x + 90}
+                  y1={from.y + 30}
+                  x2={to.x + 90}
+                  y2={to.y + 30}
+                  stroke="#9FFFD0"
+                  strokeWidth="1.5"
+                  opacity={isProposed ? 0.3 : 0.5}
+                  strokeDasharray={isProposed ? "6 4" : "none"}
+                  style={
+                    isProposed
+                      ? {}
+                      : {
+                          strokeDasharray: "4",
+                          animation: "flow 20s linear infinite",
+                        }
+                  }
+                />
+              );
+            })}
+          </motion.g>
         </svg>
 
         {nodes.map((node) => (
