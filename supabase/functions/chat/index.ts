@@ -114,7 +114,7 @@ serve(async (req) => {
     if (system) {
       const { data: features } = await supabase
         .from("system_features")
-        .select("slug, name, description, name_ar, description_ar, category, dependencies, is_default")
+        .select("slug, name, description, name_ar, description_ar, category, is_default")
         .eq("system_id", system.id);
 
       if (features && features.length > 0) {
@@ -129,12 +129,7 @@ serve(async (req) => {
           .join("\n");
 
         optionalFeatureList = optionals
-          .map((f: any) => {
-            const deps = Array.isArray(f.dependencies) && f.dependencies.length > 0
-              ? ` (depends on: ${f.dependencies.join(", ")})`
-              : "";
-            return `- **${fname(f)}** [slug: ${f.slug}] (${f.category}): ${fdesc(f)}${deps}`;
-          })
+          .map((f: any) => `- **${fname(f)}** [slug: ${f.slug}] (${f.category}): ${fdesc(f)}`)
           .join("\n");
       }
     }
