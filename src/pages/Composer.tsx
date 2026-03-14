@@ -57,15 +57,13 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          const defaultSlugs = new Set(defaultFeatures.map((f: any) => f.slug));
+          // Connect all default nodes to each other in a mesh
           const defaultEdges: GraphEdge[] = [];
-          defaultFeatures.forEach((f: any) => {
-            (f.dependencies || []).forEach((dep: string) => {
-              if (defaultSlugs.has(dep)) {
-                defaultEdges.push({ from: dep, to: f.slug });
-              }
-            });
-          });
+          for (let i = 0; i < defaultFeatures.length; i++) {
+            for (let j = i + 1; j < defaultFeatures.length; j++) {
+              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[j].slug });
+            }
+          }
           setEdges(defaultEdges);
           setDefaultsLoaded(true);
         }
