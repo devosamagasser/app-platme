@@ -385,6 +385,12 @@ const Configure = () => {
               </div>
             )}
 
+            {pricing && (
+              <div className="text-[10px] font-mono text-center text-muted-foreground">
+                {t("configure.tokenCost")}: {pricing.creation_token_cost} {t("composer.tokens")}
+              </div>
+            )}
+
             <button
               onClick={handleDeploy}
               disabled={deploying}
