@@ -59,6 +59,12 @@ const CenterPanel = ({
     return () => window.removeEventListener("mouseup", handleGlobalUp);
   }, []);
 
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.08 : 0.08;
+    setZoom((z) => Math.min(2, Math.max(0.3, z + delta)));
+  }, []);
+
   return (
     <div
       ref={containerRef}
@@ -66,10 +72,18 @@ const CenterPanel = ({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onWheel={handleWheel}
     >
       {/* Watermark */}
       <div className="absolute top-4 left-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest pointer-events-none z-10">
         Architecture Canvas
+      </div>
+
+      {/* Zoom controls */}
+      <div className="absolute bottom-4 right-4 flex items-center gap-1 z-10">
+        <button onClick={() => setZoom((z) => Math.max(0.3, z - 0.15))} className="w-7 h-7 rounded-md bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center text-sm font-mono">−</button>
+        <span className="text-[10px] font-mono text-muted-foreground/50 w-10 text-center">{Math.round(zoom * 100)}%</span>
+        <button onClick={() => setZoom((z) => Math.min(2, z + 0.15))} className="w-7 h-7 rounded-md bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center text-sm font-mono">+</button>
       </div>
 
       {/* Pan hint */}
@@ -79,7 +93,7 @@ const CenterPanel = ({
         </div>
       )}
 
-      <div style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }} className="absolute inset-0">
+      <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }} className="absolute inset-0">
         <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: "visible" }}>
           {edges.map((edge, i) => {
             const from = getNode(edge.from);
