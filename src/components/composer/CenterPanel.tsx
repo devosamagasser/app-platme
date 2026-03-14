@@ -144,20 +144,36 @@ const CenterPanel = ({
             key={node.id}
             data-node
             className={`absolute min-w-[180px] rounded-lg p-4 cursor-pointer transition-all border ${
-              node.status === "proposed"
+              deploying
+                ? "border-primary/40 bg-forest"
+                : node.status === "proposed"
                 ? "border-dashed border-primary/30 bg-forest/50"
                 : selectedNodeId === node.id
                 ? "border-primary bg-forest mint-glow scale-[1.02]"
                 : "border-primary/20 bg-forest shadow-xl hover:border-primary/40"
             }`}
-            style={{ left: node.x, top: node.y }}
+            style={{ left: deploying ? undefined : node.x, top: deploying ? undefined : node.y }}
             onClick={(e) => {
+              if (deploying) return;
               e.stopPropagation();
               onSelectNode(node.id);
             }}
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+            animate={
+              deploying
+                ? {
+                    x: centerX - node.x,
+                    y: centerY - node.y,
+                    scale: 0.3,
+                    opacity: 0,
+                  }
+                : { opacity: 1, scale: 1, x: 0, y: 0 }
+            }
+            transition={
+              deploying
+                ? { duration: 1, ease: [0.2, 0.8, 0.2, 1] }
+                : { duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }
+            }
           >
             <div className="text-[10px] font-mono uppercase text-primary/60 tracking-wider">
               {node.category}
@@ -165,7 +181,7 @@ const CenterPanel = ({
             <div className="text-sm text-foreground font-medium mt-1">
               {node.label}
             </div>
-            {node.status === "proposed" && (
+            {node.status === "proposed" && !deploying && (
               <div className="text-[9px] font-mono text-primary/40 mt-2 uppercase">
                 Proposed
               </div>
