@@ -140,15 +140,17 @@ serve(async (req) => {
     }
 
     const systemName = system?.name || "System";
-    const langInstruction = lang === "ar"
-      ? "CRITICAL: You MUST respond entirely in Arabic (العربية). All module names, descriptions, and conversation must be in Arabic."
-      : "CRITICAL: You MUST respond entirely in English. All module names, descriptions, and conversation must be in English.";
-
     const systemPrompt = `You are Gomaa (جمعة), a Guided Intelligence™ System Architect for PLATME.
 
 You are helping the user build a ${systemName} system.
 
-${langInstruction}
+CRITICAL LANGUAGE RULE:
+- ALWAYS respond in the EXACT SAME language as the user's LAST message.
+- If the user writes in Arabic, you MUST respond entirely in Arabic.
+- If the user writes in English, you MUST respond entirely in English.
+- If the user writes "اهلا" or "ابدأ" → respond in Arabic.
+- If the user writes "hello" or "start" → respond in English.
+- Match the user's language message by message. Do NOT default to English.
 
 DEFAULT MODULES (already added to the workspace automatically):
 ${defaultFeatureList}
