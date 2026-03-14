@@ -1,18 +1,24 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Package } from "lucide-react";
 import ComposerHeader from "@/components/composer/ComposerHeader";
 import LeftPanel from "@/components/composer/LeftPanel";
 import CenterPanel, { type GraphNode, type GraphEdge } from "@/components/composer/CenterPanel";
 import RightPanel, { type FeatureItem } from "@/components/composer/RightPanel";
 import { businessVerticals } from "@/lib/businessFeatures";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { AddModuleCall } from "@/lib/streamChat";
 
 const Composer = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const businessType = searchParams.get("business") || "education";
   const vertical = businessVerticals[businessType];
+  const isMobile = useIsMobile();
 
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
@@ -21,6 +27,8 @@ const Composer = () => {
   const [defaultsLoaded, setDefaultsLoaded] = useState(false);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
+  const [featuresSheetOpen, setFeaturesSheetOpen] = useState(false);
 
   useEffect(() => {
     const fetchFeatures = async () => {
@@ -57,17 +65,13 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          // Connect nodes only to horizontal and vertical neighbors in the grid
           const cols = 3;
           const defaultEdges: GraphEdge[] = [];
           for (let i = 0; i < defaultFeatures.length; i++) {
-            const row = Math.floor(i / cols);
             const col = i % cols;
-            // Right neighbor
             if (col < cols - 1 && i + 1 < defaultFeatures.length) {
               defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + 1].slug });
             }
-            // Bottom neighbor
             if (i + cols < defaultFeatures.length) {
               defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + cols].slug });
             }
@@ -94,20 +98,16 @@ const Composer = () => {
       }];
     });
 
-    // Connect new module to its grid neighbors (right and bottom)
     setNodes((currentNodes) => {
-      const count = currentNodes.length; // index of new node
+      const count = currentNodes.length;
       const cols = 3;
-      const row = Math.floor(count / cols);
       const col = count % cols;
       setEdges((prev) => {
         const newEdges: GraphEdge[] = [];
-        // Left neighbor
         if (col > 0) {
           const leftNode = currentNodes[count - 1];
           if (leftNode) newEdges.push({ from: leftNode.id, to: module.id });
         }
-        // Top neighbor
         const topIdx = count - cols;
         if (topIdx >= 0 && currentNodes[topIdx]) {
           newEdges.push({ from: currentNodes[topIdx].id, to: module.id });
@@ -128,6 +128,96 @@ const Composer = () => {
 
   const activeModuleIds = nodes.map((n) => n.id);
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
+        <ComposerHeader businessLabel={vertical?.label || "System"} onComplete={handleComplete} />
+
+        {/* Mobile tabs */}
+        <div className="flex border-b border-primary/10 bg-card shrink-0">
+          <button
+            onClick={() => setMobileTab("chat")}
+            className={`flex-1 py-2.5 text-xs font-mono uppercase tracking-widest transition-colors ${
+              mobileTab === "chat"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground"
+            }`}
+          >
+            {t("composer.chatTab")}
+          </button>
+          <button
+            onClick={() => setMobileTab("preview")}
+            className={`flex-1 py-2.5 text-xs font-mono uppercase tracking-widest transition-colors ${
+              mobileTab === "preview"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground"
+            }`}
+          >
+            {t("composer.previewTab")}
+          </button>
+        </div>
+
+        {/* Tab content */}
+        <div className="flex-1 overflow-hidden relative">
+          {mobileTab === "chat" ? (
+            <LeftPanel
+              businessType={businessType}
+              onAddModule={handleAddModule}
+              onComplete={handleComplete}
+              collapsed={false}
+              onToggle={() => {}}
+              fullWidth
+            />
+          ) : (
+            <CenterPanel
+              nodes={nodes}
+              edges={edges}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={setSelectedNodeId}
+            />
+          )}
+
+          {/* FAB */}
+          <button
+            onClick={() => setFeaturesSheetOpen(true)}
+            className="absolute bottom-4 end-4 z-20 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all"
+          >
+            <Package className="w-5 h-5" />
+            {activeModuleIds.length > 0 && (
+              <span className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                {activeModuleIds.length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Features Sheet */}
+        <Sheet open={featuresSheetOpen} onOpenChange={setFeaturesSheetOpen}>
+          <SheetContent side="bottom" className="h-[70vh] bg-card border-t border-primary/10 p-0">
+            <SheetHeader className="p-4 border-b border-primary/8">
+              <SheetTitle className="text-xs font-mono uppercase tracking-widest text-primary/70 flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                {t("composer.featureCatalog")}
+                <span className="text-muted-foreground ms-auto">{activeModuleIds.length}/{features.length}</span>
+              </SheetTitle>
+            </SheetHeader>
+            <div className="overflow-y-auto p-4 flex-1" style={{ maxHeight: "calc(70vh - 60px)" }}>
+              <RightPanel
+                features={features}
+                activeModuleIds={activeModuleIds}
+                collapsed={false}
+                onToggle={() => {}}
+                embedded
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
     <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
       <ComposerHeader businessLabel={vertical?.label || "System"} onComplete={handleComplete} />

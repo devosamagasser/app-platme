@@ -98,7 +98,10 @@
     "placeholder": "Describe what you need...",
     "featureCatalog": "Feature Catalog",
     "default": "default",
-    "proposed": "Proposed"
+    "proposed": "Proposed",
+    "chatTab": "Chat",
+    "previewTab": "Preview",
+    "features": "Features"
   },
   "configure": {
     "backToDesigner": "Back to Designer",
