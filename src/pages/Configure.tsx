@@ -245,7 +245,7 @@ const Configure = () => {
           </section>
         </div>
 
-        <div className="w-[280px] shrink-0">
+        <div className="w-full lg:w-[280px] shrink-0">
           <div className="sticky top-8 p-5 rounded-xl border border-primary/15 bg-card space-y-4">
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
               {t("configure.monthlyEstimate")}
