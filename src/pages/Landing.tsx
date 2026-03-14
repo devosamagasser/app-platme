@@ -6,7 +6,7 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import FinalCTA from "@/components/landing/FinalCTA";
 
 const Landing = () => (
-  <div className="min-h-screen bg-background">
+  <div className="min-h-screen bg-background overflow-x-hidden">
     <LandingNav />
     <HeroSection />
     <IndustrySection />
