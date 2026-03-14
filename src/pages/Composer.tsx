@@ -15,7 +15,8 @@ import type { AddModuleCall } from "@/lib/streamChat";
 const Composer = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
   const businessType = searchParams.get("business") || "education";
   const vertical = businessVerticals[businessType];
   const isMobile = useIsMobile();
