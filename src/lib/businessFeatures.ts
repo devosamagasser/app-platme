@@ -51,7 +51,7 @@ export const businessVerticals: Record<string, BusinessVertical> = {
     label: "E-Commerce",
     description: "Full-stack commerce infrastructure with inventory, payments, and fulfillment.",
     icon: "ShoppingCart",
-    active: true,
+    active: false,
     suggestions: [
       "Build a product catalog",
       "Add shopping cart",
