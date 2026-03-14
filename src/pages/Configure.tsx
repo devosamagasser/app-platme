@@ -49,7 +49,7 @@ const Configure = () => {
 
       const { data: system } = await supabase
         .from("systems")
-        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price")
+        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price, creation_token_cost")
         .eq("slug", businessType)
         .single() as { data: any };
 
