@@ -120,7 +120,10 @@
     "monthlyEstimate": "Monthly Estimate",
     "capacity": "Capacity",
     "total": "Total",
-    "confirmDeploy": "Confirm & Deploy"
+    "confirmDeploy": "Confirm & Deploy",
+    "fillSubdomain": "Please enter a subdomain",
+    "noTokens": "Not enough tokens. Please purchase more.",
+    "deploySuccess": "Platform deployed successfully!"
   },
   "auth": {
     "platform": "PLATME Platform",
