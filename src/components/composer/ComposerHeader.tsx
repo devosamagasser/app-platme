@@ -14,7 +14,10 @@ const ComposerHeader = ({ businessLabel, onDeploy }: { businessLabel: string; on
     </div>
 
     <div className="flex items-center gap-3">
-      <button className="px-4 py-1.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground hover:shadow-[0_0_15px_rgba(159,255,208,0.3)] transition-all">
+      <button
+        onClick={onDeploy}
+        className="px-4 py-1.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground hover:shadow-[0_0_15px_rgba(159,255,208,0.3)] transition-all"
+      >
         Deploy
       </button>
     </div>
