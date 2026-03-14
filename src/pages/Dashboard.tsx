@@ -87,6 +87,9 @@ const Dashboard = () => {
             <h1 className="text-lg font-semibold mt-0.5">{t("dashboard.title")}</h1>
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/" className="p-2 rounded-md hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
             <LanguageSwitcher />
             <button onClick={signOut} className="p-2 rounded-md hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-colors">
               <LogOut className="w-4 h-4" />

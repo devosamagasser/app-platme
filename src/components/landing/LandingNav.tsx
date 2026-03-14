@@ -48,9 +48,15 @@ const LandingNav = () => {
           <a href="#industries" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.industries")}</a>
           <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.howItWorks")}</a>
           <LanguageSwitcher />
-          <Link to="/select" onClick={() => setMobileOpen(false)} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm text-center hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
-            {t("nav.getStarted")}
-          </Link>
+          {user ? (
+            <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm text-center hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
+              {t("nav.dashboard") || "Dashboard"}
+            </Link>
+          ) : (
+            <Link to="/select" onClick={() => setMobileOpen(false)} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm text-center hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
+              {t("nav.getStarted")}
+            </Link>
+          )}
         </div>
       )}
     </nav>
