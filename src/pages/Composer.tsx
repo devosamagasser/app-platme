@@ -99,6 +99,13 @@ const Composer = () => {
     fetchFeatures();
   }, [businessType, defaultsLoaded]);
 
+  // Sync graph state to sessionStorage
+  useEffect(() => {
+    if (nodes.length > 0) {
+      sessionStorage.setItem(graphStorageKey, JSON.stringify({ nodes, edges }));
+    }
+  }, [nodes, edges, graphStorageKey]);
+
   const handleAddModule = useCallback((module: AddModuleCall) => {
     setNodes((prev) => {
       if (prev.find((n) => n.id === module.id)) return prev;
