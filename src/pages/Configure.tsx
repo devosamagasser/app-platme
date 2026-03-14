@@ -21,6 +21,7 @@ const MOBILE_APP_PRICE = 99; // $/month
 
 const Configure = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const businessType = searchParams.get("business") || "education";
 
   const [selectedFeatures, setSelectedFeatures] = useState<FeatureConfig[]>([]);
