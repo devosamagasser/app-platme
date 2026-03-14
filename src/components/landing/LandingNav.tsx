@@ -8,6 +8,7 @@ import logo from "@/assets/logo.png";
 
 const LandingNav = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
