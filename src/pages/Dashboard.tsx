@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
-import { Coins, Plus, LogOut, Code2, Globe } from "lucide-react";
+import { Coins, Plus, LogOut, Code2, Globe, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useToast } from "@/hooks/use-toast";
 
