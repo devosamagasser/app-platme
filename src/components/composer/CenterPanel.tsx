@@ -69,7 +69,7 @@ const CenterPanel = ({
   return (
     <div
       ref={containerRef}
-      className={`flex-1 relative bg-grid overflow-hidden ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
+      className={`flex-1 h-full relative bg-grid overflow-hidden ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
