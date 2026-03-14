@@ -94,14 +94,26 @@ const Composer = () => {
       }];
     });
 
-    // Connect new module to all existing nodes
+    // Connect new module to its grid neighbors (right and bottom)
     setNodes((currentNodes) => {
+      const count = currentNodes.length; // index of new node
+      const cols = 3;
+      const row = Math.floor(count / cols);
+      const col = count % cols;
       setEdges((prev) => {
-        const newEdges: GraphEdge[] = currentNodes
-          .filter((n) => n.id !== module.id)
-          .map((n) => ({ from: n.id, to: module.id }))
-          .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
-        return [...prev, ...newEdges];
+        const newEdges: GraphEdge[] = [];
+        // Left neighbor
+        if (col > 0) {
+          const leftNode = currentNodes[count - 1];
+          if (leftNode) newEdges.push({ from: leftNode.id, to: module.id });
+        }
+        // Top neighbor
+        const topIdx = count - cols;
+        if (topIdx >= 0 && currentNodes[topIdx]) {
+          newEdges.push({ from: currentNodes[topIdx].id, to: module.id });
+        }
+        const filtered = newEdges.filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
+        return [...prev, ...filtered];
       });
       return currentNodes;
     });
