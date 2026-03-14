@@ -12,7 +12,7 @@ const LandingNav = () => (
       <a href="#industries" className="hover:text-foreground transition-colors">Industries</a>
       <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
       <Link to="/select" className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
-        Launch Composer
+        ابدأ الآن
       </Link>
     </div>
   </nav>
