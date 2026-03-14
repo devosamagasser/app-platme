@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export interface GraphNode {
   id: string;
@@ -26,6 +27,7 @@ const CenterPanel = ({
   selectedNodeId: string | null;
   onSelectNode: (id: string) => void;
 }) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -52,7 +54,6 @@ const CenterPanel = ({
     setIsPanning(false);
   }, []);
 
-  // Also stop panning if mouse leaves
   useEffect(() => {
     const handleGlobalUp = () => setIsPanning(false);
     window.addEventListener("mouseup", handleGlobalUp);
@@ -74,22 +75,19 @@ const CenterPanel = ({
       onMouseUp={handleMouseUp}
       onWheel={handleWheel}
     >
-      {/* Watermark */}
-      <div className="absolute top-4 left-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest pointer-events-none z-10">
-        Architecture Canvas
+      <div className="absolute top-4 start-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest pointer-events-none z-10">
+        {t("composer.architectureCanvas")}
       </div>
 
-      {/* Zoom controls */}
-      <div className="absolute bottom-4 right-4 flex items-center gap-1 z-10">
+      <div className="absolute bottom-4 end-4 flex items-center gap-1 z-10">
         <button onClick={() => setZoom((z) => Math.max(0.3, z - 0.15))} className="w-7 h-7 rounded-md bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center text-sm font-mono">−</button>
         <span className="text-[10px] font-mono text-muted-foreground/50 w-10 text-center">{Math.round(zoom * 100)}%</span>
         <button onClick={() => setZoom((z) => Math.min(2, z + 0.15))} className="w-7 h-7 rounded-md bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center text-sm font-mono">+</button>
       </div>
 
-      {/* Pan hint */}
       {nodes.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-xs font-mono text-muted-foreground/30">Loading modules…</span>
+          <span className="text-xs font-mono text-muted-foreground/30">{t("composer.loadingModules")}</span>
         </div>
       )}
 
@@ -152,7 +150,7 @@ const CenterPanel = ({
             </div>
             {node.status === "proposed" && (
               <div className="text-[9px] font-mono text-primary/40 mt-2 uppercase">
-                Proposed
+                {t("composer.proposed")}
               </div>
             )}
           </motion.div>

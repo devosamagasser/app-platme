@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const NetworkVisual = () => (
   <div className="relative w-full h-full min-h-[400px]">
     <svg viewBox="0 0 400 400" className="w-full h-full opacity-80">
-      {/* Grid nodes */}
       {[
         { x: 200, y: 80, r: 6, delay: 0 },
         { x: 120, y: 160, r: 4, delay: 0.3 },
@@ -28,7 +28,6 @@ const NetworkVisual = () => (
           <circle cx={node.x} cy={node.y} r={node.r * 3} fill="#9FFFD0" opacity="0.05" />
         </g>
       ))}
-      {/* Connections */}
       {[
         "M200,80 L120,160", "M200,80 L280,140", "M120,160 L200,220",
         "M280,140 L200,220", "M280,140 L320,240", "M200,220 L150,320",
@@ -46,62 +45,65 @@ const NetworkVisual = () => (
   </div>
 );
 
-const HeroSection = () => (
-  <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-    {/* Background gradient */}
-    <div className="absolute inset-0 bg-gradient-to-b from-forest to-background" />
-    <div className="absolute inset-0 bg-grid opacity-50" />
+const HeroSection = () => {
+  const { t } = useTranslation();
 
-    <div className="relative z-10 container mx-auto px-8 grid lg:grid-cols-2 gap-16 items-center">
-      <div className="space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          <p className="text-xs font-mono uppercase tracking-widest text-primary/60 mb-6">
-            Guided Intelligence™ Platform
-          </p>
-          <h1 className="text-5xl md:text-7xl font-semibold tracking-architect text-foreground leading-[1.05]" style={{ textWrap: "balance" }}>
-            Build Systems.<br />
-            <span className="text-gradient-mint">Orchestrate Intelligence.</span>
-          </h1>
-        </motion.div>
+  return (
+    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-forest to-background" />
+      <div className="absolute inset-0 bg-grid opacity-50" />
 
-        <motion.p
-          className="text-lg text-muted-foreground max-w-lg leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          Human-led direction. AI-powered orchestration.<br />
-          Infrastructure built to scale.
-        </motion.p>
-
-        <motion.div
-          className="flex gap-4 pt-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          <Link
-            to="/select"
-            className="px-8 py-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all"
+      <div className="relative z-10 container mx-auto px-8 grid lg:grid-cols-2 gap-16 items-center">
+        <div className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            Start Building
-          </Link>
+            <p className="text-xs font-mono uppercase tracking-widest text-primary/60 mb-6">
+              {t("hero.badge")}
+            </p>
+            <h1 className="text-5xl md:text-7xl font-semibold tracking-architect text-foreground leading-[1.05]" style={{ textWrap: "balance" }}>
+              {t("hero.title1")}<br />
+              <span className="text-gradient-mint">{t("hero.title2")}</span>
+            </h1>
+          </motion.div>
+
+          <motion.p
+            className="text-lg text-muted-foreground max-w-lg leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            {t("hero.subtitle1")}<br />
+            {t("hero.subtitle2")}
+          </motion.p>
+
+          <motion.div
+            className="flex gap-4 pt-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            <Link
+              to="/select"
+              className="px-8 py-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all"
+            >
+              {t("hero.cta")}
+            </Link>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+        >
+          <NetworkVisual />
         </motion.div>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-      >
-        <NetworkVisual />
-      </motion.div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default HeroSection;
