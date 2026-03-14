@@ -130,7 +130,7 @@ const Composer = () => {
 
   return (
     <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
-      <ComposerHeader businessLabel={vertical?.label || "System"} />
+      <ComposerHeader businessLabel={vertical?.label || "System"} onComplete={handleComplete} />
       <div className="flex flex-1 overflow-hidden">
         <LeftPanel
           businessType={businessType}
