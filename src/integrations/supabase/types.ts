@@ -14,6 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
+      platform_features: {
+        Row: {
+          feature_price: number
+          feature_slug: string
+          id: string
+          platform_id: string
+        }
+        Insert: {
+          feature_price?: number
+          feature_slug: string
+          id?: string
+          platform_id: string
+        }
+        Update: {
+          feature_price?: number
+          feature_slug?: string
+          id?: string
+          platform_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_features_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "platforms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platforms: {
+        Row: {
+          capacity_users: number
+          created_at: string
+          id: string
+          mobile_app: boolean
+          monthly_price: number
+          status: string
+          storage_gb: number
+          subdomain: string
+          system_id: string
+          user_id: string
+        }
+        Insert: {
+          capacity_users?: number
+          created_at?: string
+          id?: string
+          mobile_app?: boolean
+          monthly_price?: number
+          status?: string
+          storage_gb?: number
+          subdomain: string
+          system_id: string
+          user_id: string
+        }
+        Update: {
+          capacity_users?: number
+          created_at?: string
+          id?: string
+          mobile_app?: boolean
+          monthly_price?: number
+          status?: string
+          storage_gb?: number
+          subdomain?: string
+          system_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platforms_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platforms_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          is_developer: boolean
+          tokens: number
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          is_developer?: boolean
+          tokens?: number
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_developer?: boolean
+          tokens?: number
+        }
+        Relationships: []
+      }
       system_features: {
         Row: {
           active: boolean | null
@@ -108,6 +218,38 @@ export type Database = {
           unit_storage_price?: number | null
         }
         Relationships: []
+      }
+      token_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
