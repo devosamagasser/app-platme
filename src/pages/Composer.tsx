@@ -181,7 +181,7 @@ const Composer = () => {
           {/* FAB */}
           <button
             onClick={() => setFeaturesSheetOpen(true)}
-            className="absolute bottom-4 end-4 z-20 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all"
+            className="absolute bottom-20 end-4 z-20 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all"
           >
             <Package className="w-5 h-5" />
             {activeModuleIds.length > 0 && (
