@@ -90,8 +90,9 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
 
     let assistantSoFar = "";
     streamChat({
-      messages: [{ role: "user", content: "ابدأ" }],
+      messages: [{ role: "user", content: currentLang === "ar" ? "ابدأ" : "Start" }],
       businessType,
+      language: currentLang,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         rawContentRef.current = assistantSoFar;
