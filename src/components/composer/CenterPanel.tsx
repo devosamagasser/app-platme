@@ -34,6 +34,14 @@ const CenterPanel = ({
   const [isPanning, setIsPanning] = useState(false);
   const panStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
 
+  // Calculate center point for deploy animation
+  const centerX = nodes.length > 0
+    ? nodes.reduce((sum, n) => sum + n.x + 90, 0) / nodes.length - 90
+    : 300;
+  const centerY = nodes.length > 0
+    ? nodes.reduce((sum, n) => sum + n.y + 30, 0) / nodes.length - 30
+    : 200;
+
   const getNode = (id: string) => nodes.find((n) => n.id === id);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
