@@ -98,7 +98,10 @@
     "placeholder": "صِف ما تحتاجه...",
     "featureCatalog": "كتالوج الميزات",
     "default": "افتراضي",
-    "proposed": "مقترح"
+    "proposed": "مقترح",
+    "chatTab": "المحادثة",
+    "previewTab": "المعاينة",
+    "features": "الميزات"
   },
   "configure": {
     "backToDesigner": "رجوع للمُصمم",
