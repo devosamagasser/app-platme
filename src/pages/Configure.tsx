@@ -85,7 +85,7 @@ const Configure = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Composer
+              رجوع للمُصمم
             </button>
             <div>
               <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
