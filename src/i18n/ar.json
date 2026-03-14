@@ -102,7 +102,8 @@
     "proposed": "مقترح",
     "chatTab": "المحادثة",
     "previewTab": "المعاينة",
-    "features": "الميزات"
+    "features": "الميزات",
+    "tokens": "توكن"
   },
   "configure": {
     "backToDesigner": "رجوع للمُصمم",
@@ -122,6 +123,7 @@
     "capacity": "السعة",
     "total": "الإجمالي",
     "confirmDeploy": "تأكيد والنشر",
+    "tokenCost": "تكلفة الإنشاء",
     "fillSubdomain": "يرجى إدخال النطاق الفرعي",
     "noTokens": "لا توجد توكنز كافية. يرجى شراء المزيد.",
     "deploySuccess": "تم نشر المنصة بنجاح!"

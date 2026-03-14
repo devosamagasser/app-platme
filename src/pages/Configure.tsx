@@ -23,6 +23,7 @@ interface SystemPricing {
   unit_storage_price: number;
   unit_capacity_price: number;
   mobile_app_price: number;
+  creation_token_cost: number;
 }
 
 const Configure = () => {
@@ -48,7 +49,7 @@ const Configure = () => {
 
       const { data: system } = await supabase
         .from("systems")
-        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price")
+        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price, creation_token_cost")
         .eq("slug", businessType)
         .single() as { data: any };
 
@@ -59,6 +60,7 @@ const Configure = () => {
         unit_storage_price: Number(system.unit_storage_price) || 0,
         unit_capacity_price: Number(system.unit_capacity_price) || 0,
         mobile_app_price: Number(system.mobile_app_price) || 0,
+        creation_token_cost: Number(system.creation_token_cost) || 1,
       });
 
       const { data } = await supabase
@@ -110,7 +112,8 @@ const Configure = () => {
         .eq("id", user.id)
         .single() as { data: { tokens: number } | null };
 
-      if (!profile || profile.tokens < 1) {
+      const tokenCost = pricing.creation_token_cost;
+      if (!profile || profile.tokens < tokenCost) {
         toast({ title: t("configure.noTokens"), variant: "destructive" });
         setDeploying(false);
         return;
@@ -146,10 +149,10 @@ const Configure = () => {
       }
 
       // Deduct token
-      await (supabase.from("profiles").update({ tokens: profile.tokens - 1 } as any).eq("id", user.id) as any);
+      await (supabase.from("profiles").update({ tokens: profile.tokens - tokenCost } as any).eq("id", user.id) as any);
       await (supabase.from("token_transactions").insert({
         user_id: user.id,
-        amount: -1,
+        amount: -tokenCost,
         reason: "platform_creation",
       } as any) as any);
 
@@ -379,6 +382,12 @@ const Configure = () => {
             {subdomain && (
               <div className="text-[10px] font-mono text-primary/50 text-center pt-1">
                 {subdomain}.platme.com
+              </div>
+            )}
+
+            {pricing && (
+              <div className="text-[10px] font-mono text-center text-muted-foreground">
+                {t("configure.tokenCost")}: {pricing.creation_token_cost} {t("composer.tokens")}
               </div>
             )}
 

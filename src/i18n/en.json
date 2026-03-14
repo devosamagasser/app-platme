@@ -102,7 +102,8 @@
     "proposed": "Proposed",
     "chatTab": "Chat",
     "previewTab": "Preview",
-    "features": "Features"
+    "features": "Features",
+    "tokens": "tokens"
   },
   "configure": {
     "backToDesigner": "Back to Designer",
@@ -122,6 +123,7 @@
     "capacity": "Capacity",
     "total": "Total",
     "confirmDeploy": "Confirm & Deploy",
+    "tokenCost": "Creation cost",
     "fillSubdomain": "Please enter a subdomain",
     "noTokens": "Not enough tokens. Please purchase more.",
     "deploySuccess": "Platform deployed successfully!"

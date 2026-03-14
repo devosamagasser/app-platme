@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Send, Loader2, PanelLeftClose, PanelLeftOpen, Coins } from "lucide-react";
 import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
 import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 function detectDir(text: string): "rtl" | "ltr" {
   const firstChar = text.trim().charAt(0);
@@ -22,8 +24,23 @@ const TYPING_SPEED = 12; // ms per character
 
 const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle, fullWidth }: LeftPanelProps) => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const currentLang = i18n.language?.startsWith("ar") ? "ar" : "en";
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [tokenCount, setTokenCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchTokens = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("tokens")
+        .eq("id", user.id)
+        .single();
+      if (data) setTokenCount((data as any).tokens);
+    };
+    fetchTokens();
+  }, [user]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -275,7 +292,15 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
         )}
       </div>
 
-      <div className="p-4 border-t border-primary/8">
+      <div className="p-4 border-t border-primary/8 space-y-2">
+        {tokenCount !== null && (
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/5 border border-primary/10 w-fit">
+            <Coins className="w-3.5 h-3.5 text-primary/70" />
+            <span className="text-[10px] font-mono text-primary/70">
+              {tokenCount} {t("composer.tokens")}
+            </span>
+          </div>
+        )}
         <div className="flex items-end gap-2 border border-primary/10 bg-background/50 rounded-xl p-3 focus-within:border-primary/40 transition-colors">
           <textarea
             ref={textareaRef}
