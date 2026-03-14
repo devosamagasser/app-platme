@@ -121,8 +121,11 @@ serve(async (req) => {
         const defaults = features.filter((f: any) => f.is_default);
         const optionals = features.filter((f: any) => !f.is_default);
 
+        const fname = (f: any) => lang === "ar" && f.name_ar ? f.name_ar : f.name;
+        const fdesc = (f: any) => lang === "ar" && f.description_ar ? f.description_ar : f.description;
+
         defaultFeatureList = defaults
-          .map((f: any) => `- **${f.name}** (${f.name_ar}) [slug: ${f.slug}]`)
+          .map((f: any) => `- **${fname(f)}** [slug: ${f.slug}]`)
           .join("\n");
 
         optionalFeatureList = optionals
@@ -130,17 +133,22 @@ serve(async (req) => {
             const deps = Array.isArray(f.dependencies) && f.dependencies.length > 0
               ? ` (depends on: ${f.dependencies.join(", ")})`
               : "";
-            return `- **${f.name}** (${f.name_ar}) [slug: ${f.slug}] (${f.category}): ${f.description} / ${f.description_ar}${deps}`;
+            return `- **${fname(f)}** [slug: ${f.slug}] (${f.category}): ${fdesc(f)}${deps}`;
           })
           .join("\n");
       }
     }
 
     const systemName = system?.name || "System";
+    const langInstruction = lang === "ar"
+      ? "CRITICAL: You MUST respond entirely in Arabic (العربية). All module names, descriptions, and conversation must be in Arabic."
+      : "CRITICAL: You MUST respond entirely in English. All module names, descriptions, and conversation must be in English.";
 
     const systemPrompt = `You are Gomaa (جمعة), a Guided Intelligence™ System Architect for PLATME.
 
 You are helping the user build a ${systemName} system.
+
+${langInstruction}
 
 DEFAULT MODULES (already added to the workspace automatically):
 ${defaultFeatureList}
@@ -162,12 +170,7 @@ BEHAVIOR RULES:
 9. When the user says they're done (e.g., "خلاص", "done", "that's it", "كده تمام"), call the complete_setup tool to finalize.
 10. Do NOT call complete_setup until the user explicitly says they're finished.
 11. CRITICAL: After every add_module call, you MUST continue the conversation — propose the next module or ask if they're done. Never end your response with just a confirmation.
-
-CRITICAL LANGUAGE RULE:
-- ALWAYS respond in the SAME language the user writes in.
-- If the user writes in Arabic, respond entirely in Arabic.
-- If the user writes in English, respond in English.
-- If the user mixes languages, match their primary language.
+12. When the user switches language mid-conversation, follow their language from that point on.
 
 TONE: Professional, confident, architectural. Think infrastructure engineer meets enterprise sales.`;
 
