@@ -20,17 +20,27 @@ const CenterPanel = ({
   edges,
   selectedNodeId,
   onSelectNode,
+  deploying = false,
 }: {
   nodes: GraphNode[];
   edges: GraphEdge[];
   selectedNodeId: string | null;
   onSelectNode: (id: string) => void;
+  deploying?: boolean;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
   const panStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+
+  // Calculate center point for deploy animation
+  const centerX = nodes.length > 0
+    ? nodes.reduce((sum, n) => sum + n.x + 90, 0) / nodes.length - 90
+    : 300;
+  const centerY = nodes.length > 0
+    ? nodes.reduce((sum, n) => sum + n.y + 30, 0) / nodes.length - 30
+    : 200;
 
   const getNode = (id: string) => nodes.find((n) => n.id === id);
 
@@ -95,33 +105,38 @@ const CenterPanel = ({
 
       <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }} className="absolute inset-0">
         <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: "visible" }}>
-          {edges.map((edge, i) => {
-            const from = getNode(edge.from);
-            const to = getNode(edge.to);
-            if (!from || !to) return null;
-            const isProposed = from.status === "proposed" || to.status === "proposed";
-            return (
-              <line
-                key={i}
-                x1={from.x + 90}
-                y1={from.y + 30}
-                x2={to.x + 90}
-                y2={to.y + 30}
-                stroke="#9FFFD0"
-                strokeWidth="1.5"
-                opacity={isProposed ? 0.3 : 0.5}
-                strokeDasharray={isProposed ? "6 4" : "none"}
-                style={
-                  isProposed
-                    ? {}
-                    : {
-                        strokeDasharray: "4",
-                        animation: "flow 20s linear infinite",
-                      }
-                }
-              />
-            );
-          })}
+          <motion.g
+            animate={deploying ? { opacity: 0 } : { opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            {edges.map((edge, i) => {
+              const from = getNode(edge.from);
+              const to = getNode(edge.to);
+              if (!from || !to) return null;
+              const isProposed = from.status === "proposed" || to.status === "proposed";
+              return (
+                <line
+                  key={i}
+                  x1={from.x + 90}
+                  y1={from.y + 30}
+                  x2={to.x + 90}
+                  y2={to.y + 30}
+                  stroke="#9FFFD0"
+                  strokeWidth="1.5"
+                  opacity={isProposed ? 0.3 : 0.5}
+                  strokeDasharray={isProposed ? "6 4" : "none"}
+                  style={
+                    isProposed
+                      ? {}
+                      : {
+                          strokeDasharray: "4",
+                          animation: "flow 20s linear infinite",
+                        }
+                  }
+                />
+              );
+            })}
+          </motion.g>
         </svg>
 
         {nodes.map((node) => (
@@ -129,20 +144,36 @@ const CenterPanel = ({
             key={node.id}
             data-node
             className={`absolute min-w-[180px] rounded-lg p-4 cursor-pointer transition-all border ${
-              node.status === "proposed"
+              deploying
+                ? "border-primary/40 bg-forest"
+                : node.status === "proposed"
                 ? "border-dashed border-primary/30 bg-forest/50"
                 : selectedNodeId === node.id
                 ? "border-primary bg-forest mint-glow scale-[1.02]"
                 : "border-primary/20 bg-forest shadow-xl hover:border-primary/40"
             }`}
-            style={{ left: node.x, top: node.y }}
+            style={{ left: deploying ? undefined : node.x, top: deploying ? undefined : node.y }}
             onClick={(e) => {
+              if (deploying) return;
               e.stopPropagation();
               onSelectNode(node.id);
             }}
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+            animate={
+              deploying
+                ? {
+                    x: centerX - node.x,
+                    y: centerY - node.y,
+                    scale: 0.3,
+                    opacity: 0,
+                  }
+                : { opacity: 1, scale: 1, x: 0, y: 0 }
+            }
+            transition={
+              deploying
+                ? { duration: 1, ease: [0.2, 0.8, 0.2, 1] }
+                : { duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }
+            }
           >
             <div className="text-[10px] font-mono uppercase text-primary/60 tracking-wider">
               {node.category}
@@ -150,7 +181,7 @@ const CenterPanel = ({
             <div className="text-sm text-foreground font-medium mt-1">
               {node.label}
             </div>
-            {node.status === "proposed" && (
+            {node.status === "proposed" && !deploying && (
               <div className="text-[9px] font-mono text-primary/40 mt-2 uppercase">
                 Proposed
               </div>

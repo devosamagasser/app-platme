@@ -1,12 +1,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import ComposerHeader from "@/components/composer/ComposerHeader";
 import LeftPanel from "@/components/composer/LeftPanel";
 import CenterPanel, { type GraphNode, type GraphEdge } from "@/components/composer/CenterPanel";
 import RightPanel, { type FeatureItem } from "@/components/composer/RightPanel";
+import ConfigPanel from "@/components/composer/ConfigPanel";
 import { businessVerticals } from "@/lib/businessFeatures";
 import { supabase } from "@/integrations/supabase/client";
 import type { AddModuleCall } from "@/lib/streamChat";
+
+type DeployPhase = "idle" | "animating" | "configuring";
 
 const Composer = () => {
   const [searchParams] = useSearchParams();
@@ -21,6 +25,7 @@ const Composer = () => {
   const [defaultsLoaded, setDefaultsLoaded] = useState(false);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [deployPhase, setDeployPhase] = useState<DeployPhase>("idle");
 
   useEffect(() => {
     const fetchFeatures = async () => {
@@ -57,17 +62,13 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          // Connect nodes only to horizontal and vertical neighbors in the grid
           const cols = 3;
           const defaultEdges: GraphEdge[] = [];
           for (let i = 0; i < defaultFeatures.length; i++) {
-            const row = Math.floor(i / cols);
             const col = i % cols;
-            // Right neighbor
             if (col < cols - 1 && i + 1 < defaultFeatures.length) {
               defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + 1].slug });
             }
-            // Bottom neighbor
             if (i + cols < defaultFeatures.length) {
               defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + cols].slug });
             }
@@ -94,20 +95,16 @@ const Composer = () => {
       }];
     });
 
-    // Connect new module to its grid neighbors (right and bottom)
     setNodes((currentNodes) => {
-      const count = currentNodes.length; // index of new node
+      const count = currentNodes.length;
       const cols = 3;
-      const row = Math.floor(count / cols);
       const col = count % cols;
       setEdges((prev) => {
         const newEdges: GraphEdge[] = [];
-        // Left neighbor
         if (col > 0) {
           const leftNode = currentNodes[count - 1];
           if (leftNode) newEdges.push({ from: leftNode.id, to: module.id });
         }
-        // Top neighbor
         const topIdx = count - cols;
         if (topIdx >= 0 && currentNodes[topIdx]) {
           newEdges.push({ from: currentNodes[topIdx].id, to: module.id });
@@ -117,6 +114,23 @@ const Composer = () => {
       });
       return currentNodes;
     });
+  }, []);
+
+  const handleDeploy = useCallback(() => {
+    if (deployPhase !== "idle" || nodes.length === 0) return;
+    setDeployPhase("animating");
+    setTimeout(() => {
+      setDeployPhase("configuring");
+    }, 1200);
+  }, [deployPhase, nodes.length]);
+
+  const handleCloseConfig = useCallback(() => {
+    setDeployPhase("idle");
+  }, []);
+
+  const handleConfirmDeploy = useCallback((config: { storage: number; capacity: number; mobileApp: boolean; subdomain: string }) => {
+    console.log("Deploy confirmed:", config);
+    // Future: save config and navigate
   }, []);
 
   const handleComplete = useCallback(() => {
@@ -130,8 +144,11 @@ const Composer = () => {
 
   return (
     <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
-      <ComposerHeader businessLabel={vertical?.label || "System"} />
-      <div className="flex flex-1 overflow-hidden">
+      <ComposerHeader
+        businessLabel={vertical?.label || "System"}
+        onDeploy={handleDeploy}
+      />
+      <div className="flex flex-1 overflow-hidden relative">
         <LeftPanel
           businessType={businessType}
           onAddModule={handleAddModule}
@@ -144,6 +161,7 @@ const Composer = () => {
           edges={edges}
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
+          deploying={deployPhase === "animating"}
         />
         <RightPanel
           features={features}
@@ -151,6 +169,16 @@ const Composer = () => {
           collapsed={rightCollapsed}
           onToggle={() => setRightCollapsed((p) => !p)}
         />
+
+        <AnimatePresence>
+          {deployPhase === "configuring" && (
+            <ConfigPanel
+              moduleNames={nodes.map((n) => ({ id: n.id, label: n.label, category: n.category }))}
+              onClose={handleCloseConfig}
+              onConfirm={handleConfirmDeploy}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
