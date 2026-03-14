@@ -10,6 +10,7 @@ export interface AddModuleCall {
 interface StreamChatOptions {
   messages: ChatMessage[];
   businessType: string;
+  language: string;
   onDelta: (text: string) => void;
   onToolCall: (module: AddModuleCall) => void;
   onComplete: () => void;
@@ -19,7 +20,7 @@ interface StreamChatOptions {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-export async function streamChat({ messages, businessType, onDelta, onToolCall, onComplete, onDone, onError }: StreamChatOptions) {
+export async function streamChat({ messages, businessType, language, onDelta, onToolCall, onComplete, onDone, onError }: StreamChatOptions) {
   try {
     const resp = await fetch(CHAT_URL, {
       method: "POST",
@@ -27,7 +28,7 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
         "Content-Type": "application/json",
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       },
-      body: JSON.stringify({ messages, businessType }),
+      body: JSON.stringify({ messages, businessType, language }),
     });
 
     if (!resp.ok) {

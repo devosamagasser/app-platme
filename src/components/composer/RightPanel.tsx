@@ -23,7 +23,8 @@ interface RightPanelProps {
 }
 
 const FeatureList = ({ features, activeModuleIds }: { features: FeatureItem[]; activeModuleIds: string[] }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
   const categories = [...new Set(features.map((f) => f.category))];
 
   return (
@@ -38,9 +39,12 @@ const FeatureList = ({ features, activeModuleIds }: { features: FeatureItem[]; a
               .filter((f) => f.category === cat)
               .map((f) => {
                 const isActive = activeModuleIds.includes(f.slug);
+                const displayName = isAr && f.name_ar ? f.name_ar : f.name;
+                const displayDesc = isAr && f.description_ar ? f.description_ar : f.description;
                 return (
                   <div
                     key={f.slug}
+                    dir={isAr ? "rtl" : "ltr"}
                     className={`p-3 rounded-lg border transition-colors ${
                       isActive
                         ? "border-primary/30 bg-primary/5"
@@ -48,12 +52,7 @@ const FeatureList = ({ features, activeModuleIds }: { features: FeatureItem[]; a
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <div>
-                        <span className="text-xs font-semibold text-foreground">{f.name}</span>
-                        {f.name_ar && (
-                          <span className="text-[10px] text-muted-foreground ms-1.5">({f.name_ar})</span>
-                        )}
-                      </div>
+                      <span className="text-xs font-semibold text-foreground">{displayName}</span>
                       <div className="flex items-center gap-1.5">
                         {f.is_default && (
                           <span className="text-[8px] font-mono uppercase text-primary/50 bg-primary/10 px-1.5 py-0.5 rounded">
@@ -68,7 +67,7 @@ const FeatureList = ({ features, activeModuleIds }: { features: FeatureItem[]; a
                       </div>
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      {f.description}
+                      {displayDesc}
                     </p>
                   </div>
                 );

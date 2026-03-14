@@ -15,7 +15,8 @@ import type { AddModuleCall } from "@/lib/streamChat";
 const Composer = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
   const businessType = searchParams.get("business") || "education";
   const vertical = businessVerticals[businessType];
   const isMobile = useIsMobile();
@@ -57,7 +58,7 @@ const Composer = () => {
           const defaultFeatures = mapped.filter((f: any) => f.is_default);
           const defaultNodes: GraphNode[] = defaultFeatures.map((f: any, i: number) => ({
             id: f.slug,
-            label: f.name,
+            label: isAr && f.name_ar ? f.name_ar : f.name,
             category: f.category,
             x: 80 + (i % 3) * 220,
             y: 60 + Math.floor(i / 3) * 140,

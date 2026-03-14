@@ -21,7 +21,8 @@ interface LeftPanelProps {
 const TYPING_SPEED = 12; // ms per character
 
 const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle, fullWidth }: LeftPanelProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language?.startsWith("ar") ? "ar" : "en";
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -89,8 +90,9 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
 
     let assistantSoFar = "";
     streamChat({
-      messages: [{ role: "user", content: "ابدأ" }],
+      messages: [{ role: "user", content: currentLang === "ar" ? "ابدأ" : "Start" }],
       businessType,
+      language: currentLang,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         rawContentRef.current = assistantSoFar;
@@ -147,6 +149,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
     await streamChat({
       messages: conversationMessages,
       businessType,
+      language: currentLang,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         rawContentRef.current = assistantSoFar;
