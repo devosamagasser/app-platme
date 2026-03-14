@@ -58,9 +58,12 @@ const Composer = () => {
           const defaultFeatures = mapped.filter((f: any) => f.is_default);
           const defaultNodes: GraphNode[] = defaultFeatures.map((f: any, i: number) => ({
             id: f.slug,
-            label: f.name,
+            label: isAr && f.name_ar ? f.name_ar : f.name,
             category: f.category,
             x: 80 + (i % 3) * 220,
+            y: 60 + Math.floor(i / 3) * 140,
+            status: "active" as const,
+          }));
             y: 60 + Math.floor(i / 3) * 140,
             status: "active" as const,
           }));
