@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "industries": "Industries",
+    "howItWorks": "How It Works",
+    "getStarted": "Get Started"
+  },
+  "hero": {
+    "badge": "Guided Intelligence™ Platform",
+    "title1": "Build Systems.",
+    "title2": "Orchestrate Intelligence.",
+    "subtitle1": "Human-led direction. AI-powered orchestration.",
+    "subtitle2": "Infrastructure built to scale.",
+    "cta": "Start Building"
+  },
+  "industries": {
+    "title": "Orchestrate Your Industry",
+    "subtitle": "One Infrastructure. Multiple Verticals.",
+    "comingSoon": "Coming Soon",
+    "education": "Education",
+    "ecommerce": "E-commerce",
+    "gym": "Gym Systems",
+    "clinic": "Clinic Systems",
+    "restaurant": "Restaurant Systems",
+    "core": "Core"
+  },
+  "education": {
+    "badge": "Live Vertical",
+    "title": "Education Infrastructure",
+    "subtitle": "The first production vertical. Modular blocks for building complete learning platforms.",
+    "courses": "Courses",
+    "coursesDesc": "Structured curriculum engine with versioned content.",
+    "membership": "Membership",
+    "membershipDesc": "Multi-tier access control and subscription management.",
+    "cohorts": "Cohorts",
+    "cohortsDesc": "Group-based learning with enrollment workflows.",
+    "certification": "Certification",
+    "certificationDesc": "Automated credential issuance and verification.",
+    "analytics": "Analytics",
+    "analyticsDesc": "Real-time telemetry on engagement and progress.",
+    "contentDelivery": "Content Delivery",
+    "contentDeliveryDesc": "CDN-backed media distribution with access gating."
+  },
+  "comparison": {
+    "title": "Why Guided Intelligence?",
+    "subtitle": "PLATME combines human intent with AI orchestration for deterministic, enterprise-grade infrastructure.",
+    "aiOnly": "AI-Only Systems",
+    "aiOnly1": "Unpredictable outputs",
+    "aiOnly2": "No architectural awareness",
+    "aiOnly3": "Black-box decisions",
+    "aiOnly4": "Fragile at scale",
+    "manual": "Manual Software Dev",
+    "manual1": "Months of development",
+    "manual2": "High engineering cost",
+    "manual3": "Rigid architecture",
+    "manual4": "Slow iteration cycles",
+    "guided": "Guided Intelligence™",
+    "guided1": "Deterministic AI orchestration",
+    "guided2": "Human-guided architecture",
+    "guided3": "Zero-drift infrastructure",
+    "guided4": "Modular & scalable"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "From intent to infrastructure in four deterministic steps.",
+    "step1Title": "Define Intent",
+    "step1Desc": "Describe the system you want to build in natural language.",
+    "step2Title": "AI Proposes Architecture",
+    "step2Desc": "Gomaa generates a modular infrastructure blueprint.",
+    "step3Title": "Human Guides the System",
+    "step3Desc": "Review, refine, and confirm architectural decisions.",
+    "step4Title": "Deploy Infrastructure",
+    "step4Desc": "Generate production-ready structured infrastructure."
+  },
+  "cta": {
+    "title1": "This is not automation.",
+    "title2": "This is orchestration.",
+    "subtitle": "Infrastructure for building entire digital businesses. Human-led. AI-orchestrated.",
+    "button": "Request Early Access",
+    "footer": "© 2026 PLATME. Guided Intelligence™"
+  },
+  "select": {
+    "navLabel": "Select Your Vertical",
+    "badge": "Guided Intelligence™",
+    "title": "What are you",
+    "titleHighlight": "building?",
+    "subtitle": "Select your industry vertical. Gomaa will architect the optimal infrastructure for your system.",
+    "comingSoon": "Coming Soon",
+    "available": "Available →"
+  },
+  "composer": {
+    "headerLabel": "Guided Intelligence™ Composer",
+    "proceed": "Proceed →",
+    "architectureCanvas": "Architecture Canvas",
+    "loadingModules": "Loading modules…",
+    "gomaaTitle": "Gomaa — System Architect",
+    "gomaaLabel": "Gomaa",
+    "initialMessage": "Awaiting system intent. Describe the infrastructure you wish to provision.",
+    "placeholder": "Describe what you need...",
+    "featureCatalog": "Feature Catalog",
+    "default": "default",
+    "proposed": "Proposed"
+  },
+  "configure": {
+    "backToDesigner": "Back to Designer",
+    "configLabel": "Configuration",
+    "title": "Configure Your System",
+    "modulesSelected": "modules selected",
+    "selectedModules": "Selected Modules",
+    "resources": "Resources",
+    "storage": "Storage",
+    "usersCapacity": "Users Capacity",
+    "users": "users",
+    "mobileApp": "Mobile Application",
+    "mobileAppDesc": "iOS & Android native app for your platform",
+    "subdomain": "Subdomain",
+    "subdomainPlaceholder": "my-school",
+    "monthlyEstimate": "Monthly Estimate",
+    "capacity": "Capacity",
+    "total": "Total",
+    "confirmDeploy": "Confirm & Deploy"
+  }
+}
