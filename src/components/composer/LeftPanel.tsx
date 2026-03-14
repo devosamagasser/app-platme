@@ -26,7 +26,13 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const currentLang = i18n.language?.startsWith("ar") ? "ar" : "en";
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const chatStorageKey = `platme_chat_${businessType}`;
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(chatStorageKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [tokenCount, setTokenCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -90,14 +96,22 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
     };
   }, []);
 
+  // Sync messages to sessionStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      sessionStorage.setItem(chatStorageKey, JSON.stringify(messages));
+    }
+  }, [messages, chatStorageKey]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, displayedContent]);
 
-  // Auto-intro: trigger AI greeting on mount
+  // Auto-intro: trigger AI greeting on mount (skip if restored from session)
   useEffect(() => {
     if (introSent.current) return;
     introSent.current = true;
+    if (messages.length > 0) return; // Restored from sessionStorage, skip intro
     setIsLoading(true);
     rawContentRef.current = "";
     displayedLengthRef.current = 0;

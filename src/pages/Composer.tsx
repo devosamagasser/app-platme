@@ -21,11 +21,25 @@ const Composer = () => {
   const vertical = businessVerticals[businessType];
   const isMobile = useIsMobile();
 
-  const [nodes, setNodes] = useState<GraphNode[]>([]);
-  const [edges, setEdges] = useState<GraphEdge[]>([]);
+  const graphStorageKey = `platme_graph_${businessType}`;
+  const [nodes, setNodes] = useState<GraphNode[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(graphStorageKey);
+      if (saved) { const parsed = JSON.parse(saved); return parsed.nodes || []; }
+    } catch {}
+    return [];
+  });
+  const [edges, setEdges] = useState<GraphEdge[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(graphStorageKey);
+      if (saved) { const parsed = JSON.parse(saved); return parsed.edges || []; }
+    } catch {}
+    return [];
+  });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureItem[]>([]);
-  const [defaultsLoaded, setDefaultsLoaded] = useState(false);
+  const hasRestoredGraph = nodes.length > 0;
+  const [defaultsLoaded, setDefaultsLoaded] = useState(hasRestoredGraph);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
@@ -84,6 +98,13 @@ const Composer = () => {
     };
     fetchFeatures();
   }, [businessType, defaultsLoaded]);
+
+  // Sync graph state to sessionStorage
+  useEffect(() => {
+    if (nodes.length > 0) {
+      sessionStorage.setItem(graphStorageKey, JSON.stringify({ nodes, edges }));
+    }
+  }, [nodes, edges, graphStorageKey]);
 
   const handleAddModule = useCallback((module: AddModuleCall) => {
     setNodes((prev) => {
