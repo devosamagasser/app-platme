@@ -186,10 +186,12 @@ export type Database = {
           created_at: string | null
           creation_token_cost: number
           description: string
+          description_ar: string | null
           icon: string
           id: string
           mobile_app_price: number | null
           name: string
+          name_ar: string | null
           slug: string
           unit_capacity_price: number | null
           unit_storage_price: number | null
@@ -199,10 +201,12 @@ export type Database = {
           created_at?: string | null
           creation_token_cost?: number
           description: string
+          description_ar?: string | null
           icon: string
           id?: string
           mobile_app_price?: number | null
           name: string
+          name_ar?: string | null
           slug: string
           unit_capacity_price?: number | null
           unit_storage_price?: number | null
@@ -212,10 +216,12 @@ export type Database = {
           created_at?: string | null
           creation_token_cost?: number
           description?: string
+          description_ar?: string | null
           icon?: string
           id?: string
           mobile_app_price?: number | null
           name?: string
+          name_ar?: string | null
           slug?: string
           unit_capacity_price?: number | null
           unit_storage_price?: number | null
