@@ -55,7 +55,7 @@ const ComparisonSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 max-w-5xl mx-auto px-2">
           {columns.map((col, i) => (
             <motion.div
               key={col.title}
