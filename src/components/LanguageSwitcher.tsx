@@ -29,9 +29,8 @@ const LanguageSwitcher = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all">
-        <Globe className="w-3.5 h-3.5" />
-        {current.label}
+      <DropdownMenuTrigger className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all">
+        <Globe className="w-4 h-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-card border-primary/15">
         {languages.map((lang) => (
@@ -39,7 +38,7 @@ const LanguageSwitcher = () => {
             key={lang.code}
             onClick={() => changeLang(lang.code)}
             className={`text-xs font-mono cursor-pointer ${
-              i18n.language === lang.code ? "text-primary" : "text-muted-foreground"
+              i18n.language === lang.code ? "text-primary bg-primary/10 font-bold" : "text-muted-foreground"
             }`}
           >
             {lang.label}
