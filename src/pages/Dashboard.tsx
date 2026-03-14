@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
-import { Coins, Plus, LogOut, Code2, Globe } from "lucide-react";
+import { Coins, Plus, LogOut, Code2, Globe, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useToast } from "@/hooks/use-toast";
 
@@ -86,6 +87,9 @@ const Dashboard = () => {
             <h1 className="text-lg font-semibold mt-0.5">{t("dashboard.title")}</h1>
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/" className="p-2 rounded-md hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
             <LanguageSwitcher />
             <button onClick={signOut} className="p-2 rounded-md hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-colors">
               <LogOut className="w-4 h-4" />
