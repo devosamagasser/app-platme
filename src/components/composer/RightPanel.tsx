@@ -19,11 +19,74 @@ interface RightPanelProps {
   activeModuleIds: string[];
   collapsed: boolean;
   onToggle: () => void;
+  embedded?: boolean;
 }
 
-const RightPanel = ({ features, activeModuleIds, collapsed, onToggle }: RightPanelProps) => {
+const FeatureList = ({ features, activeModuleIds }: { features: FeatureItem[]; activeModuleIds: string[] }) => {
   const { t } = useTranslation();
   const categories = [...new Set(features.map((f) => f.category))];
+
+  return (
+    <div className="space-y-5">
+      {categories.map((cat) => (
+        <div key={cat}>
+          <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-2">
+            {cat}
+          </div>
+          <div className="space-y-2">
+            {features
+              .filter((f) => f.category === cat)
+              .map((f) => {
+                const isActive = activeModuleIds.includes(f.slug);
+                return (
+                  <div
+                    key={f.slug}
+                    className={`p-3 rounded-lg border transition-colors ${
+                      isActive
+                        ? "border-primary/30 bg-primary/5"
+                        : "border-primary/8 bg-secondary/20"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div>
+                        <span className="text-xs font-semibold text-foreground">{f.name}</span>
+                        {f.name_ar && (
+                          <span className="text-[10px] text-muted-foreground ms-1.5">({f.name_ar})</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {f.is_default && (
+                          <span className="text-[8px] font-mono uppercase text-primary/50 bg-primary/10 px-1.5 py-0.5 rounded">
+                            {t("composer.default")}
+                          </span>
+                        )}
+                        {isActive && (
+                          <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-primary" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      {f.description}
+                    </p>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const RightPanel = ({ features, activeModuleIds, collapsed, onToggle, embedded }: RightPanelProps) => {
+  const { t } = useTranslation();
+
+  // Embedded mode: just render the feature list (used inside Sheet on mobile)
+  if (embedded) {
+    return <FeatureList features={features} activeModuleIds={activeModuleIds} />;
+  }
 
   if (collapsed) {
     return (
@@ -55,55 +118,8 @@ const RightPanel = ({ features, activeModuleIds, collapsed, onToggle }: RightPan
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-5">
-        {categories.map((cat) => (
-          <div key={cat}>
-            <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-2">
-              {cat}
-            </div>
-            <div className="space-y-2">
-              {features
-                .filter((f) => f.category === cat)
-                .map((f) => {
-                  const isActive = activeModuleIds.includes(f.slug);
-                  return (
-                    <div
-                      key={f.slug}
-                      className={`p-3 rounded-lg border transition-colors ${
-                        isActive
-                          ? "border-primary/30 bg-primary/5"
-                          : "border-primary/8 bg-secondary/20"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <div>
-                          <span className="text-xs font-semibold text-foreground">{f.name}</span>
-                          {f.name_ar && (
-                            <span className="text-[10px] text-muted-foreground ms-1.5">({f.name_ar})</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          {f.is_default && (
-                            <span className="text-[8px] font-mono uppercase text-primary/50 bg-primary/10 px-1.5 py-0.5 rounded">
-                              {t("composer.default")}
-                            </span>
-                          )}
-                          {isActive && (
-                            <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                              <Check className="w-2.5 h-2.5 text-primary" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        {f.description}
-                      </p>
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        ))}
+      <div className="flex-1 overflow-y-auto p-4">
+        <FeatureList features={features} activeModuleIds={activeModuleIds} />
       </div>
     </div>
   );

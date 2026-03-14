@@ -10,9 +10,10 @@ interface LeftPanelProps {
   onComplete: () => void;
   collapsed: boolean;
   onToggle: () => void;
+  fullWidth?: boolean;
 }
 
-const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle }: LeftPanelProps) => {
+const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle, fullWidth }: LeftPanelProps) => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -85,7 +86,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
     });
   };
 
-  if (collapsed) {
+  if (!fullWidth && collapsed) {
     return (
       <div className="w-12 border-e border-primary/8 bg-card flex flex-col items-center py-3 shrink-0">
         <button onClick={onToggle} className="p-2 rounded-md hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors">
@@ -97,18 +98,20 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle 
   }
 
   return (
-    <div className="w-[380px] border-e border-primary/8 bg-card flex flex-col shrink-0">
-      <div className="p-4 border-b border-primary/8 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary" />
-          <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
-            {t("composer.gomaaTitle")}
-          </span>
+    <div className={`${fullWidth ? "w-full h-full" : "w-[380px] shrink-0"} border-e border-primary/8 bg-card flex flex-col`}>
+      {!fullWidth && (
+        <div className="p-4 border-b border-primary/8 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary" />
+            <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
+              {t("composer.gomaaTitle")}
+            </span>
+          </div>
+          <button onClick={onToggle} className="p-1.5 rounded-md hover:bg-primary/10 text-primary/40 hover:text-primary transition-colors">
+            <PanelLeftClose className="w-3.5 h-3.5" />
+          </button>
         </div>
-        <button onClick={onToggle} className="p-1.5 rounded-md hover:bg-primary/10 text-primary/40 hover:text-primary transition-colors">
-          <PanelLeftClose className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.filter((m) => m.role !== "system").map((msg, i) => (
