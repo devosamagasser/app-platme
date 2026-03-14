@@ -57,11 +57,19 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          // Connect all default nodes to each other in a mesh
+          // Connect nodes only to horizontal and vertical neighbors in the grid
+          const cols = 3;
           const defaultEdges: GraphEdge[] = [];
           for (let i = 0; i < defaultFeatures.length; i++) {
-            for (let j = i + 1; j < defaultFeatures.length; j++) {
-              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[j].slug });
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            // Right neighbor
+            if (col < cols - 1 && i + 1 < defaultFeatures.length) {
+              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + 1].slug });
+            }
+            // Bottom neighbor
+            if (i + cols < defaultFeatures.length) {
+              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[i + cols].slug });
             }
           }
           setEdges(defaultEdges);
