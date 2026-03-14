@@ -1,8 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { streamChat, type ChatMessage, type AddModuleCall } from "@/lib/streamChat";
 import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
+
+function detectDir(text: string): "rtl" | "ltr" {
+  const firstChar = text.trim().charAt(0);
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(firstChar) ? "rtl" : "ltr";
+}
 
 interface LeftPanelProps {
   businessType: string;
@@ -13,6 +18,8 @@ interface LeftPanelProps {
   fullWidth?: boolean;
 }
 
+const TYPING_SPEED = 12; // ms per character
+
 const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle, fullWidth }: LeftPanelProps) => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -22,15 +29,63 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const introSent = useRef(false);
 
+  // Typing animation state
+  const [displayedContent, setDisplayedContent] = useState("");
+  const rawContentRef = useRef("");
+  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isStreamingRef = useRef(false);
+  const displayedLengthRef = useRef(0);
+
+  const startTypingAnimation = useCallback(() => {
+    if (typingIntervalRef.current) return;
+    typingIntervalRef.current = setInterval(() => {
+      const raw = rawContentRef.current;
+      const currentLen = displayedLengthRef.current;
+      if (currentLen < raw.length) {
+        // Reveal multiple chars per tick for speed
+        const charsToReveal = Math.min(3, raw.length - currentLen);
+        displayedLengthRef.current = currentLen + charsToReveal;
+        setDisplayedContent(raw.slice(0, displayedLengthRef.current));
+      } else if (!isStreamingRef.current) {
+        // Done streaming and caught up
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+          typingIntervalRef.current = null;
+        }
+      }
+    }, TYPING_SPEED);
+  }, []);
+
+  const stopTypingAnimation = useCallback(() => {
+    // Flush remaining content immediately
+    setDisplayedContent(rawContentRef.current);
+    displayedLengthRef.current = rawContentRef.current.length;
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, displayedContent]);
 
   // Auto-intro: trigger AI greeting on mount
   useEffect(() => {
     if (introSent.current) return;
     introSent.current = true;
     setIsLoading(true);
+    rawContentRef.current = "";
+    displayedLengthRef.current = 0;
+    setDisplayedContent("");
+    isStreamingRef.current = true;
+    startTypingAnimation();
 
     let assistantSoFar = "";
     streamChat({
@@ -38,21 +93,29 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
       businessType,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
-        setMessages([{ role: "assistant", content: assistantSoFar }]);
+        rawContentRef.current = assistantSoFar;
       },
       onComplete: () => {},
       onToolCall: (module) => {
         onAddModule(module);
-        assistantSoFar += `\n\n✅ **${module.label}** added.`;
-        setMessages([{ role: "assistant", content: assistantSoFar }]);
       },
-      onDone: () => setIsLoading(false),
+      onDone: () => {
+        isStreamingRef.current = false;
+        // Finalize: flush displayed and save to messages
+        setTimeout(() => {
+          stopTypingAnimation();
+          setMessages([{ role: "assistant", content: rawContentRef.current }]);
+          setIsLoading(false);
+        }, 300);
+      },
       onError: (error) => {
+        isStreamingRef.current = false;
+        stopTypingAnimation();
         setMessages([{ role: "assistant", content: `⚠️ ${error}` }]);
         setIsLoading(false);
       },
     });
-  }, [businessType, onAddModule]);
+  }, [businessType, onAddModule, startTypingAnimation, stopTypingAnimation]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -73,6 +136,12 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
       userMsg,
     ];
 
+    rawContentRef.current = "";
+    displayedLengthRef.current = 0;
+    setDisplayedContent("");
+    isStreamingRef.current = true;
+    startTypingAnimation();
+
     let assistantSoFar = "";
 
     await streamChat({
@@ -80,30 +149,31 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
       businessType,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last?.role === "assistant" && prev.length > 1 && prev[prev.length - 2]?.role === "user") {
-            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-          }
-          return [...prev, { role: "assistant", content: assistantSoFar }];
-        });
+        rawContentRef.current = assistantSoFar;
       },
       onComplete: () => {
         onComplete();
       },
       onToolCall: (module) => {
         onAddModule(module);
-        assistantSoFar += `\n\n✅ **${module.label}** added.`;
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last?.role === "assistant") {
-            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-          }
-          return [...prev, { role: "assistant", content: assistantSoFar }];
-        });
       },
-      onDone: () => setIsLoading(false),
+      onDone: () => {
+        isStreamingRef.current = false;
+        setTimeout(() => {
+          stopTypingAnimation();
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.role === "assistant") {
+              return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: rawContentRef.current } : m));
+            }
+            return [...prev, { role: "assistant", content: rawContentRef.current }];
+          });
+          setIsLoading(false);
+        }, 300);
+      },
       onError: (error) => {
+        isStreamingRef.current = false;
+        stopTypingAnimation();
         setMessages((prev) => [...prev, { role: "assistant", content: `⚠️ ${error}` }]);
         setIsLoading(false);
       },
@@ -120,6 +190,9 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
       </div>
     );
   }
+
+  // Determine what to show as the "live" assistant message (typing animation)
+  const showTypingBubble = isLoading && displayedContent.length > 0;
 
   return (
     <div className={`${fullWidth ? "w-full h-full" : "w-[380px] shrink-0"} border-e border-primary/8 bg-card flex flex-col`}>
@@ -138,26 +211,58 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
       )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.filter((m) => m.role !== "system").map((msg, i) => (
-          <div
-            key={i}
-            className={`${
-              msg.role === "assistant"
-                ? "bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl"
-                : "bg-primary/10 rounded-ts-xl rounded-bs-xl rounded-be-xl ms-8"
-            } p-4`}
-          >
-            {msg.role === "assistant" && (
-              <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
-                {t("composer.gomaaLabel")}
+        {messages.filter((m) => m.role !== "system").map((msg, i) => {
+          const dir = detectDir(msg.content);
+          return (
+            <div
+              key={i}
+              dir={dir}
+              className={`${
+                msg.role === "assistant"
+                  ? "bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl"
+                  : "bg-primary/10 rounded-ts-xl rounded-bs-xl rounded-be-xl ms-8"
+              } p-4`}
+            >
+              {msg.role === "assistant" && (
+                <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
+                  {t("composer.gomaaLabel")}
+                </div>
+              )}
+              <div className={`text-sm text-foreground/90 leading-relaxed prose prose-sm prose-invert max-w-none ${dir === "rtl" ? "text-right" : "text-left"}`}>
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
               </div>
-            )}
-            <div className="text-sm text-foreground/90 leading-relaxed prose prose-sm prose-invert max-w-none">
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            </div>
+          );
+        })}
+
+        {/* Live typing bubble */}
+        {showTypingBubble && (
+          <div
+            dir={detectDir(displayedContent)}
+            className="bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl p-4"
+          >
+            <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
+              {t("composer.gomaaLabel")}
+            </div>
+            <div className={`text-sm text-foreground/90 leading-relaxed prose prose-sm prose-invert max-w-none ${detectDir(displayedContent) === "rtl" ? "text-right" : "text-left"}`}>
+              <ReactMarkdown>{displayedContent}</ReactMarkdown>
+              <span className="inline-block w-0.5 h-4 bg-primary/70 animate-pulse ms-0.5 align-text-bottom" />
             </div>
           </div>
-        ))}
-        {isLoading && messages[messages.length - 1]?.role === "user" && (
+        )}
+
+        {/* Loading spinner when waiting for first chunk */}
+        {isLoading && !showTypingBubble && messages[messages.length - 1]?.role === "user" && (
+          <div className="bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl p-4">
+            <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
+              {t("composer.gomaaLabel")}
+            </div>
+            <Loader2 className="w-4 h-4 text-primary/50 animate-spin" />
+          </div>
+        )}
+
+        {/* Initial loading (intro, no messages yet) */}
+        {isLoading && messages.length === 0 && !showTypingBubble && (
           <div className="bg-secondary/40 rounded-te-xl rounded-be-xl rounded-bs-xl p-4">
             <div className="text-[10px] font-mono uppercase text-primary/50 mb-2 tracking-wider">
               {t("composer.gomaaLabel")}
