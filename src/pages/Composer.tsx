@@ -38,7 +38,8 @@ const Composer = () => {
   });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureItem[]>([]);
-  const [defaultsLoaded, setDefaultsLoaded] = useState(false);
+  const hasRestoredGraph = nodes.length > 0;
+  const [defaultsLoaded, setDefaultsLoaded] = useState(hasRestoredGraph);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
