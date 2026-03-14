@@ -43,14 +43,14 @@ const Composer = () => {
 
       const { data } = await supabase
         .from("system_features")
-        .select("slug, name, description, name_ar, description_ar, category, is_default, storage, capacity, config, dependencies")
+        .select("slug, name, description, name_ar, description_ar, category, is_default, price, active")
         .eq("system_id", system.id);
 
       if (data) {
         const mapped = data.map((f: any) => ({
           ...f,
-          config: Array.isArray(f.config) ? f.config : [],
-          dependencies: Array.isArray(f.dependencies) ? f.dependencies : [],
+          price: f.price ?? 0,
+          active: f.active ?? true,
         }));
         setFeatures(mapped);
 

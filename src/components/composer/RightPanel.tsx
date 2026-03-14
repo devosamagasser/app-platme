@@ -9,9 +9,8 @@ export interface FeatureItem {
   description_ar: string | null;
   category: string;
   is_default: boolean;
-  storage: string | null;
-  capacity: string | null;
-  config: string[];
+  price: number;
+  active: boolean;
 }
 
 interface RightPanelProps {

@@ -114,7 +114,7 @@ serve(async (req) => {
     if (system) {
       const { data: features } = await supabase
         .from("system_features")
-        .select("slug, name, description, name_ar, description_ar, category, dependencies, is_default")
+        .select("slug, name, description, name_ar, description_ar, category, is_default")
         .eq("system_id", system.id);
 
       if (features && features.length > 0) {
@@ -129,12 +129,7 @@ serve(async (req) => {
           .join("\n");
 
         optionalFeatureList = optionals
-          .map((f: any) => {
-            const deps = Array.isArray(f.dependencies) && f.dependencies.length > 0
-              ? ` (depends on: ${f.dependencies.join(", ")})`
-              : "";
-            return `- **${fname(f)}** [slug: ${f.slug}] (${f.category}): ${fdesc(f)}${deps}`;
-          })
+          .map((f: any) => `- **${fname(f)}** [slug: ${f.slug}] (${f.category}): ${fdesc(f)}`)
           .join("\n");
       }
     }
@@ -189,9 +184,8 @@ TONE: Professional, confident, architectural. Think infrastructure engineer meet
               id: { type: "string", description: "Module slug — must match one of the available module slugs" },
               label: { type: "string", description: "Display name of the module" },
               category: { type: "string", description: "Module category" },
-              dependencies: { type: "array", items: { type: "string" }, description: "Array of module slugs this depends on" },
             },
-            required: ["id", "label", "category", "dependencies"],
+            required: ["id", "label", "category"],
             additionalProperties: false,
           },
         },
