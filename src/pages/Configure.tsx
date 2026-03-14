@@ -149,10 +149,10 @@ const Configure = () => {
       }
 
       // Deduct token
-      await (supabase.from("profiles").update({ tokens: profile.tokens - 1 } as any).eq("id", user.id) as any);
+      await (supabase.from("profiles").update({ tokens: profile.tokens - tokenCost } as any).eq("id", user.id) as any);
       await (supabase.from("token_transactions").insert({
         user_id: user.id,
-        amount: -1,
+        amount: -tokenCost,
         reason: "platform_creation",
       } as any) as any);
 
