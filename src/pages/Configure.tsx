@@ -80,7 +80,7 @@ const Configure = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="border-b border-primary/8 bg-card">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(`/composer?business=${businessType}`)}
@@ -107,7 +107,7 @@ const Configure = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8 flex gap-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-8">
           <section>
             <h2 className="text-sm font-mono uppercase tracking-widest text-primary/70 mb-4">
@@ -119,7 +119,7 @@ const Configure = () => {
                   <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest mb-2">
                     {cat}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {selectedFeatures
                       .filter((f) => f.category === cat)
                       .map((f) => (
@@ -245,7 +245,7 @@ const Configure = () => {
           </section>
         </div>
 
-        <div className="w-[280px] shrink-0">
+        <div className="w-full lg:w-[280px] shrink-0">
           <div className="sticky top-8 p-5 rounded-xl border border-primary/15 bg-card space-y-4">
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
               {t("configure.monthlyEstimate")}
