@@ -6,7 +6,7 @@ const FinalCTA = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="py-32 relative">
+    <section className="py-20 md:py-32 relative">
       <div className="absolute inset-0 bg-gradient-to-t from-forest/30 to-transparent" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
 
