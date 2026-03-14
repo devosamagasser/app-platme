@@ -64,9 +64,6 @@ const Composer = () => {
             y: 60 + Math.floor(i / 3) * 140,
             status: "active" as const,
           }));
-            y: 60 + Math.floor(i / 3) * 140,
-            status: "active" as const,
-          }));
           setNodes(defaultNodes);
 
           const cols = 3;
