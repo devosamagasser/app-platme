@@ -10,6 +10,14 @@ export interface AddModuleCall {
 interface StreamChatOptions {
   messages: ChatMessage[];
   businessType: string;
+  language: string;
+  onDelta: (text: string) => void;
+  onToolCall: (module: AddModuleCall) => void;
+  onComplete: () => void;
+  onDone: () => void;
+  onError: (error: string) => void;
+}
+  businessType: string;
   onDelta: (text: string) => void;
   onToolCall: (module: AddModuleCall) => void;
   onComplete: () => void;
