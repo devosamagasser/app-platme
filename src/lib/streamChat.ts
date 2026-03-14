@@ -43,10 +43,18 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
-    let toolCallArgs = "";
-    let isCollectingToolCall = false;
-    let toolCallName = "";
     let streamDone = false;
+
+    // Track multiple parallel tool calls by index
+    const toolCalls: Map<number, { name: string; args: string }> = new Map();
+
+    const flushToolCall = (tc: { name: string; args: string }) => {
+      try {
+        const args = JSON.parse(tc.args);
+        if (tc.name === "add_module") onToolCall(args as AddModuleCall);
+        if (tc.name === "complete_setup") onComplete();
+      } catch { /* incomplete */ }
+    };
 
     while (!streamDone) {
       const { done, value } = await reader.read();
@@ -71,27 +79,24 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
           const content = choice?.delta?.content as string | undefined;
           if (content) onDelta(content);
 
-          const toolCalls = choice?.delta?.tool_calls;
-          if (toolCalls && toolCalls.length > 0) {
-            const tc = toolCalls[0];
-            if (tc.function?.name) {
-              toolCallName = tc.function.name;
-              isCollectingToolCall = true;
-              toolCallArgs = tc.function.arguments || "";
-            } else if (tc.function?.arguments) {
-              toolCallArgs += tc.function.arguments;
+          const deltaToolCalls = choice?.delta?.tool_calls;
+          if (deltaToolCalls && deltaToolCalls.length > 0) {
+            for (const tc of deltaToolCalls) {
+              const idx = tc.index ?? 0;
+              if (!toolCalls.has(idx)) {
+                toolCalls.set(idx, { name: "", args: "" });
+              }
+              const entry = toolCalls.get(idx)!;
+              if (tc.function?.name) entry.name = tc.function.name;
+              if (tc.function?.arguments) entry.args += tc.function.arguments;
             }
           }
 
-          if (choice?.finish_reason === "tool_calls" && isCollectingToolCall) {
-            try {
-              const args = JSON.parse(toolCallArgs);
-              if (toolCallName === "add_module") onToolCall(args as AddModuleCall);
-              if (toolCallName === "complete_setup") onComplete();
-            } catch { /* incomplete */ }
-            isCollectingToolCall = false;
-            toolCallArgs = "";
-            toolCallName = "";
+          if (choice?.finish_reason === "tool_calls") {
+            for (const [, tc] of toolCalls) {
+              flushToolCall(tc);
+            }
+            toolCalls.clear();
           }
         } catch {
           buffer = line + "\n" + buffer;
@@ -100,12 +105,9 @@ export async function streamChat({ messages, businessType, onDelta, onToolCall, 
       }
     }
 
-    if (isCollectingToolCall && toolCallArgs) {
-      try {
-        const args = JSON.parse(toolCallArgs);
-        if (toolCallName === "add_module") onToolCall(args as AddModuleCall);
-        if (toolCallName === "complete_setup") onComplete();
-      } catch { /* ignore */ }
+    // Flush any remaining tool calls
+    for (const [, tc] of toolCalls) {
+      if (tc.args) flushToolCall(tc);
     }
 
     onDone();

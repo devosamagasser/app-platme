@@ -14,11 +14,6 @@ const ComposerHeader = ({ businessLabel }: { businessLabel: string }) => (
     </div>
 
     <div className="flex items-center gap-3">
-      <div className="hidden md:flex items-center gap-4 text-[10px] font-mono text-muted-foreground tabular-nums mr-4">
-        <span>CPU: 12%</span>
-        <span>MEM: 1.2GB</span>
-        <span className="text-primary">INTEGRITY: 100%</span>
-      </div>
       <button className="px-4 py-1.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground hover:shadow-[0_0_15px_rgba(159,255,208,0.3)] transition-all">
         Deploy
       </button>

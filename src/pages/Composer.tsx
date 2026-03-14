@@ -57,15 +57,13 @@ const Composer = () => {
           }));
           setNodes(defaultNodes);
 
-          const defaultSlugs = new Set(defaultFeatures.map((f: any) => f.slug));
+          // Connect all default nodes to each other in a mesh
           const defaultEdges: GraphEdge[] = [];
-          defaultFeatures.forEach((f: any) => {
-            (f.dependencies || []).forEach((dep: string) => {
-              if (defaultSlugs.has(dep)) {
-                defaultEdges.push({ from: dep, to: f.slug });
-              }
-            });
-          });
+          for (let i = 0; i < defaultFeatures.length; i++) {
+            for (let j = i + 1; j < defaultFeatures.length; j++) {
+              defaultEdges.push({ from: defaultFeatures[i].slug, to: defaultFeatures[j].slug });
+            }
+          }
           setEdges(defaultEdges);
           setDefaultsLoaded(true);
         }
@@ -88,11 +86,16 @@ const Composer = () => {
       }];
     });
 
-    setEdges((prev) => {
-      const newEdges: GraphEdge[] = module.dependencies
-        .map((dep) => ({ from: dep, to: module.id }))
-        .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
-      return [...prev, ...newEdges];
+    // Connect new module to all existing nodes
+    setNodes((currentNodes) => {
+      setEdges((prev) => {
+        const newEdges: GraphEdge[] = currentNodes
+          .filter((n) => n.id !== module.id)
+          .map((n) => ({ from: n.id, to: module.id }))
+          .filter((e) => !prev.some((pe) => pe.from === e.from && pe.to === e.to));
+        return [...prev, ...newEdges];
+      });
+      return currentNodes;
     });
   }, []);
 
