@@ -25,7 +25,7 @@ const LandingNav = () => {
         <LanguageSwitcher />
         {user ? (
           <Link to="/dashboard" className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
-            {t("nav.dashboard") || "Dashboard"}
+            {t("nav.dashboard")}
           </Link>
         ) : (
           <Link to="/select" className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
@@ -34,23 +34,25 @@ const LandingNav = () => {
         )}
       </div>
 
-      {/* Mobile toggle */}
-      <button
-        className="md:hidden p-2 text-foreground"
-        onClick={() => setMobileOpen(!mobileOpen)}
-      >
-        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
+      {/* Mobile: language + toggle */}
+      <div className="flex md:hidden items-center gap-2">
+        <LanguageSwitcher />
+        <button
+          className="p-2 text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-primary/10 p-6 flex flex-col gap-4 md:hidden">
           <a href="#industries" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.industries")}</a>
           <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.howItWorks")}</a>
-          <LanguageSwitcher />
           {user ? (
             <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm text-center hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
-              {t("nav.dashboard") || "Dashboard"}
+              {t("nav.dashboard")}
             </Link>
           ) : (
             <Link to="/select" onClick={() => setMobileOpen(false)} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm text-center hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
