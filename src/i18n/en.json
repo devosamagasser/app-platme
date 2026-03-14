@@ -18,10 +18,15 @@
     "subtitle": "One Infrastructure. Multiple Verticals.",
     "comingSoon": "Coming Soon",
     "education": "Education",
+    "educationDesc": "Build complete learning management systems with courses, memberships, and certification.",
     "ecommerce": "E-commerce",
+    "ecommerceDesc": "Full-stack commerce infrastructure with inventory, payments, and fulfillment.",
     "gym": "Gym Systems",
+    "gymDesc": "Gym management systems with member tracking, scheduling, and trainer tools.",
     "clinic": "Clinic Systems",
+    "clinicDesc": "Clinic management with appointments, patient records, and billing.",
     "restaurant": "Restaurant Systems",
+    "restaurantDesc": "Restaurant operations with ordering, reservations, and kitchen management.",
     "core": "Core"
   },
   "education": {
