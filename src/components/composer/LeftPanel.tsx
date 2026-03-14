@@ -24,8 +24,23 @@ const TYPING_SPEED = 12; // ms per character
 
 const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle, fullWidth }: LeftPanelProps) => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const currentLang = i18n.language?.startsWith("ar") ? "ar" : "en";
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [tokenCount, setTokenCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchTokens = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("tokens")
+        .eq("id", user.id)
+        .single();
+      if (data) setTokenCount((data as any).tokens);
+    };
+    fetchTokens();
+  }, [user]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
