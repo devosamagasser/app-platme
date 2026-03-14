@@ -120,7 +120,10 @@
     "monthlyEstimate": "التقدير الشهري",
     "capacity": "السعة",
     "total": "الإجمالي",
-    "confirmDeploy": "تأكيد والنشر"
+    "confirmDeploy": "تأكيد والنشر",
+    "fillSubdomain": "يرجى إدخال النطاق الفرعي",
+    "noTokens": "لا توجد توكنز كافية. يرجى شراء المزيد.",
+    "deploySuccess": "تم نشر المنصة بنجاح!"
   },
   "auth": {
     "platform": "منصة PLATME",
