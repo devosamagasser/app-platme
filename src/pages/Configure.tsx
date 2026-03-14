@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Check, Smartphone, HardDrive, Users, Globe } from "lucide-react";
+import { Check, Smartphone, HardDrive, Users, Globe, ArrowLeft } from "lucide-react";
 
 interface FeatureConfig {
   slug: string;
@@ -21,6 +21,7 @@ const MOBILE_APP_PRICE = 99; // $/month
 
 const Configure = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const businessType = searchParams.get("business") || "education";
 
   const [selectedFeatures, setSelectedFeatures] = useState<FeatureConfig[]>([]);
@@ -78,13 +79,22 @@ const Configure = () => {
       {/* Header */}
       <div className="border-b border-primary/8 bg-card">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
-              Configuration
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(`/composer?business=${businessType}`)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back to Composer
+            </button>
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
+                Configuration
+              </div>
+              <h1 className="text-lg font-semibold text-foreground mt-0.5">
+                Configure Your System
+              </h1>
             </div>
-            <h1 className="text-lg font-semibold text-foreground mt-0.5">
-              Configure Your System
-            </h1>
           </div>
           <div className="text-right">
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary/50">
