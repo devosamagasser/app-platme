@@ -7,6 +7,89 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODEL = "google/gemini-3-flash-preview";
+const MAX_CONTINUATIONS = 5;
+
+interface ToolCallAccum {
+  id: string;
+  name: string;
+  args: string;
+}
+
+async function parseSSEStream(
+  response: Response,
+  onData: (line: string) => void
+): Promise<{ toolCalls: ToolCallAccum[]; contentText: string; finishReason: string | null }> {
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  const toolCalls = new Map<number, ToolCallAccum>();
+  let contentText = "";
+  let finishReason: string | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let newlineIndex: number;
+    while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
+      let line = buffer.slice(0, newlineIndex);
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line.endsWith("\r")) line = line.slice(0, -1);
+      if (line.startsWith(":") || line.trim() === "") continue;
+      if (!line.startsWith("data: ")) continue;
+
+      const jsonStr = line.slice(6).trim();
+      if (jsonStr === "[DONE]") break;
+
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const choice = parsed.choices?.[0];
+        const content = choice?.delta?.content;
+        if (content) {
+          contentText += content;
+          onData(line); // forward SSE line
+        }
+
+        const deltaToolCalls = choice?.delta?.tool_calls;
+        if (deltaToolCalls) {
+          for (const tc of deltaToolCalls) {
+            const idx = tc.index ?? 0;
+            if (!toolCalls.has(idx)) {
+              toolCalls.set(idx, { id: tc.id || `call_${idx}`, name: "", args: "" });
+            }
+            const entry = toolCalls.get(idx)!;
+            if (tc.id) entry.id = tc.id;
+            if (tc.function?.name) entry.name = tc.function.name;
+            if (tc.function?.arguments) entry.args += tc.function.arguments;
+          }
+        }
+
+        // Forward tool_calls SSE events so client can act on them
+        if (deltaToolCalls) {
+          onData(line);
+        }
+
+        if (choice?.finish_reason) {
+          finishReason = choice.finish_reason;
+        }
+      } catch {
+        // partial JSON, put back
+        buffer = line + "\n" + buffer;
+        break;
+      }
+    }
+  }
+
+  return {
+    toolCalls: Array.from(toolCalls.values()),
+    contentText,
+    finishReason,
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -87,71 +170,122 @@ CRITICAL LANGUAGE RULE:
 
 TONE: Professional, confident, architectural. Think infrastructure engineer meets enterprise sales.`;
 
-    const allMessages = [
-      { role: "system", content: systemPrompt },
-      ...messages,
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "add_module",
+          description:
+            "Add an infrastructure module to the architecture graph. Call this ONLY after the user confirms they want the module.",
+          parameters: {
+            type: "object",
+            properties: {
+              id: { type: "string", description: "Module slug — must match one of the available module slugs" },
+              label: { type: "string", description: "Display name of the module" },
+              category: { type: "string", description: "Module category" },
+              dependencies: { type: "array", items: { type: "string" }, description: "Array of module slugs this depends on" },
+            },
+            required: ["id", "label", "category", "dependencies"],
+            additionalProperties: false,
+          },
+        },
+      },
+      {
+        type: "function",
+        function: {
+          name: "complete_setup",
+          description: "Call this when the user confirms they are done selecting modules and want to proceed to configuration.",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: [],
+            additionalProperties: false,
+          },
+        },
+      },
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: allMessages,
-        stream: true,
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "add_module",
-              description:
-                "Add an infrastructure module to the architecture graph. Call this ONLY after the user confirms they want the module.",
-              parameters: {
-                type: "object",
-                properties: {
-                  id: { type: "string", description: "Module slug — must match one of the available module slugs" },
-                  label: { type: "string", description: "Display name of the module" },
-                  category: { type: "string", description: "Module category" },
-                  dependencies: { type: "array", items: { type: "string" }, description: "Array of module slugs this depends on" },
-                },
-                required: ["id", "label", "category", "dependencies"],
-                additionalProperties: false,
-              },
-            },
-          },
-          {
-            type: "function",
-            function: {
-              name: "complete_setup",
-              description: "Call this when the user confirms they are done selecting modules and want to proceed to configuration.",
-              parameters: {
-                type: "object",
-                properties: {},
-                required: [],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
-      }),
-    });
+    // Use a TransformStream to write SSE events to client
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
+    const writeSSE = (line: string) => {
+      writer.write(encoder.encode(line + "\n\n"));
+    };
 
-    return new Response(response.body, {
+    // Run the multi-turn loop in the background
+    (async () => {
+      try {
+        let conversationMessages: any[] = [
+          { role: "system", content: systemPrompt },
+          ...messages,
+        ];
+
+        for (let turn = 0; turn < MAX_CONTINUATIONS; turn++) {
+          const response = await fetch(AI_URL, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: MODEL,
+              messages: conversationMessages,
+              stream: true,
+              tools,
+            }),
+          });
+
+          if (!response.ok) {
+            const status = response.status;
+            const text = await response.text();
+            console.error("AI gateway error:", status, text);
+            writeSSE(`data: ${JSON.stringify({ error: true, status })}`);
+            break;
+          }
+
+          const { toolCalls, contentText, finishReason } = await parseSSEStream(
+            response,
+            (line) => writeSSE(line)
+          );
+
+          // If no tool calls, we're done
+          if (finishReason !== "tool_calls" || toolCalls.length === 0) {
+            break;
+          }
+
+          // Build assistant message with tool_calls for conversation context
+          const assistantMsg: any = { role: "assistant" };
+          if (contentText) assistantMsg.content = contentText;
+          assistantMsg.tool_calls = toolCalls.map((tc) => ({
+            id: tc.id,
+            type: "function",
+            function: { name: tc.name, arguments: tc.args },
+          }));
+
+          conversationMessages.push(assistantMsg);
+
+          // Add tool results for each tool call
+          for (const tc of toolCalls) {
+            conversationMessages.push({
+              role: "tool",
+              tool_call_id: tc.id,
+              content: JSON.stringify({ success: true }),
+            });
+          }
+
+          // Loop continues — next iteration will call AI again with tool results
+        }
+      } catch (e) {
+        console.error("Stream processing error:", e);
+      } finally {
+        writeSSE("data: [DONE]");
+        writer.close();
+      }
+    })();
+
+    return new Response(readable, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
