@@ -80,9 +80,9 @@ const SelectBusiness = () => {
                       ? "text-primary group-hover:drop-shadow-[0_0_8px_rgba(159,255,208,0.5)]"
                       : "text-muted-foreground"
                   }`} />
-                  <h3 className="text-foreground font-semibold mb-1">{v.label}</h3>
+                  <h3 className="text-foreground font-semibold mb-1">{t(`industries.${v.id}`)}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                    {v.description}
+                    {t(`industries.${v.id}Desc`)}
                   </p>
                   {!v.active && (
                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">
