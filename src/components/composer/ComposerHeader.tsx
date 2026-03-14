@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const ComposerHeader = ({ businessLabel, onDeploy }: { businessLabel: string; onDeploy?: () => void }) => (
+const ComposerHeader = ({ businessLabel }: { businessLabel: string }) => (
   <header className="h-14 border-b border-primary/8 px-6 flex items-center justify-between bg-background shrink-0">
     <Link to="/" className="flex items-center gap-2">
       <div className="w-7 h-7 rounded-md bg-primary/20 flex items-center justify-center">
@@ -14,10 +14,7 @@ const ComposerHeader = ({ businessLabel, onDeploy }: { businessLabel: string; on
     </div>
 
     <div className="flex items-center gap-3">
-      <button
-        onClick={onDeploy}
-        className="px-4 py-1.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground hover:shadow-[0_0_15px_rgba(159,255,208,0.3)] transition-all"
-      >
+      <button className="px-4 py-1.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground hover:shadow-[0_0_15px_rgba(159,255,208,0.3)] transition-all">
         Deploy
       </button>
     </div>
