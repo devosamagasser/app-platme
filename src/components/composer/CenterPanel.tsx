@@ -115,6 +115,9 @@ const CenterPanel = ({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
     >
       <div className="absolute top-4 start-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest pointer-events-none z-10">
