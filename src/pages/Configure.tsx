@@ -192,6 +192,7 @@ const Configure = () => {
               capacity: globalCapacity,
               mobile_app: mobileApp,
               features: selectedFeatures.map((f) => f.slug),
+              selling_systems: [],
               name: ownerName.trim(),
               email: ownerEmail.trim(),
               phone: ownerPhone.trim(),
