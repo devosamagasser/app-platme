@@ -1,45 +1,56 @@
 
-المشكلة جاية غالبًا من اتجاه الصفحة نفسه، وليس من حجم الـ toggle فقط.
 
-## السبب
-في `LanguageSwitcher.tsx` أنت بتغيّر:
-- `document.documentElement.dir = "rtl"` لما اللغة عربي
+# إضافة بيانات Owner وإرسال POST Request عند إنشاء المنصة
 
-وفي `switch.tsx` الـ switch مبني بـ:
-- `inline-flex`
-- Thumb بيتحرّك بـ `translate-x-[18px]`
+## ملخص
+إضافة حقول (الاسم، الإيميل، الهاتف، الباسورد) لصاحب المنصة في صفحة Configure، وعند الضغط على Deploy يتم إرسال كل البيانات كـ POST request للـ `api_url` الخاص بالنظام.
 
-وده شغال صح في LTR فقط. لكن لما الصفحة تبقى `rtl`:
-- بداية الـ flex بتتحول لليمين
-- الـ thumb يبدأ من الجهة العكسية
-- وبعدها `translate-x` الموجب يزقه أكثر لنفس الاتجاه
-- فتلاقي الشكل بايظ/الإحساس معكوس/ممكن يبان مزاح أو قريب من الحافة
+---
 
-الصورة تدعم ده: المشكلة ظاهرة في واجهة عربية، والـ switch نفسه شكله متأثر باتجاه الصفحة.
+## التغييرات
 
-## الخطة
-1. تعديل `src/components/ui/switch.tsx`
-   - تثبيت اتجاه الـ switch نفسه إلى `dir="ltr"` حتى لا يتأثر بـ `html[dir=rtl]`
-   - إضافة `overflow-hidden` للـ track كحماية بصرية لو الـ thumb تحرك زيادة
-   - الحفاظ على نفس المقاسات الحالية لأنها تبدو مناسبة
+### 1. `src/pages/Configure.tsx`
+- إضافة 4 state variables: `ownerName`, `ownerEmail`, `ownerPhone`, `ownerPassword`
+- إضافة section جديد في الفورم بعنوان "Platform Owner" فيه 4 inputs
+- تعديل `loadData` لجلب `api_url` من جدول `systems` مع باقي البيانات
+- تعديل `handleDeploy`:
+  1. Validation: التأكد من ملء كل الحقول + email format + password min 8 + phone required
+  2. بعد حفظ المنصة في الداتابيز وخصم التوكنز
+  3. إرسال POST request للـ `api_url` بالشكل المطلوب:
+     ```json
+     {
+       "domain": "subdomain",
+       "storage": 50,
+       "capacity": 100,
+       "mobile_app": true,
+       "features": ["feature-slug-1", "feature-slug-2"],
+       "name": "Owner Name",
+       "email": "owner@email.com",
+       "phone": "01234567890",
+       "password": "password123"
+     }
+     ```
+  4. لو الـ API رجع error → عرض toast بالخطأ (المنصة تفضل محفوظة في الداتابيز)
 
-2. لو فضل الإحساس غريب بعد التثبيت
-   - تحويل حركة الـ thumb من أسلوب `flex + translate` إلى أسلوب أكثر ثباتًا:
-     - track `relative`
-     - thumb يتموضع داخلها بشكل محسوب وواضح
-   - ده يخلي السلوك مستقل عن اتجاه النص بالكامل
+### 2. `src/i18n/en.json` و `src/i18n/ar.json`
+- إضافة ترجمات:
+  - `configure.ownerDetails` → "Platform Owner" / "صاحب المنصة"
+  - `configure.ownerName` → "Full Name" / "الاسم الكامل"
+  - `configure.ownerEmail` → "Email" / "البريد الإلكتروني"
+  - `configure.ownerPhone` → "Phone" / "رقم الهاتف"
+  - `configure.ownerPassword` → "Password" / "كلمة المرور"
+  - `configure.fillAllFields` → "Please fill all owner fields" / "من فضلك أكمل بيانات صاحب المنصة"
 
-3. مراجعة أماكن الاستخدام
-   - `src/pages/Dashboard.tsx`
-   - `src/pages/Configure.tsx`
-   للتأكد إن نفس الـ component يطلع ثابت في العربي والإنجليزي
+### 3. Edge Function (اختياري — لو CORS مشكلة)
+- لو الـ API الخارجي ما بيقبلش requests من الـ browser مباشرة (CORS)، هنعمل edge function `create-platform` كـ proxy يبعت الـ POST request من السيرفر
+- لو الـ API بيقبل CORS عادي، هنبعت مباشرة من الـ client بـ `fetch`
 
-## النتيجة المتوقعة
-- الـ toggle يفضل شكله ثابت في العربي والإنجليزي
-- الـ thumb ما يخرجش أو يبان متزحلق
-- مايبقاش فيه كسر بصري بسبب `rtl`
+---
 
-## ملاحظة تقنية
-المشكلة ليست من `Dashboard.tsx` نفسه غالبًا، بل من التفاعل بين:
-- `LanguageSwitcher.tsx` الذي يفعّل `rtl`
-- و`Switch` الذي يعتمد على حركة أفقية ثابتة مصممة لـ `ltr`
+## تفاصيل تقنية
+- الـ POST request هيتبعت بـ `fetch` مباشرة أولاً، ولو CORS blocked هنحوّل لـ edge function
+- حقل الباسورد هيكون `type="password"` مع `minLength={8}`
+- حقل الإيميل هيكون `type="email"` مع validation
+- الـ `api_url` هيتجاب من جدول `systems` ويتخزن في state مع الـ pricing
+- الـ features هتتبعت كـ array of slugs
+
