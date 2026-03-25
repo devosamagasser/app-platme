@@ -212,7 +212,12 @@ const Configure = () => {
       toast({ title: t("configure.deploySuccess") });
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: err.message || "Error", variant: "destructive" });
+      const msg = err.message || "";
+      if (msg.includes("platforms_subdomain_key")) {
+        toast({ title: t("configure.subdomainTaken"), variant: "destructive" });
+      } else {
+        toast({ title: msg || "Error", variant: "destructive" });
+      }
     } finally {
       setDeploying(false);
     }
