@@ -39,7 +39,7 @@ const Configure = () => {
   const [pricing, setPricing] = useState<SystemPricing | null>(null);
   const [mobileApp, setMobileApp] = useState(false);
   const [subdomain, setSubdomain] = useState("");
-  const [globalStorage, setGlobalStorage] = useState(10);
+  const [globalStorage, setGlobalStorage] = useState(50);
   const [globalCapacity, setGlobalCapacity] = useState(100);
   const [deploying, setDeploying] = useState(false);
 
@@ -317,12 +317,12 @@ const Configure = () => {
               <Slider
                 value={[globalStorage]}
                 onValueChange={([v]) => setGlobalStorage(v)}
-                min={5}
+                min={50}
                 max={500}
                 step={5}
               />
               <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
-                <span>5 GB</span>
+                <span>50 GB</span>
                 <span>${(globalStorage * (pricing?.unit_storage_price || 0)).toFixed(0)}/mo</span>
                 <span>500 GB</span>
               </div>
