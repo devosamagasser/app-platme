@@ -131,7 +131,14 @@
     "tokenCost": "Creation cost",
     "fillSubdomain": "Please enter a subdomain",
     "noTokens": "Not enough tokens. Please purchase more.",
-    "deploySuccess": "Platform deployed successfully!"
+    "deploySuccess": "Platform deployed successfully!",
+    "ownerDetails": "Platform Owner",
+    "ownerName": "Full Name",
+    "ownerEmail": "Email",
+    "ownerPhone": "Phone",
+    "ownerPassword": "Password",
+    "fillAllFields": "Please fill all owner fields",
+    "apiError": "Platform saved but external setup failed"
   },
   "auth": {
     "platform": "PLATME Platform",
