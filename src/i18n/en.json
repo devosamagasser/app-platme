@@ -138,6 +138,7 @@
     "ownerPhone": "Phone",
     "ownerPassword": "Password",
     "fillAllFields": "Please fill all owner fields",
+    "subdomainTaken": "This subdomain is already taken. Please choose another one.",
     "apiError": "Platform saved but external setup failed"
   },
   "auth": {
