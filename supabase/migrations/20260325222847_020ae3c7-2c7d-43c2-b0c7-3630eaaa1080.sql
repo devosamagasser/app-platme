@@ -1,0 +1,1 @@
+ALTER TABLE public.systems ADD COLUMN api_url text DEFAULT NULL;

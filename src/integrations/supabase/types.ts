@@ -183,6 +183,7 @@ export type Database = {
       systems: {
         Row: {
           active: boolean | null
+          api_url: string | null
           created_at: string | null
           creation_token_cost: number
           description: string
@@ -198,6 +199,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          api_url?: string | null
           created_at?: string | null
           creation_token_cost?: number
           description: string
@@ -213,6 +215,7 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          api_url?: string | null
           created_at?: string | null
           creation_token_cost?: number
           description?: string
