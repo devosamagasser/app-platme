@@ -13,7 +13,9 @@ const languages = [
   { code: "ar", label: "العربية" },
 ];
 
-const LanguageSwitcher = () => {
+import React from "react";
+
+const LanguageSwitcher = React.forwardRef<HTMLDivElement>((_, ref) => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -29,6 +31,7 @@ const LanguageSwitcher = () => {
 
   return (
     <DropdownMenu>
+      {/* ref forwarded to wrapper */}
       <DropdownMenuTrigger className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all">
         <Globe className="w-4 h-4" />
       </DropdownMenuTrigger>
@@ -47,6 +50,8 @@ const LanguageSwitcher = () => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+});
+
+LanguageSwitcher.displayName = "LanguageSwitcher";
 
 export default LanguageSwitcher;
