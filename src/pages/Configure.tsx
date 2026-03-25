@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Check, Smartphone, HardDrive, Users, Globe, ArrowLeft } from "lucide-react";
+import { Check, Smartphone, HardDrive, Users, Globe, ArrowLeft, User, Mail, Phone, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -24,6 +24,7 @@ interface SystemPricing {
   unit_capacity_price: number;
   mobile_app_price: number;
   creation_token_cost: number;
+  api_url: string | null;
 }
 
 const Configure = () => {
@@ -42,6 +43,12 @@ const Configure = () => {
   const [globalCapacity, setGlobalCapacity] = useState(100);
   const [deploying, setDeploying] = useState(false);
 
+  // Owner fields
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
+  const [ownerPhone, setOwnerPhone] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
+
   useEffect(() => {
     const loadData = async () => {
       const slugs = JSON.parse(localStorage.getItem("platme_selected_features") || "[]");
@@ -49,7 +56,7 @@ const Configure = () => {
 
       const { data: system } = await supabase
         .from("systems")
-        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price, creation_token_cost")
+        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price, creation_token_cost, api_url")
         .eq("slug", businessType)
         .single() as { data: any };
 
@@ -61,6 +68,7 @@ const Configure = () => {
         unit_capacity_price: Number(system.unit_capacity_price) || 0,
         mobile_app_price: Number(system.mobile_app_price) || 0,
         creation_token_cost: Number(system.creation_token_cost) || 1,
+        api_url: system.api_url || null,
       });
 
       const { data } = await supabase
@@ -100,6 +108,23 @@ const Configure = () => {
   const handleDeploy = async () => {
     if (!user || !pricing || !subdomain.trim()) {
       toast({ title: t("configure.fillSubdomain"), variant: "destructive" });
+      return;
+    }
+
+    // Validate owner fields
+    if (!ownerName.trim() || !ownerEmail.trim() || !ownerPhone.trim() || !ownerPassword.trim()) {
+      toast({ title: t("configure.fillAllFields"), variant: "destructive" });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(ownerEmail)) {
+      toast({ title: t("configure.fillAllFields"), variant: "destructive" });
+      return;
+    }
+
+    if (ownerPassword.length < 8) {
+      toast({ title: t("configure.fillAllFields"), variant: "destructive" });
       return;
     }
 
@@ -155,6 +180,34 @@ const Configure = () => {
         amount: -tokenCost,
         reason: "platform_creation",
       } as any) as any);
+
+      // Send POST to external API via edge function
+      if (pricing.api_url) {
+        try {
+          const { data: apiRes, error: apiErr } = await supabase.functions.invoke("create-platform", {
+            body: {
+              api_url: pricing.api_url,
+              domain: subdomain.trim(),
+              storage: globalStorage,
+              capacity: globalCapacity,
+              mobile_app: mobileApp,
+              features: selectedFeatures.map((f) => f.slug),
+              name: ownerName.trim(),
+              email: ownerEmail.trim(),
+              phone: ownerPhone.trim(),
+              password: ownerPassword,
+            },
+          });
+
+          if (apiErr) {
+            console.error("External API error:", apiErr);
+            toast({ title: t("configure.apiError"), variant: "destructive" });
+          }
+        } catch (extErr) {
+          console.error("External API call failed:", extErr);
+          toast({ title: t("configure.apiError"), variant: "destructive" });
+        }
+      }
 
       toast({ title: t("configure.deploySuccess") });
       navigate("/dashboard");
@@ -336,6 +389,79 @@ const Configure = () => {
               <span className="px-3 text-xs font-mono text-muted-foreground bg-secondary/30 h-10 flex items-center whitespace-nowrap">
                 .platme.com
               </span>
+            </div>
+          </section>
+
+          {/* Owner Details Section */}
+          <section className="p-5 rounded-xl border border-primary/10 bg-card space-y-4">
+            <h2 className="text-sm font-mono uppercase tracking-widest text-primary/70">
+              {t("configure.ownerDetails")}
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <User className="w-3.5 h-3.5 text-primary/60" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    {t("configure.ownerName")}
+                  </span>
+                </div>
+                <Input
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                  placeholder={t("configure.ownerName")}
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-primary/60" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    {t("configure.ownerEmail")}
+                  </span>
+                </div>
+                <Input
+                  type="email"
+                  value={ownerEmail}
+                  onChange={(e) => setOwnerEmail(e.target.value)}
+                  placeholder={t("configure.ownerEmail")}
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-primary/60" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    {t("configure.ownerPhone")}
+                  </span>
+                </div>
+                <Input
+                  type="tel"
+                  value={ownerPhone}
+                  onChange={(e) => setOwnerPhone(e.target.value)}
+                  placeholder={t("configure.ownerPhone")}
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5 text-primary/60" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    {t("configure.ownerPassword")}
+                  </span>
+                </div>
+                <Input
+                  type="password"
+                  value={ownerPassword}
+                  onChange={(e) => setOwnerPassword(e.target.value)}
+                  placeholder="••••••••"
+                  minLength={8}
+                  className="text-sm"
+                />
+              </div>
             </div>
           </section>
         </div>

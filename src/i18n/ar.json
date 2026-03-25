@@ -131,7 +131,14 @@
     "tokenCost": "تكلفة الإنشاء",
     "fillSubdomain": "يرجى إدخال النطاق الفرعي",
     "noTokens": "لا توجد توكنز كافية. يرجى شراء المزيد.",
-    "deploySuccess": "تم نشر المنصة بنجاح!"
+    "deploySuccess": "تم نشر المنصة بنجاح!",
+    "ownerDetails": "صاحب المنصة",
+    "ownerName": "الاسم الكامل",
+    "ownerEmail": "البريد الإلكتروني",
+    "ownerPhone": "رقم الهاتف",
+    "ownerPassword": "كلمة المرور",
+    "fillAllFields": "من فضلك أكمل بيانات صاحب المنصة",
+    "apiError": "تم حفظ المنصة لكن الإعداد الخارجي فشل"
   },
   "auth": {
     "platform": "منصة PLATME",
