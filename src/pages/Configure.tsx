@@ -202,10 +202,21 @@ const Configure = () => {
           if (apiErr) {
             console.error("External API error:", apiErr);
             toast({ title: t("configure.apiError"), variant: "destructive" });
+            return;
+          }
+
+          // Edge function may return error payload even with 200 status
+          if (apiRes && apiRes.success === false) {
+            const errMessages = apiRes.errors
+              ? Object.values(apiRes.errors as Record<string, string[]>).flat().join(", ")
+              : apiRes.message || t("configure.apiError");
+            toast({ title: errMessages, variant: "destructive" });
+            return;
           }
         } catch (extErr) {
           console.error("External API call failed:", extErr);
           toast({ title: t("configure.apiError"), variant: "destructive" });
+          return;
         }
       }
 
