@@ -28,8 +28,12 @@ serve(async (req) => {
 
     const data = await response.text();
 
-    return new Response(data, {
-      status: response.status,
+    // Always return 200 to client, include original status for client-side handling
+    let parsed;
+    try { parsed = JSON.parse(data); } catch { parsed = { raw: data }; }
+    
+    return new Response(JSON.stringify({ ...parsed, _status: response.status }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
