@@ -43,7 +43,8 @@ const SelectBusiness = () => {
     const fetch = async () => {
       const { data } = await supabase
         .from("systems")
-        .select("slug, name, name_ar, description, description_ar, icon, active") as { data: SystemRow[] | null };
+        .select("slug, name, name_ar, description, description_ar, icon, active")
+        .order("active", { ascending: false, nullsFirst: false }) as { data: SystemRow[] | null };
       if (data) setSystems(data);
     };
     fetch();
