@@ -103,7 +103,13 @@ const SelectBusiness = () => {
                 transition={{ delay: i * 0.08, duration: 0.5 }}
               >
                 <button
-                  onClick={() => isActive && navigate(`/composer?business=${v.slug}`)}
+                  onClick={() => {
+                    if (!isActive) return;
+                    // Clear old chat & graph for this system so user starts fresh
+                    sessionStorage.removeItem(`platme_chat_${v.slug}`);
+                    sessionStorage.removeItem(`platme_graph_${v.slug}`);
+                    navigate(`/composer?business=${v.slug}`);
+                  }}
                   disabled={!isActive}
                   className={`w-full text-start p-5 md:p-6 rounded-xl border transition-all group ${
                     isActive
