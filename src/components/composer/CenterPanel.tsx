@@ -32,9 +32,8 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Core: Settings,
 };
 
-function getCategoryStyle(category: string) {
-  const key = Object.keys(CATEGORY_COLORS).find((k) => category.toLowerCase().includes(k.toLowerCase()));
-  return key ? CATEGORY_COLORS[key] : DEFAULT_COLOR;
+function getCategoryStyle(_category: string) {
+  return UNIFIED_STYLE;
 }
 
 function getCategoryIcon(category: string) {
