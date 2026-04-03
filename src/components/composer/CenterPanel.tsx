@@ -17,18 +17,10 @@ export interface GraphEdge {
   to: string;
 }
 
-// Category color mapping
-const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; bar: string }> = {
-  LMS: { border: "border-emerald-400/50", bg: "bg-emerald-400/10", text: "text-emerald-400", bar: "bg-emerald-400" },
-  Content: { border: "border-sky-400/50", bg: "bg-sky-400/10", text: "text-sky-400", bar: "bg-sky-400" },
-  Communication: { border: "border-amber-400/50", bg: "bg-amber-400/10", text: "text-amber-400", bar: "bg-amber-400" },
-  Users: { border: "border-violet-400/50", bg: "bg-violet-400/10", text: "text-violet-400", bar: "bg-violet-400" },
-  Commerce: { border: "border-rose-400/50", bg: "bg-rose-400/10", text: "text-rose-400", bar: "bg-rose-400" },
-  Analytics: { border: "border-cyan-400/50", bg: "bg-cyan-400/10", text: "text-cyan-400", bar: "bg-cyan-400" },
-  Core: { border: "border-primary/50", bg: "bg-primary/10", text: "text-primary", bar: "bg-primary" },
-};
+// Unified color — all categories use primary (mint)
+const UNIFIED_STYLE = { border: "border-primary/40", bg: "bg-primary/5", text: "text-primary", bar: "bg-primary" };
 
-const DEFAULT_COLOR = { border: "border-primary/30", bg: "bg-primary/5", text: "text-primary/70", bar: "bg-primary/60" };
+const DEFAULT_COLOR = UNIFIED_STYLE;
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   LMS: BookOpen,
@@ -40,9 +32,8 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Core: Settings,
 };
 
-function getCategoryStyle(category: string) {
-  const key = Object.keys(CATEGORY_COLORS).find((k) => category.toLowerCase().includes(k.toLowerCase()));
-  return key ? CATEGORY_COLORS[key] : DEFAULT_COLOR;
+function getCategoryStyle(_category: string) {
+  return UNIFIED_STYLE;
 }
 
 function getCategoryIcon(category: string) {
