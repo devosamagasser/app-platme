@@ -198,6 +198,7 @@ const Composer = () => {
               edges={edges}
               selectedNodeId={selectedNodeId}
               onSelectNode={setSelectedNodeId}
+              features={features}
             />
           </div>
 
