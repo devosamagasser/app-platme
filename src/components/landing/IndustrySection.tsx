@@ -1,173 +1,114 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { useState, useCallback } from "react";
-
-interface SystemNode {
-  id: string;
-  labelKey: string;
-  x: number;
-  y: number;
-  r: number;
-  floatDelay: number;
-}
-
-const NODES: SystemNode[] = [
-  { id: "lms", labelKey: "hero.nodes.lms", x: 200, y: 70, r: 28, floatDelay: 0 },
-  { id: "crm", labelKey: "hero.nodes.crm", x: 90, y: 170, r: 22, floatDelay: 0.4 },
-  { id: "ecom", labelKey: "hero.nodes.ecom", x: 320, y: 140, r: 24, floatDelay: 0.8 },
-  { id: "gym", labelKey: "hero.nodes.gym", x: 60, y: 290, r: 20, floatDelay: 1.2 },
-  { id: "clinic", labelKey: "hero.nodes.clinic", x: 200, y: 230, r: 26, floatDelay: 0.2 },
-  { id: "resto", labelKey: "hero.nodes.resto", x: 340, y: 270, r: 20, floatDelay: 0.6 },
-  { id: "ai", labelKey: "hero.nodes.ai", x: 150, y: 340, r: 22, floatDelay: 1.0 },
-  { id: "pay", labelKey: "hero.nodes.pay", x: 270, y: 350, r: 20, floatDelay: 0.3 },
-];
-
-const EDGES: [string, string][] = [
-  ["lms", "crm"], ["lms", "ecom"], ["lms", "clinic"],
-  ["crm", "clinic"], ["crm", "gym"],
-  ["ecom", "resto"], ["ecom", "pay"],
-  ["clinic", "ai"], ["clinic", "resto"],
-  ["gym", "ai"],
-  ["ai", "pay"],
-  ["resto", "pay"],
-];
-
-const PARTICLES = Array.from({ length: 15 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 400,
-  y: Math.random() * 400,
-  r: Math.random() * 1.5 + 0.5,
-  duration: Math.random() * 4 + 3,
-  delay: Math.random() * 3,
-}));
-
-const NetworkVisual = () => {
-  const { t } = useTranslation();
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-
-  const nodeMap = Object.fromEntries(NODES.map((n) => [n.id, n]));
-
-  const connectedTo = useCallback(
-    (nodeId: string) =>
-      EDGES.filter(([a, b]) => a === nodeId || b === nodeId).flatMap(([a, b]) =>
-        a === nodeId ? [b] : [a]
-      ),
-    []
-  );
-
-  const isEdgeHighlighted = (a: string, b: string) =>
-    hoveredNode !== null && (a === hoveredNode || b === hoveredNode);
-
-  return (
-    <div className="relative w-full max-w-[500px] mx-auto">
-      <svg viewBox="0 0 400 420" className="w-full h-full">
-        {PARTICLES.map((p) => (
-          <motion.circle
-            key={`p-${p.id}`}
-            cx={p.x}
-            cy={p.y}
-            r={p.r}
-            fill="hsl(var(--primary))"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.3, 0], cx: [p.x, p.x + (Math.random() - 0.5) * 60, p.x] }}
-            transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
-          />
-        ))}
-
-        {EDGES.map(([a, b], i) => {
-          const na = nodeMap[a];
-          const nb = nodeMap[b];
-          const mx = (na.x + nb.x) / 2 + (Math.random() - 0.5) * 30;
-          const my = (na.y + nb.y) / 2 + (Math.random() - 0.5) * 30;
-          const highlighted = isEdgeHighlighted(a, b);
-          return (
-            <motion.path
-              key={`e-${i}`}
-              d={`M${na.x},${na.y} Q${mx},${my} ${nb.x},${nb.y}`}
-              stroke="hsl(var(--primary))"
-              strokeWidth={highlighted ? 2 : 1}
-              fill="none"
-              initial={{ opacity: 0, pathLength: 0 }}
-              whileInView={{
-                opacity: highlighted ? 0.6 : 0.12,
-                pathLength: 1,
-              }}
-              viewport={{ once: true }}
-              transition={{
-                pathLength: { duration: 1.5, delay: i * 0.15, ease: "easeInOut" },
-                opacity: { duration: 0.3 },
-              }}
-              strokeDasharray={highlighted ? "none" : "4 4"}
-            />
-          );
-        })}
-
-        {NODES.map((node) => {
-          const isHovered = hoveredNode === node.id;
-          const isConnected = hoveredNode ? connectedTo(hoveredNode).includes(node.id) : false;
-          const dimmed = hoveredNode !== null && !isHovered && !isConnected;
-
-          return (
-            <motion.g
-              key={node.id}
-              onMouseEnter={() => setHoveredNode(node.id)}
-              onMouseLeave={() => setHoveredNode(null)}
-              style={{ cursor: "pointer" }}
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 3, repeat: Infinity, delay: node.floatDelay, ease: "easeInOut" }}
-            >
-              <motion.circle
-                cx={node.x} cy={node.y} r={node.r + 8}
-                fill="none" stroke="hsl(var(--primary))" strokeWidth={1}
-                animate={{ opacity: isHovered ? 0.4 : 0, scale: isHovered ? 1.1 : 1 }}
-                transition={{ duration: 0.3 }}
-              />
-              <circle cx={node.x} cy={node.y} r={node.r + 16}
-                fill="hsl(var(--primary))" opacity={isHovered ? 0.06 : 0.02}
-              />
-              <motion.circle
-                cx={node.x} cy={node.y} r={node.r}
-                fill="hsl(var(--secondary))" stroke="hsl(var(--primary))"
-                strokeWidth={isHovered ? 2 : 1}
-                animate={{ opacity: dimmed ? 0.3 : 1 }}
-                transition={{ duration: 0.3 }}
-              />
-              <motion.circle
-                cx={node.x} cy={node.y} r={3}
-                fill="hsl(var(--primary))"
-                animate={{ opacity: dimmed ? 0.2 : 0.8 }}
-              />
-              <motion.text
-                x={node.x} y={node.y + node.r + 16}
-                textAnchor="middle"
-                fill="hsl(var(--muted-foreground))"
-                fontSize="9"
-                fontFamily="'IBM Plex Mono', monospace"
-                animate={{
-                  opacity: dimmed ? 0.15 : isHovered ? 1 : 0.5,
-                  fill: isHovered ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
-                }}
-                transition={{ duration: 0.3 }}
-              >
-                {t(node.labelKey)}
-              </motion.text>
-            </motion.g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-};
 
 const IndustrySection = () => {
   const { t } = useTranslation();
+
+  const industries = [
+    { name: t("industries.education"), active: true, angle: -90 },
+    { name: t("industries.ecommerce"), active: false, angle: -18 },
+    { name: t("industries.gym"), active: false, angle: 54 },
+    { name: t("industries.clinic"), active: false, angle: 126 },
+    { name: t("industries.restaurant"), active: false, angle: 198 },
+  ];
 
   return (
     <section id="industries" className="py-20 md:py-32 relative">
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex flex-col items-center">
+          {/* Desktop: radial layout */}
+          <div className="hidden md:block relative w-[500px] h-[500px] mb-16">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+              <div className="w-24 h-24 rounded-2xl bg-forest border border-primary/30 flex items-center justify-center mint-glow">
+                <div className="text-center">
+                  <div className="text-[10px] font-mono uppercase text-primary/60 tracking-widest">PLATME</div>
+                  <div className="text-xs font-semibold text-foreground mt-1">{t("industries.core")}</div>
+                </div>
+              </div>
+            </div>
+
+            {industries.map((ind, i) => {
+              const rad = (ind.angle * Math.PI) / 180;
+              const x = 250 + Math.cos(rad) * 180;
+              const y = 250 + Math.sin(rad) * 180;
+
+              return (
+                <g key={ind.name}>
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
+                    <line
+                      x1="250" y1="250" x2={x} y2={y}
+                      stroke="#9FFFD0"
+                      strokeWidth={ind.active ? 2 : 1}
+                      opacity={ind.active ? 0.8 : 0.15}
+                      strokeDasharray={ind.active ? "none" : "4 4"}
+                    />
+                  </svg>
+
+                  <motion.div
+                    className="absolute"
+                    style={{ left: x - 55, top: y - 30 }}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <div className={`w-[110px] px-3 py-3 rounded-lg border text-center transition-all ${
+                      ind.active
+                        ? "bg-forest border-primary/40 mint-glow"
+                        : "bg-secondary/30 border-primary/10 opacity-40"
+                    }`}>
+                      <div className={`text-xs font-bold uppercase tracking-wider ${
+                        ind.active ? "text-primary" : "text-muted-foreground"
+                      }`}>
+                        {ind.name}
+                      </div>
+                      {!ind.active && (
+                        <div className="text-[9px] text-muted-foreground mt-1 font-mono">{t("industries.comingSoon")}</div>
+                      )}
+                    </div>
+                  </motion.div>
+                </g>
+              );
+            })}
+          </div>
+
+          {/* Mobile: simple grid */}
+          <div className="md:hidden w-full mb-12">
+            <div className="w-16 h-16 rounded-xl bg-forest border border-primary/30 flex items-center justify-center mint-glow mx-auto mb-8">
+              <div className="text-center">
+                <div className="text-[9px] font-mono uppercase text-primary/60 tracking-widest">PLATME</div>
+                <div className="text-[10px] font-semibold text-foreground mt-0.5">{t("industries.core")}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {industries.map((ind, i) => (
+                <motion.div
+                  key={ind.name}
+                  className={`px-3 py-3 rounded-lg border text-center transition-all ${
+                    ind.active
+                      ? "bg-forest border-primary/40 mint-glow"
+                      : "bg-secondary/30 border-primary/10 opacity-40"
+                  }`}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                >
+                  <div className={`text-xs font-bold uppercase tracking-wider ${
+                    ind.active ? "text-primary" : "text-muted-foreground"
+                  }`}>
+                    {ind.name}
+                  </div>
+                  {!ind.active && (
+                    <div className="text-[9px] text-muted-foreground mt-1 font-mono">{t("industries.comingSoon")}</div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
           <motion.div
-            className="text-center space-y-4 mb-12 md:mb-16"
+            className="text-center space-y-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -178,16 +119,6 @@ const IndustrySection = () => {
             <p className="text-muted-foreground text-base md:text-lg">
               {t("industries.subtitle")}
             </p>
-          </motion.div>
-
-          <motion.div
-            className="w-full"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <NetworkVisual />
           </motion.div>
         </div>
       </div>

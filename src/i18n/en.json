@@ -21,11 +21,6 @@
       "resto": "Restaurant",
       "ai": "AI Engine",
       "pay": "Payments"
-    },
-    "orchestrator": {
-      "analyze": "Analyze",
-      "build": "Build",
-      "deploy": "Deploy"
     }
   },
   "industries": {
