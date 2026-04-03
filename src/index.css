@@ -43,40 +43,40 @@
   }
 
   .light {
-    --background: 150 20% 97%;
-    --foreground: 155 50% 10%;
-    --card: 150 15% 95%;
-    --card-foreground: 155 50% 10%;
-    --popover: 150 15% 96%;
-    --popover-foreground: 155 50% 10%;
-    --primary: 151 60% 30%;
+    --background: 0 0% 99%;
+    --foreground: 160 30% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 160 30% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 30% 12%;
+    --primary: 152 55% 28%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 150 15% 90%;
-    --secondary-foreground: 155 40% 20%;
-    --muted: 150 10% 88%;
-    --muted-foreground: 155 15% 40%;
-    --accent: 151 50% 35%;
+    --secondary: 150 12% 93%;
+    --secondary-foreground: 160 25% 18%;
+    --muted: 150 8% 91%;
+    --muted-foreground: 155 10% 45%;
+    --accent: 152 45% 32%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 150 15% 82%;
-    --input: 150 15% 85%;
-    --ring: 151 60% 30%;
-    --sidebar-background: 150 15% 95%;
-    --sidebar-foreground: 155 40% 20%;
-    --sidebar-primary: 151 60% 30%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 10% 87%;
+    --input: 150 10% 89%;
+    --ring: 152 55% 28%;
+    --sidebar-background: 150 8% 97%;
+    --sidebar-foreground: 160 25% 18%;
+    --sidebar-primary: 152 55% 28%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 151 40% 90%;
-    --sidebar-accent-foreground: 155 40% 20%;
-    --sidebar-border: 150 15% 85%;
-    --sidebar-ring: 151 60% 30%;
+    --sidebar-accent: 150 20% 94%;
+    --sidebar-accent-foreground: 160 25% 18%;
+    --sidebar-border: 150 10% 89%;
+    --sidebar-ring: 152 55% 28%;
 
-    --forest: 155 40% 92%;
-    --forest-deep: 150 20% 97%;
-    --emerald: 151 50% 35%;
-    --mint: 151 60% 30%;
-    --panel-bg: 150 15% 95%;
-    --grid-line: 151 30% 30% / 0.06;
+    --forest: 150 12% 94%;
+    --forest-deep: 0 0% 99%;
+    --emerald: 152 45% 32%;
+    --mint: 152 55% 28%;
+    --panel-bg: 0 0% 100%;
+    --grid-line: 152 20% 30% / 0.05;
   }
 }
 
