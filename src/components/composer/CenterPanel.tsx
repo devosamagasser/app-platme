@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { ZoomIn, ZoomOut, Maximize2, BookOpen, MessageSquare, Users, Shield, CreditCard, BarChart3, Globe, Settings, Info, X } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, BookOpen, MessageSquare, Users, Shield, CreditCard, BarChart3, Globe, Settings, Info } from "lucide-react";
 import type { FeatureItem } from "@/components/composer/RightPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
