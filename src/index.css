@@ -121,24 +121,24 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — dark (default) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(155 60% 4%);
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(151 100% 81% / 0.15);
+  background: hsl(var(--muted));
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(151 100% 81% / 0.3);
+  background: hsl(var(--muted-foreground));
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(151 100% 81% / 0.15) hsl(155 60% 4%);
+  scrollbar-color: hsl(var(--muted)) hsl(var(--background));
 }
 
 @keyframes flow {
