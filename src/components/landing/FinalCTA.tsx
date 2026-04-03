@@ -75,21 +75,14 @@ const FinalCTA = () => {
               </div>
             </div>
 
-            {/* Status */}
+            {/* Platform */}
             <div className="space-y-4">
               <h4 className="text-xs font-mono uppercase tracking-widest text-primary/50">
                 Platform
               </h4>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-                </span>
-                <span className="text-sm text-muted-foreground">Guided Intelligence™</span>
-              </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground/50 font-mono">
                 <Zap className="w-3 h-3" />
-                <span>v0.1.0</span>
+                <span>v0.1.0 — Live</span>
               </div>
             </div>
           </div>
