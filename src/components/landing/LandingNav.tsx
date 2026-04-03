@@ -21,6 +21,7 @@ const LandingNav = () => {
 
   const navLinks = [
     { href: "#industries", label: t("nav.industries") },
+    { href: "#why", label: t("nav.why") },
     { href: "#how-it-works", label: t("nav.howItWorks") },
   ];
 
