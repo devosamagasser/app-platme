@@ -192,6 +192,10 @@
     "prev": "Back",
     "start": "Let's Go!"
   },
+  "offer": {
+    "title": "What We Offer",
+    "subtitle": "From idea to production-ready infrastructure — here's how PLATME takes you there."
+  },
   "stats": {
     "platforms": "Platforms Built",
     "users": "Active Users",
