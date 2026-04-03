@@ -199,8 +199,6 @@ const CenterPanel = ({
         {t("composer.systemBlueprint")}
       </div>
 
-      {/* Minimap */}
-      <Minimap nodes={nodes} edges={edges} pan={pan} zoom={zoom} containerSize={containerSize} />
 
       {/* Zoom controls */}
       <div className="absolute bottom-4 end-4 flex items-center gap-1.5 z-10">
