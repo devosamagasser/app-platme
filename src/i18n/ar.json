@@ -103,9 +103,10 @@
     "available": "← متاح"
   },
   "composer": {
-    "headerLabel": "مُصمم الذكاء الموجّه™",
+    "headerLabel": "استوديو النظام",
     "proceed": "← متابعة",
-    "architectureCanvas": "لوحة البنية",
+    "systemBlueprint": "مخطط النظام",
+    "fitToView": "ملائمة",
     "loadingModules": "جاري تحميل الوحدات…",
     "gomaaTitle": "جمعة — مهندس الأنظمة",
     "gomaaLabel": "جمعة",

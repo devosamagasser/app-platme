@@ -103,9 +103,10 @@
     "available": "Available →"
   },
   "composer": {
-    "headerLabel": "Guided Intelligence™ Composer",
+    "headerLabel": "System Studio",
     "proceed": "Proceed →",
-    "architectureCanvas": "Architecture Canvas",
+    "systemBlueprint": "System Blueprint",
+    "fitToView": "Fit",
     "loadingModules": "Loading modules…",
     "gomaaTitle": "Gomaa — System Architect",
     "gomaaLabel": "Gomaa",
