@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { ZoomIn, ZoomOut, Maximize2, BookOpen, MessageSquare, Users, Shield, CreditCard, BarChart3, Globe, Settings, Info, X } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, BookOpen, MessageSquare, Users, Shield, CreditCard, BarChart3, Globe, Settings, Info } from "lucide-react";
 import type { FeatureItem } from "@/components/composer/RightPanel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export interface GraphNode {
   id: string;
@@ -264,7 +265,6 @@ const CenterPanel = ({
           const IconComp = getCategoryIcon(node.category);
           const isSelected = selectedNodeId === node.id;
           const feature = features.find((f) => f.slug === node.id);
-          const showInfo = infoNodeId === node.id;
 
           return (
             <motion.div
@@ -301,7 +301,7 @@ const CenterPanel = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setInfoNodeId(showInfo ? null : node.id);
+                        setInfoNodeId(node.id);
                       }}
                       className="p-0.5 rounded hover:bg-primary/10 transition-colors"
                     >
@@ -318,54 +318,58 @@ const CenterPanel = ({
                   </div>
                 )}
               </div>
-
-              {/* Info popover */}
-              <AnimatePresence>
-                {showInfo && feature && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="border-t border-primary/10 bg-card/80 backdrop-blur-sm overflow-hidden"
-                    dir={isAr ? "rtl" : "ltr"}
-                  >
-                    <div className="p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase text-primary/50 tracking-wider">
-                          {isAr && feature.name_ar ? feature.name_ar : feature.name}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setInfoNodeId(null);
-                          }}
-                          className="p-0.5 rounded hover:bg-primary/10"
-                        >
-                          <X className="w-3 h-3 text-muted-foreground" />
-                        </button>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        {isAr && feature.description_ar ? feature.description_ar : feature.description}
-                      </p>
-                      <div className="flex items-center gap-3 text-[10px] font-mono text-muted-foreground/70">
-                        <span>{feature.category}</span>
-                        {feature.is_default && (
-                          <span className="text-primary/60 bg-primary/10 px-1.5 py-0.5 rounded">
-                            {t("composer.default")}
-                          </span>
-                        )}
-                        {feature.price > 0 && (
-                          <span>${feature.price}/mo</span>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </motion.div>
           );
         })}
       </div>
+
+      {/* Feature Info Dialog */}
+      {(() => {
+        const infoFeature = infoNodeId ? features.find((f) => f.slug === infoNodeId) : null;
+        const infoNode = infoNodeId ? nodes.find((n) => n.id === infoNodeId) : null;
+        const InfoIcon = infoNode ? getCategoryIcon(infoNode.category) : Shield;
+        return (
+          <Dialog open={!!infoFeature} onOpenChange={(open) => { if (!open) setInfoNodeId(null); }}>
+            <DialogContent className="max-w-sm bg-card border-primary/20" dir={isAr ? "rtl" : "ltr"}>
+              <DialogHeader>
+                <div className="flex items-center gap-2 mb-1">
+                  <InfoIcon className="w-4 h-4 text-primary" />
+                  <span className="text-[10px] font-mono uppercase text-primary/60 tracking-wider">
+                    {infoFeature?.category}
+                  </span>
+                </div>
+                <DialogTitle className="text-base font-semibold text-foreground">
+                  {infoFeature && (isAr && infoFeature.name_ar ? infoFeature.name_ar : infoFeature.name)}
+                </DialogTitle>
+              </DialogHeader>
+              {infoFeature && (
+                <div className="space-y-4 pt-1">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {isAr && infoFeature.description_ar ? infoFeature.description_ar : infoFeature.description}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {infoFeature.is_default && (
+                      <span className="text-[10px] font-mono text-primary bg-primary/10 px-2 py-1 rounded-md">
+                        {t("composer.default")}
+                      </span>
+                    )}
+                    {infoFeature.price > 0 && (
+                      <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-2 py-1 rounded-md">
+                        ${infoFeature.price}/mo
+                      </span>
+                    )}
+                    {infoFeature.price === 0 && (
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md">
+                        Free
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
     </div>
   );
 };
