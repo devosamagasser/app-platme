@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { ZoomIn, ZoomOut, Maximize2, BookOpen, MessageSquare, Users, Shield, CreditCard, BarChart3, Globe, Settings } from "lucide-react";
 
 export interface GraphNode {
   id: string;
@@ -16,25 +17,187 @@ export interface GraphEdge {
   to: string;
 }
 
+// Category color mapping
+const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string; bar: string }> = {
+  LMS: { border: "border-emerald-400/50", bg: "bg-emerald-400/10", text: "text-emerald-400", bar: "bg-emerald-400" },
+  Content: { border: "border-sky-400/50", bg: "bg-sky-400/10", text: "text-sky-400", bar: "bg-sky-400" },
+  Communication: { border: "border-amber-400/50", bg: "bg-amber-400/10", text: "text-amber-400", bar: "bg-amber-400" },
+  Users: { border: "border-violet-400/50", bg: "bg-violet-400/10", text: "text-violet-400", bar: "bg-violet-400" },
+  Commerce: { border: "border-rose-400/50", bg: "bg-rose-400/10", text: "text-rose-400", bar: "bg-rose-400" },
+  Analytics: { border: "border-cyan-400/50", bg: "bg-cyan-400/10", text: "text-cyan-400", bar: "bg-cyan-400" },
+  Core: { border: "border-primary/50", bg: "bg-primary/10", text: "text-primary", bar: "bg-primary" },
+};
+
+const DEFAULT_COLOR = { border: "border-primary/30", bg: "bg-primary/5", text: "text-primary/70", bar: "bg-primary/60" };
+
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  LMS: BookOpen,
+  Content: Globe,
+  Communication: MessageSquare,
+  Users: Users,
+  Commerce: CreditCard,
+  Analytics: BarChart3,
+  Core: Settings,
+};
+
+function getCategoryStyle(category: string) {
+  const key = Object.keys(CATEGORY_COLORS).find((k) => category.toLowerCase().includes(k.toLowerCase()));
+  return key ? CATEGORY_COLORS[key] : DEFAULT_COLOR;
+}
+
+function getCategoryIcon(category: string) {
+  const key = Object.keys(CATEGORY_ICONS).find((k) => category.toLowerCase().includes(k.toLowerCase()));
+  return key ? CATEGORY_ICONS[key] : Shield;
+}
+
+// Minimap component
+const Minimap = ({
+  nodes,
+  edges,
+  pan,
+  zoom,
+  containerSize,
+}: {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  pan: { x: number; y: number };
+  zoom: number;
+  containerSize: { w: number; h: number };
+}) => {
+  const MINIMAP_W = 150;
+  const MINIMAP_H = 100;
+
+  if (nodes.length === 0) return null;
+
+  const minX = Math.min(...nodes.map((n) => n.x));
+  const maxX = Math.max(...nodes.map((n) => n.x + 180));
+  const minY = Math.min(...nodes.map((n) => n.y));
+  const maxY = Math.max(...nodes.map((n) => n.y + 60));
+
+  const graphW = Math.max(maxX - minX, 400);
+  const graphH = Math.max(maxY - minY, 300);
+  const padding = 40;
+  const totalW = graphW + padding * 2;
+  const totalH = graphH + padding * 2;
+  const scale = Math.min(MINIMAP_W / totalW, MINIMAP_H / totalH);
+
+  const getNode = (id: string) => nodes.find((n) => n.id === id);
+
+  // Viewport rect
+  const vpX = (-pan.x / zoom - minX + padding) * scale;
+  const vpY = (-pan.y / zoom - minY + padding) * scale;
+  const vpW = (containerSize.w / zoom) * scale;
+  const vpH = (containerSize.h / zoom) * scale;
+
+  return (
+    <div className="absolute top-4 end-4 z-10 rounded-lg border border-primary/15 bg-card/80 backdrop-blur-sm overflow-hidden" style={{ width: MINIMAP_W, height: MINIMAP_H }}>
+      <svg width={MINIMAP_W} height={MINIMAP_H}>
+        {edges.map((edge, i) => {
+          const from = getNode(edge.from);
+          const to = getNode(edge.to);
+          if (!from || !to) return null;
+          return (
+            <line
+              key={i}
+              x1={(from.x - minX + padding + 90) * scale}
+              y1={(from.y - minY + padding + 30) * scale}
+              x2={(to.x - minX + padding + 90) * scale}
+              y2={(to.y - minY + padding + 30) * scale}
+              stroke="hsl(var(--primary))"
+              strokeWidth="0.5"
+              opacity={0.3}
+            />
+          );
+        })}
+        {nodes.map((node) => {
+          const style = getCategoryStyle(node.category);
+          return (
+            <rect
+              key={node.id}
+              x={(node.x - minX + padding) * scale}
+              y={(node.y - minY + padding) * scale}
+              width={180 * scale}
+              height={60 * scale}
+              rx={2}
+              fill="currentColor"
+              className={style.text}
+              opacity={0.6}
+            />
+          );
+        })}
+        <rect
+          x={vpX}
+          y={vpY}
+          width={vpW}
+          height={vpH}
+          fill="hsl(var(--primary) / 0.08)"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1"
+          rx={2}
+          opacity={0.6}
+        />
+      </svg>
+    </div>
+  );
+};
+
 const CenterPanel = ({
   nodes,
   edges,
   selectedNodeId,
   onSelectNode,
+  onFitToView,
 }: {
   nodes: GraphNode[];
   edges: GraphEdge[];
   selectedNodeId: string | null;
   onSelectNode: (id: string) => void;
+  onFitToView?: () => void;
 }) => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
+  const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
   const panStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+  const pinchStart = useRef({ dist: 0, zoom: 1 });
+
+  // Track container size
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setContainerSize({ w: width, h: height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const getNode = (id: string) => nodes.find((n) => n.id === id);
+
+  const handleFitToView = useCallback(() => {
+    if (nodes.length === 0) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const minX = Math.min(...nodes.map((n) => n.x));
+    const maxX = Math.max(...nodes.map((n) => n.x + 180));
+    const minY = Math.min(...nodes.map((n) => n.y));
+    const maxY = Math.max(...nodes.map((n) => n.y + 60));
+    const graphW = maxX - minX + 80;
+    const graphH = maxY - minY + 80;
+    const scaleX = containerSize.w / graphW;
+    const scaleY = containerSize.h / graphH;
+    const newZoom = Math.min(Math.max(Math.min(scaleX, scaleY) * 0.85, 0.3), 2);
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    setPan({
+      x: containerSize.w / 2 - centerX * newZoom,
+      y: containerSize.h / 2 - centerY * newZoom,
+    });
+    setZoom(newZoom);
+  }, [nodes, containerSize]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest("[data-node]")) return;
@@ -50,9 +213,7 @@ const CenterPanel = ({
     setPan({ x: panStart.current.panX + dx, y: panStart.current.panY + dy });
   }, [isPanning]);
 
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-  }, []);
+  const handleMouseUp = useCallback(() => setIsPanning(false), []);
 
   useEffect(() => {
     const handleGlobalUp = () => setIsPanning(false);
@@ -71,42 +232,44 @@ const CenterPanel = ({
       const touch = e.touches[0];
       panStart.current = { x: touch.clientX, y: touch.clientY, panX: pan.x, panY: pan.y };
     } else if (e.touches.length === 2) {
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       pinchStart.current = { dist, zoom };
     }
   }, [pan, zoom]);
 
-  const pinchStart = useRef({ dist: 0, zoom: 1 });
-
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 1 && isPanning) {
       const touch = e.touches[0];
-      const dx = touch.clientX - panStart.current.x;
-      const dy = touch.clientY - panStart.current.y;
-      setPan({ x: panStart.current.panX + dx, y: panStart.current.panY + dy });
+      setPan({ x: panStart.current.panX + touch.clientX - panStart.current.x, y: panStart.current.panY + touch.clientY - panStart.current.y });
     } else if (e.touches.length === 2) {
       e.preventDefault();
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      const scale = dist / pinchStart.current.dist;
-      setZoom(Math.min(2, Math.max(0.3, pinchStart.current.zoom * scale)));
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      setZoom(Math.min(2, Math.max(0.3, pinchStart.current.zoom * (dist / pinchStart.current.dist))));
     }
   }, [isPanning]);
 
-  const handleTouchEnd = useCallback(() => {
-    setIsPanning(false);
-  }, []);
-
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.08 : 0.08;
-    setZoom((z) => Math.min(2, Math.max(0.3, z + delta)));
+    setZoom((z) => Math.min(2, Math.max(0.3, z + (e.deltaY > 0 ? -0.08 : 0.08))));
   }, []);
+
+  // Build bezier paths for edges
+  const edgePaths = useMemo(() => {
+    return edges.map((edge) => {
+      const from = getNode(edge.from);
+      const to = getNode(edge.to);
+      if (!from || !to) return null;
+      const x1 = from.x + 90, y1 = from.y + 30;
+      const x2 = to.x + 90, y2 = to.y + 30;
+      const mx = (x1 + x2) / 2;
+      const isProposed = from.status === "proposed" || to.status === "proposed";
+      // Vertical curve bias
+      const cy1 = y1 + (y2 - y1) * 0.25;
+      const cy2 = y1 + (y2 - y1) * 0.75;
+      const d = `M ${x1} ${y1} C ${mx} ${cy1}, ${mx} ${cy2}, ${x2} ${y2}`;
+      return { d, isProposed, key: `${edge.from}-${edge.to}` };
+    }).filter(Boolean);
+  }, [edges, nodes]);
 
   return (
     <div
@@ -117,89 +280,127 @@ const CenterPanel = ({
       onMouseUp={handleMouseUp}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      onTouchEnd={() => setIsPanning(false)}
       onWheel={handleWheel}
     >
+      {/* Blueprint label */}
       <div className="absolute top-4 start-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest pointer-events-none z-10">
-        {t("composer.architectureCanvas")}
+        {t("composer.systemBlueprint")}
       </div>
 
-      <div className="absolute bottom-4 end-4 flex items-center gap-1 z-10">
-        <button onClick={() => setZoom((z) => Math.max(0.3, z - 0.15))} className="w-7 h-7 rounded-md bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center text-sm font-mono">−</button>
-        <span className="text-[10px] font-mono text-muted-foreground/50 w-10 text-center">{Math.round(zoom * 100)}%</span>
-        <button onClick={() => setZoom((z) => Math.min(2, z + 0.15))} className="w-7 h-7 rounded-md bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center text-sm font-mono">+</button>
+      {/* Minimap */}
+      <Minimap nodes={nodes} edges={edges} pan={pan} zoom={zoom} containerSize={containerSize} />
+
+      {/* Zoom controls */}
+      <div className="absolute bottom-4 end-4 flex items-center gap-1.5 z-10">
+        <button
+          onClick={() => setZoom((z) => Math.max(0.3, z - 0.15))}
+          className="w-8 h-8 rounded-lg bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center"
+          title="Zoom Out"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <span className="text-[10px] font-mono text-muted-foreground/50 w-10 text-center">
+          {Math.round(zoom * 100)}%
+        </span>
+        <button
+          onClick={() => setZoom((z) => Math.min(2, z + 0.15))}
+          className="w-8 h-8 rounded-lg bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center"
+          title="Zoom In"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleFitToView}
+          className="w-8 h-8 rounded-lg bg-card border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center ms-1"
+          title={t("composer.fitToView")}
+        >
+          <Maximize2 className="w-4 h-4" />
+        </button>
       </div>
 
+      {/* Empty state */}
       {nodes.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <span className="text-xs font-mono text-muted-foreground/30">{t("composer.loadingModules")}</span>
         </div>
       )}
 
+      {/* Graph canvas */}
       <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }} className="absolute inset-0">
+        {/* SVG edges */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: "visible" }}>
-          {edges.map((edge, i) => {
-            const from = getNode(edge.from);
-            const to = getNode(edge.to);
-            if (!from || !to) return null;
-            const isProposed = from.status === "proposed" || to.status === "proposed";
+          <defs>
+            <linearGradient id="edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
+              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+          {edgePaths.map((ep) => {
+            if (!ep) return null;
             return (
-              <line
-                key={i}
-                x1={from.x + 90}
-                y1={from.y + 30}
-                x2={to.x + 90}
-                y2={to.y + 30}
-                stroke="#9FFFD0"
+              <path
+                key={ep.key}
+                d={ep.d}
+                fill="none"
+                stroke={ep.isProposed ? "hsl(var(--primary))" : "url(#edge-gradient)"}
                 strokeWidth="1.5"
-                opacity={isProposed ? 0.3 : 0.5}
-                strokeDasharray={isProposed ? "6 4" : "none"}
-                style={
-                  isProposed
-                    ? {}
-                    : {
-                        strokeDasharray: "4",
-                        animation: "flow 20s linear infinite",
-                      }
-                }
+                opacity={ep.isProposed ? 0.25 : 0.7}
+                strokeDasharray={ep.isProposed ? "6 4" : "none"}
               />
             );
           })}
         </svg>
 
-        {nodes.map((node) => (
-          <motion.div
-            key={node.id}
-            data-node
-            className={`absolute min-w-[180px] rounded-lg p-4 cursor-pointer transition-all border ${
-              node.status === "proposed"
-                ? "border-dashed border-primary/30 bg-forest/50"
-                : selectedNodeId === node.id
-                ? "border-primary bg-forest mint-glow scale-[1.02]"
-                : "border-primary/20 bg-forest shadow-xl hover:border-primary/40"
-            }`}
-            style={{ left: node.x, top: node.y }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectNode(node.id);
-            }}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-          >
-            <div className="text-[10px] font-mono uppercase text-primary/60 tracking-wider">
-              {node.category}
-            </div>
-            <div className="text-sm text-foreground font-medium mt-1">
-              {node.label}
-            </div>
-            {node.status === "proposed" && (
-              <div className="text-[9px] font-mono text-primary/40 mt-2 uppercase">
-                {t("composer.proposed")}
+        {/* Nodes */}
+        {nodes.map((node) => {
+          const catStyle = getCategoryStyle(node.category);
+          const IconComp = getCategoryIcon(node.category);
+          const isSelected = selectedNodeId === node.id;
+
+          return (
+            <motion.div
+              key={node.id}
+              data-node
+              className={`absolute min-w-[180px] rounded-lg cursor-pointer transition-all border overflow-hidden ${
+                node.status === "proposed"
+                  ? "border-dashed border-primary/30 bg-forest/50"
+                  : isSelected
+                  ? `${catStyle.border} bg-forest mint-glow scale-[1.02]`
+                  : `${catStyle.border.replace("/50", "/20")} bg-forest shadow-xl hover:shadow-2xl hover:${catStyle.border}`
+              }`}
+              style={{ left: node.x, top: node.y }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectNode(node.id);
+              }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+            >
+              {/* Category color bar */}
+              <div className={`h-1 w-full ${catStyle.bar} opacity-60`} />
+
+              <div className="p-4">
+                <div className="flex items-center gap-1.5">
+                  <IconComp className={`w-3 h-3 ${catStyle.text} opacity-70`} />
+                  <span className={`text-[10px] font-mono uppercase tracking-wider ${catStyle.text}`}>
+                    {node.category}
+                  </span>
+                </div>
+                <div className="text-sm text-foreground font-medium mt-1.5">
+                  {node.label}
+                </div>
+                {node.status === "proposed" && (
+                  <div className="text-[9px] font-mono text-primary/40 mt-2 uppercase">
+                    {t("composer.proposed")}
+                  </div>
+                )}
               </div>
-            )}
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
