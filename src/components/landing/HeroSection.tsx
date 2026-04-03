@@ -1,189 +1,124 @@
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { Brain, Search, Wrench, Rocket } from "lucide-react";
 
-interface SystemNode {
-  id: string;
-  labelKey: string;
-  x: number;
-  y: number;
-  r: number;
-  floatDelay: number;
-}
-
-const NODES: SystemNode[] = [
-  { id: "lms", labelKey: "hero.nodes.lms", x: 200, y: 70, r: 28, floatDelay: 0 },
-  { id: "crm", labelKey: "hero.nodes.crm", x: 90, y: 170, r: 22, floatDelay: 0.4 },
-  { id: "ecom", labelKey: "hero.nodes.ecom", x: 320, y: 140, r: 24, floatDelay: 0.8 },
-  { id: "gym", labelKey: "hero.nodes.gym", x: 60, y: 290, r: 20, floatDelay: 1.2 },
-  { id: "clinic", labelKey: "hero.nodes.clinic", x: 200, y: 230, r: 26, floatDelay: 0.2 },
-  { id: "resto", labelKey: "hero.nodes.resto", x: 340, y: 270, r: 20, floatDelay: 0.6 },
-  { id: "ai", labelKey: "hero.nodes.ai", x: 150, y: 340, r: 22, floatDelay: 1.0 },
-  { id: "pay", labelKey: "hero.nodes.pay", x: 270, y: 350, r: 20, floatDelay: 0.3 },
+const ORCHESTRATOR_STEPS = [
+  { icon: Search, labelKey: "hero.orchestrator.analyze", delay: 0.6 },
+  { icon: Wrench, labelKey: "hero.orchestrator.build", delay: 1.2 },
+  { icon: Rocket, labelKey: "hero.orchestrator.deploy", delay: 1.8 },
 ];
 
-const EDGES: [string, string][] = [
-  ["lms", "crm"], ["lms", "ecom"], ["lms", "clinic"],
-  ["crm", "clinic"], ["crm", "gym"],
-  ["ecom", "resto"], ["ecom", "pay"],
-  ["clinic", "ai"], ["clinic", "resto"],
-  ["gym", "ai"],
-  ["ai", "pay"],
-  ["resto", "pay"],
-];
-
-const PARTICLES = Array.from({ length: 15 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 400,
-  y: Math.random() * 400,
-  r: Math.random() * 1.5 + 0.5,
-  duration: Math.random() * 4 + 3,
-  delay: Math.random() * 3,
-}));
-
-const NetworkVisual = () => {
+const OrchestratorVisual = () => {
   const { t } = useTranslation();
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-
-  const nodeMap = Object.fromEntries(NODES.map((n) => [n.id, n]));
-
-  const connectedTo = useCallback(
-    (nodeId: string) =>
-      EDGES.filter(([a, b]) => a === nodeId || b === nodeId).flatMap(([a, b]) =>
-        a === nodeId ? [b] : [a]
-      ),
-    []
-  );
-
-  const isEdgeHighlighted = (a: string, b: string) =>
-    hoveredNode !== null && (a === hoveredNode || b === hoveredNode);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] md:min-h-[420px]">
-      <svg viewBox="0 0 400 420" className="w-full h-full">
-        {/* Particles */}
-        {PARTICLES.map((p) => (
-          <motion.circle
-            key={`p-${p.id}`}
-            cx={p.x}
-            cy={p.y}
-            r={p.r}
-            fill="hsl(var(--primary))"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.3, 0], cx: [p.x, p.x + (Math.random() - 0.5) * 60, p.x] }}
-            transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
+    <div className="relative w-full h-full min-h-[300px] md:min-h-[420px] flex items-center justify-center">
+      {/* Center Gomaa AI hub */}
+      <div className="relative">
+        {/* Pulse rings */}
+        {[1, 2, 3].map((ring) => (
+          <motion.div
+            key={ring}
+            className="absolute inset-0 rounded-full border border-primary/20"
+            style={{
+              width: 80 + ring * 60,
+              height: 80 + ring * 60,
+              top: `calc(50% - ${(80 + ring * 60) / 2}px)`,
+              left: `calc(50% - ${(80 + ring * 60) / 2}px)`,
+            }}
+            animate={{
+              scale: [1, 1.05, 1],
+              opacity: [0.15, 0.3, 0.15],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              delay: ring * 0.5,
+              ease: "easeInOut",
+            }}
           />
         ))}
 
-        {/* Edges */}
-        {EDGES.map(([a, b], i) => {
-          const na = nodeMap[a];
-          const nb = nodeMap[b];
-          const mx = (na.x + nb.x) / 2 + (Math.random() - 0.5) * 30;
-          const my = (na.y + nb.y) / 2 + (Math.random() - 0.5) * 30;
-          const highlighted = isEdgeHighlighted(a, b);
-          return (
-            <motion.path
-              key={`e-${i}`}
-              d={`M${na.x},${na.y} Q${mx},${my} ${nb.x},${nb.y}`}
-              stroke="hsl(var(--primary))"
-              strokeWidth={highlighted ? 2 : 1}
-              fill="none"
-              initial={{ opacity: 0, pathLength: 0 }}
-              animate={{
-                opacity: highlighted ? 0.6 : 0.12,
-                pathLength: 1,
-              }}
-              transition={{
-                pathLength: { duration: 1.5, delay: i * 0.15, ease: "easeInOut" },
-                opacity: { duration: 0.3 },
-              }}
-              strokeDasharray={highlighted ? "none" : "4 4"}
-            />
-          );
-        })}
+        {/* Center brain */}
+        <motion.div
+          className="relative z-10 w-20 h-20 rounded-full bg-forest border-2 border-primary/40 flex items-center justify-center mint-glow"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Brain className="w-8 h-8 text-primary" />
+        </motion.div>
+        <motion.p
+          className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-widest text-primary/70 whitespace-nowrap"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          Gomaa AI
+        </motion.p>
 
-        {/* Nodes */}
-        {NODES.map((node) => {
-          const isHovered = hoveredNode === node.id;
-          const isConnected = hoveredNode ? connectedTo(hoveredNode).includes(node.id) : false;
-          const dimmed = hoveredNode !== null && !isHovered && !isConnected;
+        {/* Steps around */}
+        {ORCHESTRATOR_STEPS.map((step, i) => {
+          const angle = -90 + i * 120; // distribute at 120° intervals starting from top
+          const rad = (angle * Math.PI) / 180;
+          const radius = 140;
+          const x = Math.cos(rad) * radius;
+          const y = Math.sin(rad) * radius;
+          const Icon = step.icon;
 
           return (
-            <motion.g
-              key={node.id}
-              onMouseEnter={() => setHoveredNode(node.id)}
-              onMouseLeave={() => setHoveredNode(null)}
-              style={{ cursor: "pointer" }}
-              animate={{
-                y: [0, -6, 0],
+            <motion.div
+              key={i}
+              className="absolute z-10"
+              style={{
+                left: `calc(50% + ${x}px - 28px)`,
+                top: `calc(50% + ${y}px - 28px)`,
               }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: node.floatDelay,
-                ease: "easeInOut",
-              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: step.delay, duration: 0.5, ease: "backOut" }}
             >
-              {/* Glow ring */}
-              <motion.circle
-                cx={node.x}
-                cy={node.y}
-                r={node.r + 8}
-                fill="none"
-                stroke="hsl(var(--primary))"
-                strokeWidth={1}
-                animate={{ opacity: isHovered ? 0.4 : 0, scale: isHovered ? 1.1 : 1 }}
-                transition={{ duration: 0.3 }}
-              />
-              {/* Outer glow */}
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={node.r + 16}
-                fill="hsl(var(--primary))"
-                opacity={isHovered ? 0.06 : 0.02}
-              />
-              {/* Main circle */}
-              <motion.circle
-                cx={node.x}
-                cy={node.y}
-                r={node.r}
-                fill="hsl(var(--secondary))"
-                stroke="hsl(var(--primary))"
-                strokeWidth={isHovered ? 2 : 1}
-                animate={{ opacity: dimmed ? 0.3 : 1 }}
-                transition={{ duration: 0.3 }}
-              />
-              {/* Inner dot */}
-              <motion.circle
-                cx={node.x}
-                cy={node.y}
-                r={3}
-                fill="hsl(var(--primary))"
-                animate={{ opacity: dimmed ? 0.2 : 0.8 }}
-              />
-              {/* Label */}
-              <motion.text
-                x={node.x}
-                y={node.y + node.r + 16}
-                textAnchor="middle"
-                fill="hsl(var(--muted-foreground))"
-                fontSize="9"
-                fontFamily="'IBM Plex Mono', monospace"
-                animate={{
-                  opacity: dimmed ? 0.15 : isHovered ? 1 : 0.5,
-                  fill: isHovered ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+              {/* Connection line (SVG overlay) */}
+              <svg
+                className="absolute pointer-events-none"
+                style={{
+                  width: Math.abs(x) + 60,
+                  height: Math.abs(y) + 60,
+                  left: x > 0 ? -x : 0,
+                  top: y > 0 ? -y : 0,
                 }}
-                transition={{ duration: 0.3 }}
+                viewBox={`0 0 ${Math.abs(x) + 60} ${Math.abs(y) + 60}`}
               >
-                {t(node.labelKey)}
-              </motion.text>
-            </motion.g>
+                <motion.line
+                  x1={x > 0 ? 0 : Math.abs(x)}
+                  y1={y > 0 ? 0 : Math.abs(y)}
+                  x2={x > 0 ? x : 0}
+                  y2={y > 0 ? y : 0}
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={1.5}
+                  strokeDasharray="6 4"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 0.4 }}
+                  transition={{ delay: step.delay - 0.3, duration: 0.6 }}
+                />
+              </svg>
+
+              {/* Step node */}
+              <motion.div
+                className="w-14 h-14 rounded-xl bg-forest border border-primary/30 flex items-center justify-center"
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 3, repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }}
+              >
+                <Icon className="w-6 h-6 text-primary" />
+              </motion.div>
+              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground text-center mt-2 whitespace-nowrap">
+                {t(step.labelKey)}
+              </p>
+            </motion.div>
           );
         })}
-      </svg>
+      </div>
     </div>
   );
 };
@@ -280,7 +215,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <NetworkVisual />
+          <OrchestratorVisual />
         </motion.div>
       </div>
     </section>
