@@ -41,6 +41,43 @@
     --panel-bg: 155 45% 6%;
     --grid-line: 151 100% 81% / 0.05;
   }
+
+  .light {
+    --background: 150 20% 97%;
+    --foreground: 155 50% 10%;
+    --card: 150 15% 95%;
+    --card-foreground: 155 50% 10%;
+    --popover: 150 15% 96%;
+    --popover-foreground: 155 50% 10%;
+    --primary: 151 60% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 15% 90%;
+    --secondary-foreground: 155 40% 20%;
+    --muted: 150 10% 88%;
+    --muted-foreground: 155 15% 40%;
+    --accent: 151 50% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 15% 82%;
+    --input: 150 15% 85%;
+    --ring: 151 60% 30%;
+    --sidebar-background: 150 15% 95%;
+    --sidebar-foreground: 155 40% 20%;
+    --sidebar-primary: 151 60% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 151 40% 90%;
+    --sidebar-accent-foreground: 155 40% 20%;
+    --sidebar-border: 150 15% 85%;
+    --sidebar-ring: 151 60% 30%;
+
+    --forest: 155 40% 92%;
+    --forest-deep: 150 20% 97%;
+    --emerald: 151 50% 35%;
+    --mint: 151 60% 30%;
+    --panel-bg: 150 15% 95%;
+    --grid-line: 151 30% 30% / 0.06;
+  }
 }
 
 @layer base {
@@ -84,24 +121,24 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — dark (default) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(155 60% 4%);
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(151 100% 81% / 0.15);
+  background: hsl(var(--muted));
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(151 100% 81% / 0.3);
+  background: hsl(var(--muted-foreground));
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(151 100% 81% / 0.15) hsl(155 60% 4%);
+  scrollbar-color: hsl(var(--muted)) hsl(var(--background));
 }
 
 @keyframes flow {
