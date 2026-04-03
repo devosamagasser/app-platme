@@ -50,13 +50,17 @@ const CenterPanel = ({
   selectedNodeId,
   onSelectNode,
   onFitToView,
+  features = [],
 }: {
   nodes: GraphNode[];
   edges: GraphEdge[];
   selectedNodeId: string | null;
   onSelectNode: (id: string) => void;
   onFitToView?: () => void;
+  features?: FeatureItem[];
 }) => {
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
