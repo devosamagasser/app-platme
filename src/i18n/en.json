@@ -11,7 +11,17 @@
     "title2": "Orchestrate Intelligence.",
     "subtitle1": "Human-led direction. AI-powered orchestration.",
     "subtitle2": "Infrastructure built to scale.",
-    "cta": "Start Building"
+    "cta": "Start Building",
+    "nodes": {
+      "lms": "LMS",
+      "crm": "CRM",
+      "ecom": "E-Commerce",
+      "gym": "Gym",
+      "clinic": "Clinic",
+      "resto": "Restaurant",
+      "ai": "AI Engine",
+      "pay": "Payments"
+    }
   },
   "industries": {
     "title": "Orchestrate Your Industry",
