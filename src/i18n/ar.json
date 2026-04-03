@@ -21,6 +21,11 @@
       "resto": "المطعم",
       "ai": "محرك AI",
       "pay": "المدفوعات"
+    },
+    "orchestrator": {
+      "analyze": "تحليل",
+      "build": "بناء",
+      "deploy": "نشر"
     }
   },
   "industries": {
