@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 
@@ -23,7 +22,6 @@ const LandingNav = () => {
       <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
         <a href="#industries" className="hover:text-foreground transition-colors">{t("nav.industries")}</a>
         <a href="#how-it-works" className="hover:text-foreground transition-colors">{t("nav.howItWorks")}</a>
-        <ThemeToggle />
         <LanguageSwitcher />
         {user ? (
           <Link to="/dashboard" className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
@@ -38,7 +36,6 @@ const LandingNav = () => {
 
       {/* Mobile: language + toggle */}
       <div className="flex md:hidden items-center gap-2">
-        <ThemeToggle />
         <LanguageSwitcher />
         <button
           className="p-2 text-foreground"
