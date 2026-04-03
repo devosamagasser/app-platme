@@ -1,5 +1,6 @@
 import LandingNav from "@/components/landing/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
+import WhatWeOfferSection from "@/components/landing/WhatWeOfferSection";
 import IndustrySection from "@/components/landing/IndustrySection";
 import StatsSection from "@/components/landing/StatsSection";
 import ComparisonSection from "@/components/landing/ComparisonSection";
@@ -14,6 +15,7 @@ const Landing = () => (
   <div className="min-h-screen bg-background overflow-x-hidden">
     <LandingNav />
     <HeroSection />
+    <WhatWeOfferSection />
     <IndustrySection />
     <StatsSection />
     <ComparisonSection />
