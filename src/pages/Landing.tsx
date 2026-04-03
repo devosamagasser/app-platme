@@ -4,6 +4,7 @@ import IndustrySection from "@/components/landing/IndustrySection";
 import ComparisonSection from "@/components/landing/ComparisonSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import FinalCTA from "@/components/landing/FinalCTA";
+import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 
 const Landing = () => (
   <div className="min-h-screen bg-background overflow-x-hidden">
@@ -13,6 +14,7 @@ const Landing = () => (
     <ComparisonSection />
     <HowItWorks />
     <FinalCTA />
+    <OnboardingWizard />
   </div>
 );
 

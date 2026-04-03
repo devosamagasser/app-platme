@@ -179,5 +179,18 @@
     "platforms": "My Platforms",
     "newPlatform": "New Platform",
     "noPlatforms": "No platforms yet. Start building!"
+  },
+  "onboarding": {
+    "step1Title": "Welcome to PLATME",
+    "step1Desc": "The Guided Intelligence™ platform that helps you build complete digital systems — from education to e-commerce — without months of development.",
+    "step2Title": "Choose Your System",
+    "step2Desc": "Select an industry vertical (Education, Gym, Clinic, etc.) and our AI architect Gomaa will design the optimal infrastructure for you.",
+    "step3Title": "Chat with Gomaa",
+    "step3Desc": "Describe what you need in natural language. Gomaa proposes features, you guide the decisions. Human-led, AI-orchestrated.",
+    "step4Title": "Deploy & Launch",
+    "step4Desc": "Configure resources, set your subdomain, and deploy a production-ready platform in minutes — not months.",
+    "next": "Next",
+    "prev": "Back",
+    "start": "Let's Go!"
   }
 }
