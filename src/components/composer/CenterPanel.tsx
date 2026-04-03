@@ -263,6 +263,8 @@ const CenterPanel = ({
           const catStyle = getCategoryStyle(node.category);
           const IconComp = getCategoryIcon(node.category);
           const isSelected = selectedNodeId === node.id;
+          const feature = features.find((f) => f.slug === node.id);
+          const showInfo = infoNodeId === node.id;
 
           return (
             <motion.div
@@ -288,11 +290,24 @@ const CenterPanel = ({
               <div className={`h-1 w-full ${catStyle.bar} opacity-60`} />
 
               <div className="p-4">
-                <div className="flex items-center gap-1.5">
-                  <IconComp className={`w-3 h-3 ${catStyle.text} opacity-70`} />
-                  <span className={`text-[10px] font-mono uppercase tracking-wider ${catStyle.text}`}>
-                    {node.category}
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <IconComp className={`w-3 h-3 ${catStyle.text} opacity-70`} />
+                    <span className={`text-[10px] font-mono uppercase tracking-wider ${catStyle.text}`}>
+                      {node.category}
+                    </span>
+                  </div>
+                  {feature && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInfoNodeId(showInfo ? null : node.id);
+                      }}
+                      className="p-0.5 rounded hover:bg-primary/10 transition-colors"
+                    >
+                      <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-primary transition-colors" />
+                    </button>
+                  )}
                 </div>
                 <div className="text-sm text-foreground font-medium mt-1.5">
                   {node.label}
@@ -303,6 +318,50 @@ const CenterPanel = ({
                   </div>
                 )}
               </div>
+
+              {/* Info popover */}
+              <AnimatePresence>
+                {showInfo && feature && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-t border-primary/10 bg-card/80 backdrop-blur-sm overflow-hidden"
+                    dir={isAr ? "rtl" : "ltr"}
+                  >
+                    <div className="p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase text-primary/50 tracking-wider">
+                          {isAr && feature.name_ar ? feature.name_ar : feature.name}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInfoNodeId(null);
+                          }}
+                          className="p-0.5 rounded hover:bg-primary/10"
+                        >
+                          <X className="w-3 h-3 text-muted-foreground" />
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        {isAr && feature.description_ar ? feature.description_ar : feature.description}
+                      </p>
+                      <div className="flex items-center gap-3 text-[10px] font-mono text-muted-foreground/70">
+                        <span>{feature.category}</span>
+                        {feature.is_default && (
+                          <span className="text-primary/60 bg-primary/10 px-1.5 py-0.5 rounded">
+                            {t("composer.default")}
+                          </span>
+                        )}
+                        {feature.price > 0 && (
+                          <span>${feature.price}/mo</span>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           );
         })}
