@@ -38,6 +38,7 @@ const LandingNav = () => {
 
       {/* Mobile: language + toggle */}
       <div className="flex md:hidden items-center gap-2">
+        <ThemeToggle />
         <LanguageSwitcher />
         <button
           className="p-2 text-foreground"
