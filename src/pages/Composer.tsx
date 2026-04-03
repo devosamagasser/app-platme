@@ -258,6 +258,7 @@ const Composer = () => {
           edges={edges}
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
+          features={features}
         />
         <RightPanel
           features={features}
