@@ -189,5 +189,53 @@
     "next": "Next",
     "prev": "Back",
     "start": "Let's Go!"
+  },
+  "stats": {
+    "platforms": "Platforms Built",
+    "users": "Active Users",
+    "features": "Available Features",
+    "verticals": "Industry Verticals"
+  },
+  "pricing": {
+    "title": "Pay Only for What You Use",
+    "subtitle": "No fixed plans. You choose the features, storage, and capacity — and pay based on your actual usage.",
+    "badge": "Usage-Based Pricing",
+    "model": "PLATME doesn't lock you into tiers. You select the features you need, set your storage and user capacity, and your monthly cost is calculated based on exactly what you chose. Scale up or down anytime.",
+    "features": "Features",
+    "featuresDesc": "Pick only the modules your platform needs. Each feature has a transparent monthly price.",
+    "storage": "Storage",
+    "storageDesc": "Choose your storage capacity starting from 50GB. Pay per GB based on your system's rate.",
+    "capacity": "User Capacity",
+    "capacityDesc": "Set the maximum number of users. Scale up as your platform grows.",
+    "cta": "Start Building"
+  },
+  "testimonials": {
+    "title": "Trusted by Builders",
+    "subtitle": "What our users say about building with PLATME.",
+    "name1": "Ahmed Hassan",
+    "role1": "EdTech Founder",
+    "quote1": "We launched a full LMS in 2 days instead of 6 months. The AI architect understood exactly what we needed.",
+    "name2": "Sara Al-Rashidi",
+    "role2": "Gym Chain Owner",
+    "quote2": "Managing 3 gym branches from one dashboard was a game changer. The pricing model is incredibly fair.",
+    "name3": "Omar Khalil",
+    "role3": "Freelance Developer",
+    "quote3": "As a developer, I earn 10% commission on every platform I build for clients. It's a real business model."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about PLATME.",
+    "q1": "What is PLATME?",
+    "a1": "PLATME is a Guided Intelligence™ platform that helps you build complete digital systems — from education to e-commerce — using AI-guided architecture without months of development.",
+    "q2": "How does pricing work?",
+    "a2": "There are no fixed plans. You choose your features, storage, and user capacity, and your monthly cost is calculated based on your exact selections. You only pay for what you use.",
+    "q3": "Do I need technical knowledge?",
+    "a3": "No. You describe what you need in natural language, and our AI architect Gomaa designs the optimal infrastructure for you. You guide the decisions, the AI handles the complexity.",
+    "q4": "Can I change my platform after deployment?",
+    "a4": "Yes. You can add or remove features, adjust storage, and scale user capacity at any time. Your pricing updates automatically.",
+    "q5": "What is the Developer Program?",
+    "a5": "Developers can earn 10% monthly commission on platforms they build for clients. Enable the developer account from your dashboard to start earning.",
+    "q6": "Which industries are supported?",
+    "a6": "Education is fully live now. E-commerce, Gym, Clinic, and Restaurant systems are coming soon. Each vertical comes with specialized features and workflows."
   }
 }
