@@ -23,6 +23,7 @@ const LandingNav = () => {
       <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
         <a href="#industries" className="hover:text-foreground transition-colors">{t("nav.industries")}</a>
         <a href="#how-it-works" className="hover:text-foreground transition-colors">{t("nav.howItWorks")}</a>
+        <ThemeToggle />
         <LanguageSwitcher />
         {user ? (
           <Link to="/dashboard" className="px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:shadow-[0_0_20px_rgba(159,255,208,0.4)] transition-all">
