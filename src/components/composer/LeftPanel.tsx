@@ -43,7 +43,7 @@ const LeftPanel = ({ businessType, onAddModule, onComplete, collapsed, onToggle,
         .select("tokens")
         .eq("id", user.id)
         .single();
-      if (data) setTokenCount((data as any).tokens);
+      if (data) setTokenCount(data.tokens);
     };
     fetchTokens();
   }, [user]);
