@@ -13,7 +13,7 @@ const WhatWeOfferSection = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="py-20 md:py-32 relative">
+    <section id="why" aria-labelledby="offer-heading" className="py-20 md:py-32 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-transparent" />
       <div className="relative container mx-auto px-4 md:px-8">
         <motion.div
@@ -22,7 +22,7 @@ const WhatWeOfferSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-architect text-foreground">
+          <h2 id="offer-heading" className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-architect text-foreground">
             {t("offer.title")}
           </h2>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
