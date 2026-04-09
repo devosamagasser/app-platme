@@ -2,22 +2,10 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ZoomIn, ZoomOut, Maximize2, BookOpen, MessageSquare, Users, Shield, CreditCard, BarChart3, Globe, Settings, Info } from "lucide-react";
-import type { FeatureItem } from "@/components/composer/RightPanel";
+import type { FeatureItem, GraphNode, GraphEdge } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-export interface GraphNode {
-  id: string;
-  label: string;
-  category: string;
-  x: number;
-  y: number;
-  status: "active" | "proposed";
-}
-
-export interface GraphEdge {
-  from: string;
-  to: string;
-}
+export type { GraphNode, GraphEdge };
 
 // Unified color — all categories use primary (mint)
 const UNIFIED_STYLE = { border: "border-primary/40", bg: "bg-primary/5", text: "text-primary", bar: "bg-primary" };

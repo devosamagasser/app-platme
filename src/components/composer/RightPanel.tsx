@@ -1,17 +1,8 @@
 import { Check, Package, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { FeatureItem } from "@/types";
 
-export interface FeatureItem {
-  slug: string;
-  name: string;
-  description: string;
-  name_ar: string | null;
-  description_ar: string | null;
-  category: string;
-  is_default: boolean;
-  price: number;
-  active: boolean;
-}
+export type { FeatureItem };
 
 interface RightPanelProps {
   features: FeatureItem[];
