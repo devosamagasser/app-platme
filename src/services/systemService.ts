@@ -26,7 +26,7 @@ export async function fetchSystemFeatures(systemId: string): Promise<FeatureItem
     description_ar: f.description_ar,
     category: f.category,
     is_default: f.is_default ?? false,
-    price: Number(f.price) ?? 0,
+    price: f.price != null ? Number(f.price) : 0,
     active: f.active ?? true,
   }));
 }
