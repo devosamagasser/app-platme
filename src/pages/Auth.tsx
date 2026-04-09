@@ -53,10 +53,11 @@ const Auth = () => {
           description: t("auth.confirmEmail"),
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       toast({
         title: t("auth.error"),
-        description: err.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
