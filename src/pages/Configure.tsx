@@ -8,19 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Smartphone, Globe, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import SelectedModules, { type FeatureConfig } from "@/components/configure/SelectedModules";
+import SelectedModules from "@/components/configure/SelectedModules";
 import ResourceSliders from "@/components/configure/ResourceSliders";
 import OwnerDetailsForm from "@/components/configure/OwnerDetailsForm";
 import PricingSidebar from "@/components/configure/PricingSidebar";
-
-interface SystemPricing {
-  id: string;
-  unit_storage_price: number;
-  unit_capacity_price: number;
-  mobile_app_price: number;
-  creation_token_cost: number;
-  api_url: string | null;
-}
+import { STORAGE_KEYS } from "@/lib/constants";
+import { fetchSystemBySlug, fetchSelectedFeatures } from "@/services/systemService";
+import { createPlatform, insertPlatformFeatures, deployToExternalApi } from "@/services/platformService";
+import type { FeatureConfig, SystemPricing } from "@/types";
 
 const Configure = () => {
   const [searchParams] = useSearchParams();

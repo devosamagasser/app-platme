@@ -1,13 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
-
-export interface FeatureConfig {
-  slug: string;
-  name: string;
-  name_ar: string | null;
-  category: string;
-  price: number;
-}
+import type { FeatureConfig } from "@/types";
 
 interface Props {
   features: FeatureConfig[];
