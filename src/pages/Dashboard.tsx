@@ -1,70 +1,36 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { usePlatforms } from "@/hooks/usePlatforms";
 import { Switch } from "@/components/ui/switch";
 import { Coins, Plus, LogOut, Code2, Globe, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useToast } from "@/hooks/use-toast";
-
-interface Profile {
-  email: string;
-  full_name: string | null;
-  is_developer: boolean;
-  tokens: number;
-}
-
-interface Platform {
-  id: string;
-  subdomain: string;
-  monthly_price: number;
-  status: string;
-  created_at: string;
-}
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: platforms = [], isLoading: platformsLoading } = usePlatforms();
 
-  useEffect(() => {
-    if (!user) return;
-    const load = async () => {
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("email, full_name, is_developer, tokens")
-        .eq("id", user.id)
-        .single() as { data: Profile | null };
-
-      const { data: plats } = await supabase
-        .from("platforms")
-        .select("id, subdomain, monthly_price, status, created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false }) as { data: Platform[] | null };
-
-      if (prof) setProfile(prof);
-      if (plats) setPlatforms(plats);
-      setLoading(false);
-    };
-    load();
-  }, [user]);
+  const loading = profileLoading || platformsLoading;
 
   const toggleDeveloper = async () => {
     if (!user || !profile) return;
     const newVal = !profile.is_developer;
-    // Note: This will be blocked by RLS if is_developer can't be changed by user
     const { error } = await supabase
       .from("profiles")
       .update({ is_developer: newVal })
       .eq("id", user.id);
     if (!error) {
-      setProfile({ ...profile, is_developer: newVal });
+      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
       toast({ title: newVal ? t("dashboard.devEnabled") : t("dashboard.devDisabled") });
     }
   };
