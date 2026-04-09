@@ -111,31 +111,20 @@ const Configure = () => {
         return;
       }
 
-      const { data: platform, error: platErr } = await supabase
-        .from("platforms")
-        .insert({
-          user_id: user.id,
-          system_id: pricing.id,
-          subdomain: subdomain.trim(),
-          mobile_app: mobileApp,
-          storage_gb: globalStorage,
-          capacity_users: globalCapacity,
-          monthly_price: totalPrice,
-          status: "active",
-        })
-        .select("id")
-        .single();
+      const { data: platform, error: platErr } = await createPlatform({
+        userId: user.id,
+        systemId: pricing.id,
+        subdomain: subdomain.trim(),
+        mobileApp,
+        storageGb: globalStorage,
+        capacityUsers: globalCapacity,
+        monthlyPrice: totalPrice,
+      });
 
       if (platErr) throw platErr;
 
       if (selectedFeatures.length > 0 && platform) {
-        await supabase.from("platform_features").insert(
-          selectedFeatures.map((f) => ({
-            platform_id: platform.id,
-            feature_slug: f.slug,
-            feature_price: f.price,
-          }))
-        );
+        await insertPlatformFeatures(platform.id, selectedFeatures);
       }
 
       // Note: token deduction should be done server-side via edge function
