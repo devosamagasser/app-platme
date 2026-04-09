@@ -26,14 +26,14 @@ const Composer = () => {
     try {
       const saved = sessionStorage.getItem(graphStorageKey);
       if (saved) { const parsed = JSON.parse(saved); return parsed.nodes || []; }
-    } catch {}
+    } catch { /* ignore parse errors */ }
     return [];
   });
   const [edges, setEdges] = useState<GraphEdge[]>(() => {
     try {
       const saved = sessionStorage.getItem(graphStorageKey);
       if (saved) { const parsed = JSON.parse(saved); return parsed.edges || []; }
-    } catch {}
+    } catch { /* ignore parse errors */ }
     return [];
   });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -61,7 +61,18 @@ const Composer = () => {
         .eq("system_id", system.id);
 
       if (data) {
-        const mapped = data.map((f: any) => ({
+        interface SystemFeatureRow {
+          slug: string;
+          name: string;
+          description: string;
+          name_ar: string | null;
+          description_ar: string | null;
+          category: string;
+          is_default: boolean | null;
+          price: number | null;
+          active: boolean | null;
+        }
+        const mapped = (data as SystemFeatureRow[]).map((f) => ({
           ...f,
           price: f.price ?? 0,
           active: f.active ?? true,
@@ -69,8 +80,8 @@ const Composer = () => {
         setFeatures(mapped);
 
         if (!defaultsLoaded) {
-          const defaultFeatures = mapped.filter((f: any) => f.is_default);
-          const defaultNodes: GraphNode[] = defaultFeatures.map((f: any, i: number) => ({
+          const defaultFeatures = mapped.filter((f) => f.is_default);
+          const defaultNodes: GraphNode[] = defaultFeatures.map((f, i: number) => ({
             id: f.slug,
             label: isAr && f.name_ar ? f.name_ar : f.name,
             category: f.category,
@@ -97,7 +108,7 @@ const Composer = () => {
       }
     };
     fetchFeatures();
-  }, [businessType, defaultsLoaded]);
+  }, [businessType, defaultsLoaded, isAr]);
 
   // Sync graph state to sessionStorage
   useEffect(() => {

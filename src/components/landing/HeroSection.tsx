@@ -213,7 +213,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
           >
             <TypingBadge text={t("hero.badge")} />
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-architect text-foreground leading-[1.05]" style={{ textWrap: "balance" as any }}>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-architect text-foreground leading-[1.05]" style={{ textWrap: "balance" as React.CSSProperties["textWrap"] }}>
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

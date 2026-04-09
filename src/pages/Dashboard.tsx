@@ -58,10 +58,11 @@ const Dashboard = () => {
   const toggleDeveloper = async () => {
     if (!user || !profile) return;
     const newVal = !profile.is_developer;
-    const { error } = await (supabase
+    // Note: This will be blocked by RLS if is_developer can't be changed by user
+    const { error } = await supabase
       .from("profiles")
-      .update({ is_developer: newVal } as any)
-      .eq("id", user.id) as any);
+      .update({ is_developer: newVal })
+      .eq("id", user.id);
     if (!error) {
       setProfile({ ...profile, is_developer: newVal });
       toast({ title: newVal ? t("dashboard.devEnabled") : t("dashboard.devDisabled") });
