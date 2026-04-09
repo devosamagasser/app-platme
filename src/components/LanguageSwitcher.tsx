@@ -27,8 +27,8 @@ const LanguageSwitcher = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all">
-        <Globe className="w-4 h-4" />
+      <DropdownMenuTrigger aria-label="Change language" className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-primary/5 border border-primary/10 transition-all">
+        <Globe className="w-4 h-4" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-card border-primary/15">
         {languages.map((lang) => (

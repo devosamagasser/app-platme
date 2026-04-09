@@ -28,7 +28,10 @@ const LandingNav = () => {
   ];
 
   return (
+    <header>
     <nav
+      role="navigation"
+      aria-label="Main navigation"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "h-14 bg-background/90 backdrop-blur-xl border-b border-primary/10 shadow-[0_1px_20px_hsl(var(--primary)/0.05)]"
@@ -85,10 +88,12 @@ const LandingNav = () => {
         <div className="flex md:hidden items-center gap-2">
           <LanguageSwitcher />
           <button
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
             className="p-2 rounded-lg text-foreground hover:bg-primary/10 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -138,6 +143,7 @@ const LandingNav = () => {
         )}
       </AnimatePresence>
     </nav>
+    </header>
   );
 };
 

@@ -14,15 +14,17 @@ import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 const Landing = () => (
   <div className="min-h-screen bg-background overflow-x-hidden">
     <LandingNav />
-    <HeroSection />
-    <WhatWeOfferSection />
-    <IndustrySection />
-    <StatsSection />
-    <ComparisonSection />
-    <PricingSection />
-    <HowItWorks />
-    <TestimonialsSection />
-    <FAQSection />
+    <main>
+      <HeroSection />
+      <WhatWeOfferSection />
+      <IndustrySection />
+      <StatsSection />
+      <ComparisonSection />
+      <PricingSection />
+      <HowItWorks />
+      <TestimonialsSection />
+      <FAQSection />
+    </main>
     <FinalCTA />
     <OnboardingWizard />
   </div>
