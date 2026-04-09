@@ -40,15 +40,10 @@ const Configure = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const slugs: string[] = JSON.parse(localStorage.getItem("platme_selected_features") || "[]");
+      const slugs: string[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.SELECTED_FEATURES) || "[]");
       if (!slugs.length) return;
 
-      const { data: system } = await supabase
-        .from("systems")
-        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price, creation_token_cost, api_url")
-        .eq("slug", businessType)
-        .single();
-
+      const system = await fetchSystemBySlug(businessType);
       if (!system) return;
 
       setPricing({
@@ -60,23 +55,8 @@ const Configure = () => {
         api_url: system.api_url || null,
       });
 
-      const { data } = await supabase
-        .from("system_features")
-        .select("slug, name, name_ar, category, price")
-        .eq("system_id", system.id)
-        .in("slug", slugs);
-
-      if (data) {
-        setSelectedFeatures(
-          data.map((f) => ({
-            slug: f.slug,
-            name: f.name,
-            name_ar: f.name_ar,
-            category: f.category,
-            price: Number(f.price) || 0,
-          }))
-        );
-      }
+      const features = await fetchSelectedFeatures(system.id, slugs);
+      setSelectedFeatures(features);
     };
     loadData();
   }, [businessType]);
