@@ -13,7 +13,7 @@ const WhatWeOfferSection = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="py-20 md:py-32 relative">
+    <section id="why" aria-labelledby="offer-heading" className="py-20 md:py-32 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-transparent" />
       <div className="relative container mx-auto px-4 md:px-8">
         <motion.div

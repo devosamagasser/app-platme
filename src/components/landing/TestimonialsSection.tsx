@@ -12,7 +12,7 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="py-20 md:py-32 relative">
+    <section aria-labelledby="testimonials-heading" className="py-20 md:py-32 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
       <div className="relative container mx-auto px-4 md:px-8">
         <motion.div
