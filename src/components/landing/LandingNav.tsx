@@ -28,7 +28,10 @@ const LandingNav = () => {
   ];
 
   return (
+    <header>
     <nav
+      role="navigation"
+      aria-label="Main navigation"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "h-14 bg-background/90 backdrop-blur-xl border-b border-primary/10 shadow-[0_1px_20px_hsl(var(--primary)/0.05)]"
@@ -140,6 +143,7 @@ const LandingNav = () => {
         )}
       </AnimatePresence>
     </nav>
+    </header>
   );
 };
 
