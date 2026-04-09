@@ -8,19 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Smartphone, Globe, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import SelectedModules, { type FeatureConfig } from "@/components/configure/SelectedModules";
+import SelectedModules from "@/components/configure/SelectedModules";
 import ResourceSliders from "@/components/configure/ResourceSliders";
 import OwnerDetailsForm from "@/components/configure/OwnerDetailsForm";
 import PricingSidebar from "@/components/configure/PricingSidebar";
-
-interface SystemPricing {
-  id: string;
-  unit_storage_price: number;
-  unit_capacity_price: number;
-  mobile_app_price: number;
-  creation_token_cost: number;
-  api_url: string | null;
-}
+import { STORAGE_KEYS } from "@/lib/constants";
+import { fetchSystemBySlug, fetchSelectedFeatures } from "@/services/systemService";
+import { createPlatform, insertPlatformFeatures, deployToExternalApi } from "@/services/platformService";
+import type { FeatureConfig, SystemPricing } from "@/types";
 
 const Configure = () => {
   const [searchParams] = useSearchParams();
@@ -45,15 +40,10 @@ const Configure = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const slugs: string[] = JSON.parse(localStorage.getItem("platme_selected_features") || "[]");
+      const slugs: string[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.SELECTED_FEATURES) || "[]");
       if (!slugs.length) return;
 
-      const { data: system } = await supabase
-        .from("systems")
-        .select("id, name, unit_storage_price, unit_capacity_price, mobile_app_price, creation_token_cost, api_url")
-        .eq("slug", businessType)
-        .single();
-
+      const system = await fetchSystemBySlug(businessType);
       if (!system) return;
 
       setPricing({
@@ -65,23 +55,8 @@ const Configure = () => {
         api_url: system.api_url || null,
       });
 
-      const { data } = await supabase
-        .from("system_features")
-        .select("slug, name, name_ar, category, price")
-        .eq("system_id", system.id)
-        .in("slug", slugs);
-
-      if (data) {
-        setSelectedFeatures(
-          data.map((f) => ({
-            slug: f.slug,
-            name: f.name,
-            name_ar: f.name_ar,
-            category: f.category,
-            price: Number(f.price) || 0,
-          }))
-        );
-      }
+      const features = await fetchSelectedFeatures(system.id, slugs);
+      setSelectedFeatures(features);
     };
     loadData();
   }, [businessType]);
@@ -136,50 +111,37 @@ const Configure = () => {
         return;
       }
 
-      const { data: platform, error: platErr } = await supabase
-        .from("platforms")
-        .insert({
-          user_id: user.id,
-          system_id: pricing.id,
-          subdomain: subdomain.trim(),
-          mobile_app: mobileApp,
-          storage_gb: globalStorage,
-          capacity_users: globalCapacity,
-          monthly_price: totalPrice,
-          status: "active",
-        })
-        .select("id")
-        .single();
+      const { data: platform, error: platErr } = await createPlatform({
+        userId: user.id,
+        systemId: pricing.id,
+        subdomain: subdomain.trim(),
+        mobileApp,
+        storageGb: globalStorage,
+        capacityUsers: globalCapacity,
+        monthlyPrice: totalPrice,
+      });
 
       if (platErr) throw platErr;
 
       if (selectedFeatures.length > 0 && platform) {
-        await supabase.from("platform_features").insert(
-          selectedFeatures.map((f) => ({
-            platform_id: platform.id,
-            feature_slug: f.slug,
-            feature_price: f.price,
-          }))
-        );
+        await insertPlatformFeatures(platform.id, selectedFeatures);
       }
 
       // Note: token deduction should be done server-side via edge function
       // This is a temporary client-side implementation
       if (pricing.api_url && platform) {
         try {
-          const { data: apiRes, error: apiErr } = await supabase.functions.invoke("create-platform", {
-            body: {
-              api_url: pricing.api_url,
-              domain: subdomain.trim(),
-              storage: globalStorage,
-              capacity: globalCapacity,
-              mobile_app: mobileApp,
-              features: selectedFeatures.map((f) => f.slug),
-              name: ownerName.trim(),
-              email: ownerEmail.trim(),
-              phone: ownerPhone.trim(),
-              password: ownerPassword,
-            },
+          const { data: apiRes, error: apiErr } = await deployToExternalApi({
+            apiUrl: pricing.api_url,
+            domain: subdomain.trim(),
+            storage: globalStorage,
+            capacity: globalCapacity,
+            mobileApp,
+            features: selectedFeatures.map((f) => f.slug),
+            name: ownerName.trim(),
+            email: ownerEmail.trim(),
+            phone: ownerPhone.trim(),
+            password: ownerPassword,
           });
 
           if (apiErr) {
