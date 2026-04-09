@@ -22,7 +22,7 @@ const WhatWeOfferSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-architect text-foreground">
+          <h2 id="offer-heading" className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-architect text-foreground">
             {t("offer.title")}
           </h2>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
