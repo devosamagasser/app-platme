@@ -131,19 +131,17 @@ const Configure = () => {
       // This is a temporary client-side implementation
       if (pricing.api_url && platform) {
         try {
-          const { data: apiRes, error: apiErr } = await supabase.functions.invoke("create-platform", {
-            body: {
-              api_url: pricing.api_url,
-              domain: subdomain.trim(),
-              storage: globalStorage,
-              capacity: globalCapacity,
-              mobile_app: mobileApp,
-              features: selectedFeatures.map((f) => f.slug),
-              name: ownerName.trim(),
-              email: ownerEmail.trim(),
-              phone: ownerPhone.trim(),
-              password: ownerPassword,
-            },
+          const { data: apiRes, error: apiErr } = await deployToExternalApi({
+            apiUrl: pricing.api_url,
+            domain: subdomain.trim(),
+            storage: globalStorage,
+            capacity: globalCapacity,
+            mobileApp,
+            features: selectedFeatures.map((f) => f.slug),
+            name: ownerName.trim(),
+            email: ownerEmail.trim(),
+            phone: ownerPhone.trim(),
+            password: ownerPassword,
           });
 
           if (apiErr) {
