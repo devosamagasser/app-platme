@@ -220,7 +220,31 @@
     "lowBalanceTitle": "Low Token Balance",
     "lowBalanceDesc": "You have {{count}} tokens remaining. Consider topping up to continue building.",
     "transactionHistory": "Transaction History",
-    "noTransactions": "No transactions yet"
+    "noTransactions": "No transactions yet",
+    "referralTitle": "Referral Program",
+    "referralSubtitle": "Invite friends and earn bonus tokens",
+    "referralYourLink": "Your Referral Link",
+    "referralShareDesc": "Share this link to earn 20 tokens per signup",
+    "referralTotalReferred": "Total Referred",
+    "referralTokensEarned": "Tokens Earned",
+    "referralHowItWorks": "How It Works",
+    "referralStep1": "Share your unique referral link with friends or clients.",
+    "referralStep2": "When they sign up using your link, both of you get 20 bonus tokens.",
+    "referralStep3": "Track your referrals and earnings from this dashboard.",
+    "sidebarReferral": "Referrals"
+  },
+  "tour": {
+    "step1Title": "Welcome to Your Dashboard! 👋",
+    "step1Desc": "This is your control center. Here you can see an overview of your account — tokens, platforms, and developer status at a glance.",
+    "step2Title": "Your Platforms",
+    "step2Desc": "Create and manage all your platforms here. Each platform is a fully deployed digital system tailored to your industry.",
+    "step3Title": "Tokens & Billing",
+    "step3Desc": "Tokens are your currency on PLATME. Use them to create platforms. You can purchase more tokens anytime.",
+    "step4Title": "Developer Mode",
+    "step4Desc": "Build 3+ platforms to unlock Developer status and earn 10% monthly commission on all platforms you create.",
+    "next": "Next",
+    "prev": "Back",
+    "finish": "Got It!"
   },
   "onboarding": {
     "step1Title": "Welcome to PLATME",

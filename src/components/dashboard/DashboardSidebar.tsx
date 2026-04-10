@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Globe, Coins, Code2, LogOut } from "lucide-react";
+import { LayoutDashboard, Globe, Coins, Code2, Gift, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +32,7 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
     { id: "platforms", icon: Globe, label: t("dashboard.sidebarPlatforms") },
     { id: "tokens", icon: Coins, label: t("dashboard.sidebarTokens") },
     { id: "developer", icon: Code2, label: t("dashboard.sidebarDeveloper"), badge: isDeveloper },
+    { id: "referral", icon: Gift, label: t("dashboard.sidebarReferral") },
   ];
 
   return (
