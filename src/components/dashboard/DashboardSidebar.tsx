@@ -68,19 +68,6 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={t("nav.dashboard")}>
-              <Link to="/">
-                <Home className="h-4 w-4" />
-                {!collapsed && <span>{t("nav.getStarted")}</span>}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <div className="px-2 py-1">
-              <LanguageSwitcher />
-            </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton onClick={onSignOut} tooltip="Sign out">
               <LogOut className="h-4 w-4" />
               {!collapsed && <span>{t("dashboard.signOut") || "Sign Out"}</span>}
