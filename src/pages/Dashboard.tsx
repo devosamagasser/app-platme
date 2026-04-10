@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { usePlatforms } from "@/hooks/usePlatforms";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -67,10 +70,18 @@ const Dashboard = () => {
           onSignOut={signOut}
         />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-primary/8 bg-card px-4">
-            <SidebarTrigger />
-            <div className="ms-3 text-[10px] font-mono uppercase tracking-widest text-primary/50">
-              {t("dashboard.label")}
+          <header className="h-12 flex items-center justify-between border-b border-primary/8 bg-card px-4">
+            <div className="flex items-center">
+              <SidebarTrigger />
+              <div className="ms-3 text-[10px] font-mono uppercase tracking-widest text-primary/50">
+                {t("dashboard.label")}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <Link to="/" className="p-2 rounded-md hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-colors">
+                <Home className="w-4 h-4" />
+              </Link>
             </div>
           </header>
           <main className="flex-1 p-6 max-w-4xl w-full">
