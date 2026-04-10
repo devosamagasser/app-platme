@@ -10,8 +10,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
+import logo from "@/assets/logo.png";
 
 interface DashboardSidebarProps {
   activeSection: string;
@@ -34,6 +36,9 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
 
   return (
     <Sidebar collapsible="icon">
+      <SidebarHeader className="flex items-center justify-center py-4">
+        <img src={logo} alt="PlatMe" className={`${collapsed ? "w-8 h-8" : "w-24"} object-contain transition-all`} />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-mono uppercase tracking-widest">
