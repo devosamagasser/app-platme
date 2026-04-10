@@ -6,6 +6,7 @@ import ComposerHeader from "@/components/composer/ComposerHeader";
 import LeftPanel from "@/components/composer/LeftPanel";
 import CenterPanel from "@/components/composer/CenterPanel";
 import RightPanel from "@/components/composer/RightPanel";
+import ComposerSkeleton from "@/components/composer/ComposerSkeleton";
 import { businessVerticals } from "@/lib/businessFeatures";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSystemFeatures } from "@/hooks/useSystemFeatures";
@@ -47,6 +48,11 @@ const Composer = () => {
     localStorage.setItem(STORAGE_KEYS.BUSINESS_TYPE, businessType);
     navigate(`/configure?business=${businessType}`);
   }, [nodes, businessType, navigate]);
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <ComposerSkeleton />;
+  }
 
   // Mobile layout
   if (isMobile) {

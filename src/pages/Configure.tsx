@@ -211,7 +211,7 @@ const Configure = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 flex flex-col lg:flex-row gap-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col lg:flex-row gap-4 md:gap-8">
         <div className="flex-1 space-y-8">
           <SelectedModules features={selectedFeatures} />
 
