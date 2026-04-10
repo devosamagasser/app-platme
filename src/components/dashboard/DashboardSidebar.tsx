@@ -73,6 +73,14 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
 
       <SidebarFooter>
         <SidebarMenu>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => window.location.href = "/admin"} tooltip="Admin Panel">
+                <ShieldCheck className="h-4 w-4 text-destructive" />
+                {!collapsed && <span className="text-destructive font-medium">Admin Panel</span>}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton onClick={onSignOut} tooltip="Sign out">
               <LogOut className="h-4 w-4" />
