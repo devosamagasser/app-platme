@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Globe, Coins, Code2, Gift, LogOut, ShieldCheck } from "lucide-react";
-import { useIsAdmin } from "@/hooks/useAdminData";
+import { LayoutDashboard, Globe, Coins, Code2, Gift, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +26,6 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
   const { t } = useTranslation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { data: isAdmin } = useIsAdmin();
 
   const menuItems = [
     { id: "overview", icon: LayoutDashboard, label: t("dashboard.sidebarOverview") },
@@ -73,14 +71,6 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
 
       <SidebarFooter>
         <SidebarMenu>
-          {isAdmin && (
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => window.location.href = "/admin"} tooltip="Admin Panel">
-                <ShieldCheck className="h-4 w-4 text-destructive" />
-                {!collapsed && <span className="text-destructive font-medium">Admin Panel</span>}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
           <SidebarMenuItem>
             <SidebarMenuButton onClick={onSignOut} tooltip="Sign out">
               <LogOut className="h-4 w-4" />
