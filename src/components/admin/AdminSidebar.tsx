@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Globe, Coins, Code2, Gift, LogOut, ShieldCheck } from "lucide-react";
-import { useIsAdmin } from "@/hooks/useAdminData";
+import { LayoutDashboard, Users, Globe, Coins, LogOut, Home } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,25 +15,22 @@ import {
 } from "@/components/ui/sidebar";
 import logo from "@/assets/logo.png";
 
-interface DashboardSidebarProps {
+interface AdminSidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
-  isDeveloper: boolean;
   onSignOut: () => void;
 }
 
-const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignOut }: DashboardSidebarProps) => {
+const AdminSidebar = ({ activeSection, onSectionChange, onSignOut }: AdminSidebarProps) => {
   const { t } = useTranslation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { data: isAdmin } = useIsAdmin();
 
   const menuItems = [
-    { id: "overview", icon: LayoutDashboard, label: t("dashboard.sidebarOverview") },
-    { id: "platforms", icon: Globe, label: t("dashboard.sidebarPlatforms") },
-    { id: "tokens", icon: Coins, label: t("dashboard.sidebarTokens") },
-    { id: "developer", icon: Code2, label: t("dashboard.sidebarDeveloper"), badge: isDeveloper },
-    { id: "referral", icon: Gift, label: t("dashboard.sidebarReferral") },
+    { id: "overview", icon: LayoutDashboard, label: "Overview" },
+    { id: "users", icon: Users, label: "Users" },
+    { id: "platforms", icon: Globe, label: "Platforms" },
+    { id: "transactions", icon: Coins, label: "Transactions" },
   ];
 
   return (
@@ -45,7 +41,7 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-mono uppercase tracking-widest">
-            {!collapsed && "PLATME"}
+            {!collapsed && "ADMIN PANEL"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -58,11 +54,6 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
                   >
                     <item.icon className="h-4 w-4" />
                     {!collapsed && <span>{item.label}</span>}
-                    {!collapsed && item.id === "developer" && isDeveloper && (
-                      <span className="ms-auto text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
-                        ✓
-                      </span>
-                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -73,14 +64,12 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
 
       <SidebarFooter>
         <SidebarMenu>
-          {isAdmin && (
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => window.location.href = "/admin"} tooltip="Admin Panel">
-                <ShieldCheck className="h-4 w-4 text-destructive" />
-                {!collapsed && <span className="text-destructive font-medium">Admin Panel</span>}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={() => window.location.href = "/dashboard"} tooltip="Dashboard">
+              <Home className="h-4 w-4" />
+              {!collapsed && <span>Back to Dashboard</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={onSignOut} tooltip="Sign out">
               <LogOut className="h-4 w-4" />
@@ -93,4 +82,4 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
   );
 };
 
-export default DashboardSidebar;
+export default AdminSidebar;
