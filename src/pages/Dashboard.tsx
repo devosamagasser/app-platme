@@ -12,6 +12,9 @@ import OverviewSection from "@/components/dashboard/OverviewSection";
 import PlatformsSection from "@/components/dashboard/PlatformsSection";
 import TokensSection from "@/components/dashboard/TokensSection";
 import DeveloperTab from "@/components/dashboard/DeveloperTab";
+import ReferralSection from "@/components/dashboard/ReferralSection";
+import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
+import OnboardingTour, { useOnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { useToast } from "@/hooks/use-toast";
 
 const LOW_BALANCE_THRESHOLD = 10;
@@ -23,6 +26,7 @@ const Dashboard = () => {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: platforms = [], isLoading: platformsLoading } = usePlatforms();
   const [activeSection, setActiveSection] = useState("overview");
+  const { showTour, completeTour } = useOnboardingTour();
 
   const loading = profileLoading || platformsLoading;
 
@@ -38,11 +42,7 @@ const Dashboard = () => {
   }, [profile?.tokens]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   const renderSection = () => {
@@ -55,6 +55,8 @@ const Dashboard = () => {
         return <TokensSection profile={profile ?? null} />;
       case "developer":
         return <DeveloperTab isDeveloper={profile?.is_developer ?? false} platforms={platforms} />;
+      case "referral":
+        return <ReferralSection />;
       default:
         return <OverviewSection profile={profile ?? null} platforms={platforms} onNavigate={setActiveSection} />;
     }
@@ -84,11 +86,13 @@ const Dashboard = () => {
               </Link>
             </div>
           </header>
-          <main className="flex-1 p-6 max-w-4xl w-full">
+          <main className="flex-1 p-4 md:p-6 max-w-4xl w-full overflow-y-auto">
             {renderSection()}
           </main>
         </div>
       </div>
+
+      {showTour && <OnboardingTour onComplete={completeTour} />}
     </SidebarProvider>
   );
 };
