@@ -21,14 +21,14 @@ const ReferralSection = () => {
     // Fetch referral stats
     const fetchStats = async () => {
       const { data } = await supabase
-        .from("referrals")
+        .from("referrals" as any)
         .select("id, tokens_rewarded")
         .eq("referrer_id", user.id);
 
-      if (data) {
+      if (data && Array.isArray(data)) {
         setStats({
           totalReferred: data.length,
-          tokensEarned: data.reduce((sum, r) => sum + (r.tokens_rewarded || 0), 0),
+          tokensEarned: data.reduce((sum: number, r: any) => sum + (r.tokens_rewarded || 0), 0),
         });
       }
     };
