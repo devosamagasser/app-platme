@@ -124,6 +124,48 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          tokens_rewarded: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          tokens_rewarded?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          tokens_rewarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_features: {
         Row: {
           active: boolean | null
