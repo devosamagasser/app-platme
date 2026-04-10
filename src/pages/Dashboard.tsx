@@ -1,39 +1,40 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { usePlatforms } from "@/hooks/usePlatforms";
-import { Switch } from "@/components/ui/switch";
-import { Coins, Plus, LogOut, Code2, Globe, Home } from "lucide-react";
+import { Coins, Plus, LogOut, Globe, Home } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import TokenPackages from "@/components/dashboard/TokenPackages";
+import DeveloperTab from "@/components/dashboard/DeveloperTab";
+import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+
+const LOW_BALANCE_THRESHOLD = 10;
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: platforms = [], isLoading: platformsLoading } = usePlatforms();
 
   const loading = profileLoading || platformsLoading;
 
-  const toggleDeveloper = async () => {
-    if (!user || !profile) return;
-    const newVal = !profile.is_developer;
-    const { error } = await supabase
-      .from("profiles")
-      .update({ is_developer: newVal })
-      .eq("id", user.id);
-    if (!error) {
-      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
-      toast({ title: newVal ? t("dashboard.devEnabled") : t("dashboard.devDisabled") });
+  // Low balance notification
+  useEffect(() => {
+    if (profile && profile.tokens <= LOW_BALANCE_THRESHOLD) {
+      toast({
+        title: t("dashboard.lowBalanceTitle"),
+        description: t("dashboard.lowBalanceDesc", { count: profile.tokens }),
+        variant: "destructive",
+      });
     }
-  };
+  }, [profile?.tokens]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -65,81 +66,88 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Tokens Card */}
-        <div className="panel-glass p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-              <Coins className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                {t("dashboard.tokens")}
-              </div>
-              <span className="text-2xl font-bold text-primary">{profile?.tokens ?? 0}</span>
-            </div>
-          </div>
-          <button className="px-4 py-2 rounded-lg border border-primary/20 text-xs font-mono uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors">
-            {t("dashboard.buyTokens")}
-          </button>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="bg-card border border-primary/10">
+            <TabsTrigger value="general">{t("dashboard.tabGeneral")}</TabsTrigger>
+            <TabsTrigger value="developer">{t("dashboard.tabDeveloper")}</TabsTrigger>
+          </TabsList>
 
-        {/* Developer Toggle */}
-        <div className="panel-glass p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Code2 className="w-5 h-5 text-primary/70" />
-            <div>
-              <span className="text-sm font-semibold">{t("dashboard.developerAccount")}</span>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {t("dashboard.developerDesc")}
-              </p>
-            </div>
-          </div>
-          <Switch checked={profile?.is_developer ?? false} onCheckedChange={toggleDeveloper} />
-        </div>
-
-        {/* Platforms */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-mono uppercase tracking-widest text-primary/70">
-              {t("dashboard.platforms")}
-            </h2>
-            <button
-              onClick={() => navigate("/select")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              {t("dashboard.newPlatform")}
-            </button>
-          </div>
-
-          {platforms.length === 0 ? (
-            <div className="panel-glass p-8 text-center">
-              <Globe className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">{t("dashboard.noPlatforms")}</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {platforms.map((p) => (
-                <div key={p.id} className="panel-glass p-4 flex items-center justify-between">
-                  <div>
-                    <span className="text-sm font-semibold">{p.subdomain}.platme.com</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full ${
-                        p.status === "active" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {p.status}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        ${p.monthly_price}/mo
-                      </span>
-                    </div>
-                  </div>
+          {/* General Tab */}
+          <TabsContent value="general" className="space-y-6">
+            {/* Tokens Card */}
+            <div className="panel-glass p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Coins className="w-5 h-5 text-primary" />
                 </div>
-              ))}
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                    {t("dashboard.tokens")}
+                  </div>
+                  <span className="text-2xl font-bold text-primary">{profile?.tokens ?? 0}</span>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Token Packages */}
+            <TokenPackages />
+
+            {/* Transaction History */}
+            <TransactionHistory />
+
+            {/* Platforms */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-mono uppercase tracking-widest text-primary/70">
+                  {t("dashboard.platforms")}
+                </h2>
+                <button
+                  onClick={() => navigate("/select")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {t("dashboard.newPlatform")}
+                </button>
+              </div>
+
+              {platforms.length === 0 ? (
+                <div className="panel-glass p-8 text-center">
+                  <Globe className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noPlatforms")}</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {platforms.map((p) => (
+                    <div key={p.id} className="panel-glass p-4 flex items-center justify-between">
+                      <div>
+                        <span className="text-sm font-semibold">{p.subdomain}.platme.com</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full ${
+                            p.status === "active" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                          }`}>
+                            {p.status}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            ${p.monthly_price}/mo
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Developer Tab */}
+          <TabsContent value="developer" className="space-y-6">
+            <DeveloperTab
+              isDeveloper={profile?.is_developer ?? false}
+              platforms={platforms}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
