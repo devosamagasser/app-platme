@@ -110,6 +110,7 @@
     "loadingModules": "Loading modules…",
     "gomaaTitle": "Gomaa — System Architect",
     "gomaaLabel": "Gomaa",
+    "gomaaSubtitle": "System Architect",
     "initialMessage": "Awaiting system intent. Describe the infrastructure you wish to provision.",
     "placeholder": "Describe what you need...",
     "featureCatalog": "Feature Catalog",
@@ -118,7 +119,13 @@
     "chatTab": "Chat",
     "previewTab": "Preview",
     "features": "Features",
-    "tokens": "tokens"
+    "tokens": "tokens",
+    "welcomeTitle": "Hey! I'm Gomaa 👋",
+    "welcomeDesc": "Your AI system architect. Tell me what you want to build and I'll design the perfect module setup.",
+    "suggestModules": "Suggest modules",
+    "suggestPayment": "Add payments",
+    "suggestUsers": "User management",
+    "suggestAnalytics": "Add analytics"
   },
   "configure": {
     "backToDesigner": "Back to Designer",

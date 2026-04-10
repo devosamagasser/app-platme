@@ -110,6 +110,7 @@
     "loadingModules": "جاري تحميل الوحدات…",
     "gomaaTitle": "جمعة — مهندس الأنظمة",
     "gomaaLabel": "جمعة",
+    "gomaaSubtitle": "مهندس الأنظمة",
     "initialMessage": "في انتظار نية النظام. صِف البنية التحتية التي تريد توفيرها.",
     "placeholder": "صِف ما تحتاجه...",
     "featureCatalog": "كتالوج الميزات",
@@ -118,7 +119,13 @@
     "chatTab": "المحادثة",
     "previewTab": "المعاينة",
     "features": "الميزات",
-    "tokens": "توكن"
+    "tokens": "توكن",
+    "welcomeTitle": "أهلاً! أنا جمعة 👋",
+    "welcomeDesc": "مهندس الأنظمة الذكي. قولي عايز تبني إيه وهصمملك أحسن تقسيمة موديولات.",
+    "suggestModules": "اقترح موديولات",
+    "suggestPayment": "نظام الدفع",
+    "suggestUsers": "إدارة المستخدمين",
+    "suggestAnalytics": "تقارير وإحصائيات"
   },
   "configure": {
     "backToDesigner": "رجوع للمُصمم",
