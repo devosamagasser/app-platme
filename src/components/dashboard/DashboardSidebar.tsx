@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Globe, Coins, Code2, Gift, LogOut, ShieldCheck } from "lucide-react";
-import { useIsAdmin } from "@/hooks/useAdminData";
+import { LayoutDashboard, Globe, Coins, Code2, Gift, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
