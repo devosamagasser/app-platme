@@ -27,6 +27,7 @@ const DashboardSidebar = ({ activeSection, onSectionChange, isDeveloper, onSignO
   const { t } = useTranslation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { data: isAdmin } = useIsAdmin();
 
   const menuItems = [
     { id: "overview", icon: LayoutDashboard, label: t("dashboard.sidebarOverview") },
