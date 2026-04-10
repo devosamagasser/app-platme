@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Globe, Coins, Code2, LogOut, Home } from "lucide-react";
-import { Link } from "react-router-dom";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { LayoutDashboard, Globe, Coins, Code2, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
