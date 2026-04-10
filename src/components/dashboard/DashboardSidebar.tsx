@@ -10,8 +10,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
+import logo from "@/assets/logo.png";
 
 interface DashboardSidebarProps {
   activeSection: string;
